@@ -1,212 +1,259 @@
 <!DOCTYPE html>
 <html lang="fa" dir="rtl">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>مدیریت Nova Store</title>
+  <title>مدیریت Nova Store</title>
 
-<style>
-* {
-  box-sizing: border-box;
-}
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-body {
-  margin: 0;
-  padding: 20px;
-  font-family: Arial, sans-serif;
-  background: #f4f4f5;
-  color: #111;
-}
+  <style>
+    * {
+      box-sizing: border-box;
+      font-family: Tahoma, sans-serif;
+    }
 
-.box {
-  width: 100%;
-  max-width: 650px;
-  margin: 30px auto;
-  background: #fff;
-  padding: 25px;
-  border-radius: 18px;
-  box-shadow: 0 5px 20px rgba(0,0,0,0.08);
-}
+    body {
+      margin: 0;
+      background: #f5f6fa;
+      color: #222;
+    }
 
-h1 {
-  text-align: center;
-  margin-bottom: 30px;
-}
+    .container {
+      width: min(100% - 30px, 900px);
+      margin: 40px auto;
+    }
 
-h2 {
-  margin-top: 25px;
-}
+    .box {
+      background: white;
+      padding: 25px;
+      border-radius: 18px;
+      box-shadow: 0 5px 20px rgba(0,0,0,.08);
+      margin-bottom: 20px;
+    }
 
-input,
-textarea,
-button {
-  width: 100%;
-  margin-top: 10px;
-  padding: 13px;
-  border-radius: 9px;
-  border: 1px solid #ccc;
-  font-size: 16px;
-}
+    h1, h2 {
+      margin-top: 0;
+    }
 
-textarea {
-  min-height: 100px;
-  resize: vertical;
-}
+    input,
+    textarea,
+    select {
+      width: 100%;
+      padding: 12px;
+      margin: 7px 0;
+      border: 1px solid #ddd;
+      border-radius: 10px;
+      font-size: 14px;
+    }
 
-button {
-  border: none;
-  background: #111;
-  color: white;
-  cursor: pointer;
-  font-weight: bold;
-}
+    textarea {
+      min-height: 90px;
+      resize: vertical;
+    }
 
-button:hover {
-  opacity: 0.9;
-}
+    button {
+      border: 0;
+      padding: 11px 16px;
+      border-radius: 10px;
+      cursor: pointer;
+      font-size: 14px;
+      margin: 4px;
+    }
 
-#status {
-  margin-top: 15px;
-  padding: 10px;
-  border-radius: 8px;
-  text-align: center;
-  display: none;
-}
+    .login-btn,
+    .add-btn {
+      background: #111827;
+      color: white;
+      width: 100%;
+    }
 
-.product {
-  margin-top: 15px;
-  padding: 15px;
-  background: #f5f5f5;
-  border-radius: 12px;
-}
+    .edit-btn {
+      background: #2563eb;
+      color: white;
+    }
 
-.delete {
-  background: #d32f2f;
-}
+    .delete-btn {
+      background: #dc2626;
+      color: white;
+    }
 
-label {
-  display: block;
-  margin-top: 15px;
-}
+    .cancel-btn {
+      background: #e5e7eb;
+      color: #111;
+    }
 
-#is_new {
-  width: auto;
-  margin-left: 5px;
-}
-</style>
+    .product {
+      border: 1px solid #eee;
+      padding: 18px;
+      border-radius: 15px;
+      margin-top: 12px;
+      background: #fafafa;
+    }
+
+    .product img {
+      width: 100px;
+      height: 100px;
+      object-fit: cover;
+      border-radius: 12px;
+      margin-bottom: 10px;
+    }
+
+    .price {
+      font-weight: bold;
+      color: #16a34a;
+    }
+
+    .status {
+      white-space: pre-line;
+      margin-top: 12px;
+      padding: 10px;
+      border-radius: 10px;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    label {
+      display: block;
+      margin-top: 10px;
+      font-weight: bold;
+      font-size: 13px;
+    }
+
+    .checkbox-row {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      margin: 10px 0;
+    }
+
+    .checkbox-row input {
+      width: auto;
+    }
+  </style>
 </head>
 
 <body>
 
-<div class="box">
+<div class="container">
 
-<h1>🛍️ مدیریت Nova Store</h1>
+  <!-- LOGIN -->
+  <div class="box" id="loginBox">
+    <h1>🔐 ورود به مدیریت</h1>
+
+    <input
+      type="email"
+      id="email"
+      placeholder="ایمیل"
+    >
+
+    <input
+      type="password"
+      id="password"
+      placeholder="رمز عبور"
+    >
+
+    <button class="login-btn" id="loginButton">
+      ورود
+    </button>
+
+    <div id="loginStatus" class="status"></div>
+  </div>
 
 
-<!-- ==================== ورود ==================== -->
+  <!-- ADMIN PANEL -->
+  <div class="hidden" id="adminPanel">
 
-<div id="loginBox">
+    <div class="box">
+      <h1>🛍️ مدیریت Nova Store</h1>
+      <p>از اینجا محصولات فروشگاه را مدیریت کن.</p>
+    </div>
 
-<h2>ورود مدیر</h2>
 
-<input
-  id="email"
-  type="email"
-  placeholder="ایمیل"
-  autocomplete="email"
->
+    <!-- ADD / EDIT -->
+    <div class="box">
 
-<input
-  id="password"
-  type="password"
-  placeholder="رمز عبور"
-  autocomplete="current-password"
->
+      <h2 id="formTitle">➕ افزودن محصول</h2>
 
-<button id="loginButton" type="button">
-ورود
-</button>
+      <input type="hidden" id="editId">
 
-<div id="status"></div>
+      <label>نام محصول</label>
+      <input id="name" placeholder="مثلاً هدفون بی‌سیم">
+
+      <label>دسته‌بندی</label>
+      <input id="category" placeholder="مثلاً لوازم دیجیتال">
+
+      <label>توضیحات</label>
+      <textarea
+        id="description"
+        placeholder="توضیحات محصول"
+      ></textarea>
+
+      <label>قیمت</label>
+      <input
+        id="price"
+        type="number"
+        placeholder="مثلاً 1990000"
+      >
+
+      <label>قیمت قبلی</label>
+      <input
+        id="old_price"
+        type="number"
+        placeholder="اختیاری"
+      >
+
+      <label>لینک تصویر</label>
+      <input
+        id="image"
+        placeholder="https://..."
+      >
+
+      <label>متن تخفیف</label>
+      <input
+        id="discount"
+        placeholder="مثلاً 20٪ تخفیف"
+      >
+
+      <div class="checkbox-row">
+        <input type="checkbox" id="is_new">
+        <label for="is_new">محصول جدید است</label>
+      </div>
+
+      <button class="add-btn" id="saveButton">
+        ➕ افزودن محصول
+      </button>
+
+      <button
+        class="cancel-btn hidden"
+        id="cancelEditButton"
+      >
+        لغو ویرایش
+      </button>
+
+      <div id="formStatus" class="status"></div>
+
+    </div>
+
+
+    <!-- PRODUCTS -->
+    <div class="box">
+
+      <h2>📦 محصولات</h2>
+
+      <div id="productsList">
+        در حال دریافت محصولات...
+      </div>
+
+    </div>
+
+  </div>
 
 </div>
 
-
-<!-- ==================== پنل مدیریت ==================== -->
-
-<div id="adminPanel" style="display:none;">
-
-<h2>➕ افزودن محصول</h2>
-
-<input
-  id="name"
-  type="text"
-  placeholder="نام محصول"
->
-
-<input
-  id="category"
-  type="text"
-  placeholder="دسته‌بندی"
->
-
-<textarea
-  id="description"
-  placeholder="توضیحات محصول"
-></textarea>
-
-<input
-  id="price"
-  type="number"
-  placeholder="قیمت"
->
-
-<input
-  id="old_price"
-  type="number"
-  placeholder="قیمت قبلی"
->
-
-<input
-  id="image"
-  type="text"
-  placeholder="لینک عکس محصول"
->
-
-<input
-  id="discount"
-  type="text"
-  placeholder="تخفیف، مثلا 20٪"
->
-
-<label>
-<input
-  id="is_new"
-  type="checkbox"
->
-محصول جدید
-</label>
-
-<button id="addButton" type="button">
-افزودن محصول
-</button>
-
-
-<h2>📦 محصولات</h2>
-
-<div id="products">
-در حال دریافت محصولات...
-</div>
-
-</div>
-
-</div>
-
-
-<!-- ==================== Supabase ==================== -->
-
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <script>
 
@@ -216,37 +263,57 @@ const SUPABASE_URL =
 const SUPABASE_PUBLISHABLE_KEY =
 "sb_publishable_rU0rSsuonmSoDYzK9-S1ig_uNPkAOha";
 
-
-const supabaseClient = window.supabase.createClient(
+const supabaseClient =
+window.supabase.createClient(
   SUPABASE_URL,
   SUPABASE_PUBLISHABLE_KEY
 );
 
 
-// ==================== وضعیت ====================
+// =========================
+// عناصر صفحه
+// =========================
 
-function showStatus(message, success = false) {
+const loginBox =
+document.getElementById("loginBox");
 
-  const status = document.getElementById("status");
+const adminPanel =
+document.getElementById("adminPanel");
 
-  status.style.display = "block";
-  status.textContent = message;
+const loginButton =
+document.getElementById("loginButton");
 
-  status.style.background = success
-    ? "#d9f7df"
-    : "#ffe0e0";
+const loginStatus =
+document.getElementById("loginStatus");
 
-  status.style.color = success
-    ? "#146c2e"
-    : "#a00000";
+const saveButton =
+document.getElementById("saveButton");
+
+const cancelEditButton =
+document.getElementById("cancelEditButton");
+
+const productsList =
+document.getElementById("productsList");
+
+
+// =========================
+// وضعیت
+// =========================
+
+function showLoginStatus(message) {
+  loginStatus.textContent = message;
+}
+
+function showFormStatus(message) {
+  document.getElementById("formStatus").textContent = message;
 }
 
 
-// ==================== ورود ====================
+// =========================
+// ورود
+// =========================
 
-document
-.getElementById("loginButton")
-.addEventListener("click", async function() {
+loginButton.addEventListener("click", async function() {
 
   const email =
     document.getElementById("email").value.trim();
@@ -254,87 +321,191 @@ document
   const password =
     document.getElementById("password").value;
 
-
   if (!email || !password) {
-
-    showStatus(
-      "❌ ایمیل و رمز عبور را وارد کن."
-    );
-
+    showLoginStatus("❌ ایمیل و رمز عبور را وارد کن.");
     return;
   }
 
-
-  const button =
-    document.getElementById("loginButton");
-
-  button.disabled = true;
-  button.textContent = "در حال ورود...";
-
+  loginButton.disabled = true;
+  loginButton.textContent = "در حال ورود...";
 
   const { data, error } =
     await supabaseClient.auth.signInWithPassword({
-
       email: email,
-
       password: password
-
     });
-
 
   if (error) {
 
-    button.disabled = false;
-    button.textContent = "ورود";
+    loginButton.disabled = false;
+    loginButton.textContent = "ورود";
 
-    showStatus(
-      "❌ ورود ناموفق بود: " +
+    showLoginStatus(
+      "❌ ورود ناموفق بود:\n" +
       error.message
     );
 
     return;
   }
 
-
   if (!data || !data.user) {
 
-    button.disabled = false;
-    button.textContent = "ورود";
+    loginButton.disabled = false;
+    loginButton.textContent = "ورود";
 
-    showStatus(
-      "❌ ورود انجام نشد."
-    );
+    showLoginStatus("❌ ورود انجام نشد.");
 
     return;
   }
 
+  showLoginStatus("✅ ورود موفق بود.");
 
-  showStatus(
-    "✅ ورود موفق بود.",
-    true
-  );
-
-
-  document
-    .getElementById("loginBox")
-    .style.display = "none";
-
-
-  document
-    .getElementById("adminPanel")
-    .style.display = "block";
-
+  loginBox.style.display = "none";
+  adminPanel.classList.remove("hidden");
 
   await loadProducts();
 
 });
 
 
-// ==================== افزودن محصول ====================
+// =========================
+// دریافت محصولات
+// =========================
 
-document
-.getElementById("addButton")
-.addEventListener("click", async function() {
+async function loadProducts() {
+
+  productsList.textContent =
+    "در حال دریافت محصولات...";
+
+  const { data, error } =
+    await supabaseClient
+      .from("products")
+      .select("*")
+      .order("id", {
+        ascending: false
+      });
+
+  if (error) {
+
+    productsList.textContent =
+      "❌ خطا در دریافت محصولات:\n" +
+      error.message;
+
+    return;
+  }
+
+  if (!data || data.length === 0) {
+
+    productsList.textContent =
+      "هنوز محصولی ثبت نشده است.";
+
+    return;
+  }
+
+  productsList.innerHTML = "";
+
+  data.forEach(function(product) {
+
+    const div =
+      document.createElement("div");
+
+    div.className = "product";
+
+    let imageHTML = "";
+
+    if (product.image) {
+
+      imageHTML = `
+        <img
+          src="${escapeHTML(product.image)}"
+          alt="${escapeHTML(product.name || "")}"
+        >
+      `;
+
+    }
+
+    div.innerHTML = `
+
+      ${imageHTML}
+
+      <h3>
+        ${escapeHTML(product.name || "بدون نام")}
+      </h3>
+
+      <p>
+        دسته‌بندی:
+        ${escapeHTML(product.category || "-")}
+      </p>
+
+      <p>
+        ${escapeHTML(product.description || "")}
+      </p>
+
+      <p class="price">
+        قیمت:
+        ${formatPrice(product.price)}
+        تومان
+      </p>
+
+      ${
+        product.old_price
+        ? `<p>
+            قیمت قبلی:
+            ${formatPrice(product.old_price)}
+            تومان
+           </p>`
+        : ""
+      }
+
+      ${
+        product.discount
+        ? `<p>
+            🏷️ ${escapeHTML(product.discount)}
+           </p>`
+        : ""
+      }
+
+      ${
+        product.is_new
+        ? `<p>🆕 محصول جدید</p>`
+        : ""
+      }
+
+      <div>
+
+        <button
+          class="edit-btn"
+          onclick="editProduct(${product.id})"
+        >
+          ✏️ ویرایش
+        </button>
+
+        <button
+          class="delete-btn"
+          onclick="deleteProduct(${product.id})"
+        >
+          🗑️ حذف محصول
+        </button>
+
+      </div>
+
+    `;
+
+    productsList.appendChild(div);
+
+  });
+
+}
+
+
+// =========================
+// افزودن / ویرایش
+// =========================
+
+saveButton.addEventListener("click", async function() {
+
+  const editId =
+    document.getElementById("editId").value;
 
   const product = {
 
@@ -348,10 +519,14 @@ document
       document.getElementById("description").value.trim(),
 
     price:
-      document.getElementById("price").value,
+      document.getElementById("price").value
+        ? Number(document.getElementById("price").value)
+        : null,
 
     old_price:
-      document.getElementById("old_price").value || null,
+      document.getElementById("old_price").value
+        ? Number(document.getElementById("old_price").value)
+        : null,
 
     image:
       document.getElementById("image").value.trim(),
@@ -365,26 +540,105 @@ document
   };
 
 
-  if (!product.name || !product.price) {
+  if (!product.name) {
 
-    alert(
-      "❌ نام محصول و قیمت را وارد کن."
+    showFormStatus(
+      "❌ نام محصول را وارد کن."
     );
 
     return;
   }
 
 
-  const { error } =
+  saveButton.disabled = true;
+  saveButton.textContent =
+    editId
+      ? "در حال ذخیره تغییرات..."
+      : "در حال افزودن...";
+
+
+  // ویرایش
+  if (editId) {
+
+    const { error } =
+      await supabaseClient
+        .from("products")
+        .update(product)
+        .eq("id", editId);
+
+    if (error) {
+
+      showFormStatus(
+        "❌ خطا در ویرایش:\n" +
+        error.message
+      );
+
+    } else {
+
+      showFormStatus(
+        "✅ محصول با موفقیت ویرایش شد."
+      );
+
+      resetForm();
+
+      await loadProducts();
+
+    }
+
+  }
+
+  // افزودن
+  else {
+
+    const { error } =
+      await supabaseClient
+        .from("products")
+        .insert([product]);
+
+    if (error) {
+
+      showFormStatus(
+        "❌ خطا در افزودن:\n" +
+        error.message
+      );
+
+    } else {
+
+      showFormStatus(
+        "✅ محصول جدید اضافه شد."
+      );
+
+      resetForm();
+
+      await loadProducts();
+
+    }
+
+  }
+
+
+  saveButton.disabled = false;
+
+});
+
+
+// =========================
+// شروع ویرایش
+// =========================
+
+async function editProduct(id) {
+
+  const { data, error } =
     await supabaseClient
       .from("products")
-      .insert([product]);
-
+      .select("*")
+      .eq("id", id)
+      .single();
 
   if (error) {
 
-    alert(
-      "❌ خطا در افزودن محصول:\n" +
+    showFormStatus(
+      "❌ خطا در دریافت محصول:\n" +
       error.message
     );
 
@@ -392,8 +646,68 @@ document
   }
 
 
-  alert("✅ محصول با موفقیت اضافه شد.");
+  document.getElementById("editId").value =
+    data.id;
 
+  document.getElementById("name").value =
+    data.name || "";
+
+  document.getElementById("category").value =
+    data.category || "";
+
+  document.getElementById("description").value =
+    data.description || "";
+
+  document.getElementById("price").value =
+    data.price ?? "";
+
+  document.getElementById("old_price").value =
+    data.old_price ?? "";
+
+  document.getElementById("image").value =
+    data.image || "";
+
+  document.getElementById("discount").value =
+    data.discount || "";
+
+  document.getElementById("is_new").checked =
+    data.is_new === true;
+
+
+  document.getElementById("formTitle").textContent =
+    "✏️ ویرایش محصول";
+
+  saveButton.textContent =
+    "💾 ذخیره تغییرات";
+
+  cancelEditButton.classList.remove("hidden");
+
+
+  window.scrollTo({
+    top: 0,
+    behavior: "smooth"
+  });
+
+}
+
+
+// =========================
+// لغو ویرایش
+// =========================
+
+cancelEditButton.addEventListener(
+  "click",
+  function() {
+
+    resetForm();
+
+  }
+);
+
+
+function resetForm() {
+
+  document.getElementById("editId").value = "";
 
   document.getElementById("name").value = "";
   document.getElementById("category").value = "";
@@ -404,107 +718,29 @@ document
   document.getElementById("discount").value = "";
   document.getElementById("is_new").checked = false;
 
+  document.getElementById("formTitle").textContent =
+    "➕ افزودن محصول";
 
-  await loadProducts();
+  saveButton.textContent =
+    "➕ افزودن محصول";
 
-});
+  cancelEditButton.classList.add("hidden");
 
-
-// ==================== دریافت محصولات ====================
-
-async function loadProducts() {
-
-  const container =
-    document.getElementById("products");
-
-
-  const { data, error } =
-    await supabaseClient
-      .from("products")
-      .select("*")
-      .order("id", {
-        ascending: false
-      });
-
-
-  if (error) {
-
-    container.innerHTML =
-      "<p>❌ خطا در دریافت محصولات: " +
-      error.message +
-      "</p>";
-
-    return;
-  }
-
-
-  if (!data || data.length === 0) {
-
-    container.innerHTML =
-      "<p>هنوز محصولی اضافه نشده است.</p>";
-
-    return;
-  }
-
-
-  container.innerHTML = "";
-
-
-  data.forEach(function(product) {
-
-    const div =
-      document.createElement("div");
-
-    div.className = "product";
-
-
-    div.innerHTML = `
-
-      <strong>${escapeHTML(product.name)}</strong>
-
-      <p>
-        دسته‌بندی:
-        ${escapeHTML(product.category || "-")}
-      </p>
-
-      <p>
-        قیمت:
-        ${product.price || "-"}
-      </p>
-
-      <p>
-        ${escapeHTML(product.description || "")}
-      </p>
-
-      <button
-        class="delete"
-        type="button"
-        onclick="deleteProduct(${product.id})"
-      >
-        حذف محصول
-      </button>
-
-    `;
-
-
-    container.appendChild(div);
-
-  });
+  showFormStatus("");
 
 }
 
 
-// ==================== حذف محصول ====================
+// =========================
+// حذف محصول
+// =========================
 
 async function deleteProduct(id) {
 
-  const answer =
-    confirm(
-      "آیا از حذف این محصول مطمئنی؟"
-    );
+  const confirmDelete =
+    confirm("آیا مطمئنی می‌خواهی این محصول حذف شود؟");
 
-
-  if (!answer) {
+  if (!confirmDelete) {
     return;
   }
 
@@ -518,8 +754,8 @@ async function deleteProduct(id) {
 
   if (error) {
 
-    alert(
-      "❌ خطا در حذف محصول:\n" +
+    showFormStatus(
+      "❌ خطا در حذف:\n" +
       error.message
     );
 
@@ -527,21 +763,41 @@ async function deleteProduct(id) {
   }
 
 
-  alert(
+  showFormStatus(
     "✅ محصول حذف شد."
   );
-
 
   await loadProducts();
 
 }
 
 
-// ==================== امنیت نمایش متن ====================
+// =========================
+// فرمت قیمت
+// =========================
 
-function escapeHTML(text) {
+function formatPrice(price) {
 
-  return String(text)
+  if (
+    price === null ||
+    price === undefined ||
+    price === ""
+  ) {
+    return "-";
+  }
+
+  return Number(price).toLocaleString("fa-IR");
+
+}
+
+
+// =========================
+// جلوگیری از HTML خطرناک
+// =========================
+
+function escapeHTML(value) {
+
+  return String(value)
     .replace(/&/g, "&amp;")
     .replace(/</g, "&lt;")
     .replace(/>/g, "&gt;")
