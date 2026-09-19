@@ -1,1 +1,151 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>مدیریت Nova Store</title>
 
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f5f5f5;
+      margin: 0;
+      padding: 20px;
+    }
+
+    .box {
+      max-width: 600px;
+      margin: auto;
+      background: white;
+      padding: 25px;
+      border-radius: 15px;
+      box-shadow: 0 4px 15px #ddd;
+    }
+
+    h1 {
+      text-align: center;
+    }
+
+    input, textarea, button {
+      width: 100%;
+      box-sizing: border-box;
+      margin-top: 10px;
+      padding: 12px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      font-size: 16px;
+    }
+
+    button {
+      background: #111;
+      color: white;
+      cursor: pointer;
+    }
+
+    .product {
+      margin-top: 15px;
+      padding: 15px;
+      background: #f1f1f1;
+      border-radius: 10px;
+    }
+  </style>
+</head>
+
+<body>
+
+<div class="box">
+
+  <h1>🛍️ مدیریت Nova Store</h1>
+
+  <h2>افزودن محصول</h2>
+
+  <input id="name" placeholder="نام محصول">
+
+  <input id="price" placeholder="قیمت">
+
+  <input id="image" placeholder="لینک عکس محصول">
+
+  <textarea id="description" placeholder="توضیحات محصول"></textarea>
+
+  <button onclick="addProduct()">افزودن محصول</button>
+
+  <h2>محصولات</h2>
+
+  <div id="products"></div>
+
+</div>
+
+<script>
+
+let products = JSON.parse(localStorage.getItem("novaProducts")) || [];
+
+function showProducts() {
+
+  const container = document.getElementById("products");
+
+  container.innerHTML = "";
+
+  products.forEach((product, index) => {
+
+    container.innerHTML += `
+      <div class="product">
+        <strong>${product.name}</strong>
+        <p>قیمت: ${product.price}</p>
+        <p>${product.description}</p>
+
+        <button onclick="deleteProduct(${index})">
+          حذف محصول
+        </button>
+      </div>
+    `;
+
+  });
+
+}
+
+function addProduct() {
+
+  const name = document.getElementById("name").value;
+  const price = document.getElementById("price").value;
+  const image = document.getElementById("image").value;
+  const description = document.getElementById("description").value;
+
+  if (!name || !price) {
+    alert("نام و قیمت را وارد کن");
+    return;
+  }
+
+  products.push({
+    name,
+    price,
+    image,
+    description
+  });
+
+  localStorage.setItem("novaProducts", JSON.stringify(products));
+
+  document.getElementById("name").value = "";
+  document.getElementById("price").value = "";
+  document.getElementById("image").value = "";
+  document.getElementById("description").value = "";
+
+  showProducts();
+
+}
+
+function deleteProduct(index) {
+
+  products.splice(index, 1);
+
+  localStorage.setItem("novaProducts", JSON.stringify(products));
+
+  showProducts();
+
+}
+
+showProducts();
+
+</script>
+
+</body>
+  </html>
