@@ -206,11 +206,20 @@
         placeholder="اختیاری"
       >
 
-      <label>لینک تصویر</label>
-      <input
-        id="image"
-        placeholder="https://..."
-      >
+      <label>تصویر محصول</label>
+
+<input
+  type="file"
+  id="imageFile"
+  accept="image/*"
+>
+
+<input
+  type="hidden"
+  id="image"
+>
+
+<p id="imageStatus"></p>
 
       <label>متن تخفیف</label>
       <input
