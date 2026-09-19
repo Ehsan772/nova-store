@@ -113,140 +113,12 @@
     </div>
 
 
+    <!-- محصولات Supabase اینجا قرار می‌گیرند -->
     <div class="products" id="product-list">
 
-        <!-- Product 1 -->
-        <div class="product">
-
-            <div class="product-image">
-                <span class="discount">20٪ تخفیف</span>
-
-                <img src="https://picsum.photos/500/500?random=11">
-            </div>
-
-            <div class="product-info">
-
-                <small>لوازم دیجیتال</small>
-
-                <h3>هدفون بی‌سیم Pro</h3>
-
-                <p>
-                    صدای باکیفیت با طراحی مدرن
-                </p>
-
-                <div class="price">
-                    <del>۲,۵۰۰,۰۰۰</del>
-                    <strong>۱,۹۹۰,۰۰۰ تومان</strong>
-                </div>
-
-                <button onclick="addToCart('هدفون بی‌سیم Pro')">
-                    افزودن به سبد
-                </button>
-
-            </div>
-
-        </div>
-
-
-        <!-- Product 2 -->
-        <div class="product">
-
-            <div class="product-image">
-
-                <span class="discount">15٪ تخفیف</span>
-
-                <img src="https://picsum.photos/500/500?random=12">
-
-            </div>
-
-            <div class="product-info">
-
-                <small>پوشاک</small>
-
-                <h3>هودی مینیمال</h3>
-
-                <p>
-                    راحت، ساده و مناسب استفاده روزمره
-                </p>
-
-                <div class="price">
-                    <del>۱,۴۰۰,۰۰۰</del>
-                    <strong>۱,۱۹۰,۰۰۰ تومان</strong>
-                </div>
-
-                <button onclick="addToCart('هودی مینیمال')">
-                    افزودن به سبد
-                </button>
-
-            </div>
-
-        </div>
-
-
-        <!-- Product 3 -->
-        <div class="product">
-
-            <div class="product-image">
-
-                <span class="new">جدید</span>
-
-                <img src="https://picsum.photos/500/500?random=13">
-
-            </div>
-
-            <div class="product-info">
-
-                <small>اکسسوری</small>
-
-                <h3>ساعت کلاسیک</h3>
-
-                <p>
-                    طراحی شیک برای استایل روزانه
-                </p>
-
-                <div class="price">
-                    <strong>۲,۷۵۰,۰۰۰ تومان</strong>
-                </div>
-
-                <button onclick="addToCart('ساعت کلاسیک')">
-                    افزودن به سبد
-                </button>
-
-            </div>
-
-        </div>
-
-
-        <!-- Product 4 -->
-        <div class="product">
-
-            <div class="product-image">
-
-                <img src="https://picsum.photos/500/500?random=14">
-
-            </div>
-
-            <div class="product-info">
-
-                <small>کفش</small>
-
-                <h3>کتانی اسپرت</h3>
-
-                <p>
-                    سبک و مناسب استفاده روزانه
-                </p>
-
-                <div class="price">
-                    <strong>۳,۲۰۰,۰۰۰ تومان</strong>
-                </div>
-
-                <button onclick="addToCart('کتانی اسپرت')">
-                    افزودن به سبد
-                </button>
-
-            </div>
-
-        </div>
+        <p style="text-align:center; width:100%;">
+            در حال دریافت محصولات...
+        </p>
 
     </div>
 
@@ -336,7 +208,197 @@
 </div>
 
 
+<!-- Supabase -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script>
+
+const SUPABASE_URL =
+    "https://zwtbrgsphgjyczdibldj.supabase.co";
+
+const SUPABASE_PUBLISHABLE_KEY =
+    "sb_publishable_rU0rSsuonmSoDYzK9-S1ig_uNPkAOha";
+
+const supabaseClient = window.supabase.createClient(
+    SUPABASE_URL,
+    SUPABASE_PUBLISHABLE_KEY
+);
+
+
+// دریافت محصولات از Supabase
+async function loadStoreProducts() {
+
+    const productList = document.getElementById("product-list");
+
+    productList.innerHTML = `
+        <p style="text-align:center; width:100%;">
+            در حال دریافت محصولات...
+        </p>
+    `;
+
+    const { data, error } = await supabaseClient
+        .from("products")
+        .select("*")
+        .order("id", { ascending: false });
+
+
+    if (error) {
+
+        console.error(error);
+
+        productList.innerHTML = `
+            <p style="text-align:center; width:100%;">
+                ❌ خطا در دریافت محصولات
+            </p>
+        `;
+
+        return;
+    }
+
+
+    if (!data || data.length === 0) {
+
+        productList.innerHTML = `
+            <p style="text-align:center; width:100%;">
+                هنوز محصولی اضافه نشده است.
+            </p>
+        `;
+
+        return;
+    }
+
+
+    productList.innerHTML = "";
+
+
+    data.forEach(function(product) {
+
+        const card = document.createElement("div");
+
+        card.className = "product";
+
+
+        let discountHTML = "";
+
+        if (product.discount) {
+
+            discountHTML = `
+                <span class="discount">
+                    ${product.discount}
+                </span>
+            `;
+
+        }
+
+
+        let newHTML = "";
+
+        if (product.is_new) {
+
+            newHTML = `
+                <span class="new">
+                    جدید
+                </span>
+            `;
+
+        }
+
+
+        let oldPriceHTML = "";
+
+        if (
+            product.old_price !== null &&
+            product.old_price !== undefined &&
+            product.old_price !== ""
+        ) {
+
+            oldPriceHTML = `
+                <del>
+                    ${Number(product.old_price).toLocaleString("fa-IR")}
+                </del>
+            `;
+
+        }
+
+
+        const price = Number(product.price).toLocaleString("fa-IR");
+
+
+        const image =
+            product.image ||
+            "https://picsum.photos/500/500?random=50";
+
+
+        card.innerHTML = `
+
+            <div class="product-image">
+
+                ${discountHTML}
+
+                ${newHTML}
+
+                <img
+                    src="${image}"
+                    alt="${product.name}"
+                >
+
+            </div>
+
+
+            <div class="product-info">
+
+                <small>
+                    ${product.category || ""}
+                </small>
+
+
+                <h3>
+                    ${product.name}
+                </h3>
+
+
+                <p>
+                    ${product.description || ""}
+                </p>
+
+
+                <div class="price">
+
+                    ${oldPriceHTML}
+
+                    <strong>
+                        ${price} تومان
+                    </strong>
+
+                </div>
+
+
+                <button
+                    onclick="addToCart('${String(product.name).replace(/'/g, "\\'")}')"
+                >
+                    افزودن به سبد
+                </button>
+
+            </div>
+
+        `;
+
+
+        productList.appendChild(card);
+
+    });
+
+}
+
+
+// وقتی صفحه باز شد، محصولات را بگیر
+loadStoreProducts();
+
+</script>
+
+
+<!-- فایل اصلی امکانات سایت -->
 <script src="script.js"></script>
 
 </body>
-</html>
+    </html>
