@@ -515,7 +515,43 @@ saveButton.addEventListener("click", async function() {
 
   const editId =
     document.getElementById("editId").value;
+const file = document.getElementById("imageFile").files[0];
 
+let imageUrl =
+  document.getElementById("image").value.trim();
+
+if (file) {
+
+  const extension =
+    file.name.includes(".")
+      ? file.name.split(".").pop().toLowerCase()
+      : "jpg";
+
+  const fileName =
+    `${Date.now()}-${Math.random().toString(36).slice(2)}.${extension}`;
+
+  const { error: uploadError } =
+    await supabaseClient.storage
+      .from("products")
+      .upload(fileName, file);
+
+  if (uploadError) {
+
+    showFormStatus(
+      "❌ خطا در آپلود عکس:\n" +
+      uploadError.message
+    );
+
+    return;
+  }
+
+  const { data: publicUrlData } =
+    supabaseClient.storage
+      .from("products")
+      .getPublicUrl(fileName);
+
+  imageUrl = publicUrlData.publicUrl;
+}
   const product = {
 
     name:
