@@ -147,5 +147,15 @@ showProducts();
 
 </script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script>
+const SUPABASE_URL = "آدرس Project URL خودت";
+const SUPABASE_PUBLISHABLE_KEY = "Publishable Key خودت";
+
+const supabase = window.supabase.createClient(
+  SUPABASE_URL,
+  SUPABASE_PUBLISHABLE_KEY
+);
+</script>
 </body>
   </html>
