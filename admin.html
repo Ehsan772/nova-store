@@ -22,9 +22,7 @@ body {
   box-shadow: 0 4px 15px #ddd;
 }
 
-h1 {
-  text-align: center;
-}
+h1 { text-align: center; }
 
 input, textarea, button {
   width: 100%;
@@ -61,12 +59,16 @@ button {
 
 <h1>🛍️ مدیریت Nova Store</h1>
 
+<div id="loginBox">
+
 <h2>ورود مدیر</h2>
 
 <input id="email" type="email" placeholder="ایمیل">
 <input id="password" type="password" placeholder="رمز عبور">
 
-<button onclick="alert('تست دکمه')">ورود</button>
+<button id="loginButton">ورود</button>
+
+</div>
 
 <div id="adminPanel" style="display:none;">
 
@@ -79,26 +81,27 @@ button {
 <input id="old_price" type="number" placeholder="قیمت قبلی">
 <input id="image" placeholder="لینک عکس">
 <input id="discount" placeholder="تخفیف، مثلا 20٪">
+
 <label>
 <input id="is_new" type="checkbox" style="width:auto;">
- محصول جدید
+محصول جدید
 </label>
 
-<button onclick="addProduct()">افزودن محصول</button>
+<button id="addButton">افزودن محصول</button>
 
 <h2>محصولات</h2>
 
 <div id="products"></div>
 
 </div>
-
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <script>
 
-const SUPABASE_URL = "https://zwtbrgsphgjyczdibldj.supabase.co.";
+const SUPABASE_URL = "https://zwtbrgsphgjyczdibldj.supabase.co";
+
 const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_rU0rSsuonmSoDYzK9-S1ig_uNPkAOha";
 
 const supabase = window.supabase.createClient(
@@ -106,51 +109,74 @@ const supabase = window.supabase.createClient(
   SUPABASE_PUBLISHABLE_KEY
 );
 
-async function login() {
-alert("login اجرا شد");
-  const email = document.getElementById("email").value;
+
+// ورود مدیر
+document.getElementById("loginButton").addEventListener("click", async function() {
+
+  const email = document.getElementById("email").value.trim();
   const password = document.getElementById("password").value;
 
-  const { error } = await supabase.auth.signInWithPassword({
-    email,
-    password
-  });
-
-  if (error) {
-    alert("❌ ورود ناموفق بود: " + error.message);
+  if (!email || !password) {
+    alert("❌ ایمیل و رمز عبور را وارد کن");
     return;
   }
 
-  document.getElementById("adminPanel").style.display = "block";
-  loadProducts();
-}
+  const { error } = await supabase.auth.signInWithPassword({
+    email: email,
+    password: password
+  });
 
-async function addProduct() {
+  if (error) {
+    alert("❌ ورود ناموفق بود:\n" + error.message);
+    return;
+  }
+
+  alert("✅ ورود موفق بود");
+
+  document.getElementById("loginBox").style.display = "none";
+  document.getElementById("adminPanel").style.display = "block";
+
+  loadProducts();
+
+});
+
+
+// افزودن محصول
+document.getElementById("addButton").addEventListener("click", async function() {
 
   const product = {
-    name: document.getElementById("name").value,
-    category: document.getElementById("category").value,
-    description: document.getElementById("description").value,
+    name: document.getElementById("name").value.trim(),
+    category: document.getElementById("category").value.trim(),
+    description: document.getElementById("description").value.trim(),
     price: document.getElementById("price").value,
     old_price: document.getElementById("old_price").value || null,
-    image: document.getElementById("image").value,
-    discount: document.getElementById("discount").value,
+    image: document.getElementById("image").value.trim(),
+    discount: document.getElementById("discount").value.trim(),
     is_new: document.getElementById("is_new").checked
   };
 
+  if (!product.name || !product.price) {
+    alert("❌ نام محصول و قیمت را وارد کن");
+    return;
+  }
+
   const { error } = await supabase
     .from("products")
-    .insert(product);
+    .insert([product]);
 
   if (error) {
-    alert("❌ خطا: " + error.message);
+    alert("❌ خطا در افزودن محصول:\n" + error.message);
     return;
   }
 
   alert("✅ محصول اضافه شد");
-  loadProducts();
-}
 
+  loadProducts();
+
+});
+
+
+// نمایش محصولات
 async function loadProducts() {
 
   const { data, error } = await supabase
@@ -159,22 +185,30 @@ async function loadProducts() {
     .order("id", { ascending: false });
 
   if (error) {
-    alert("❌ خطا در دریافت محصولات: " + error.message);
+    alert("❌ خطا در دریافت محصولات:\n" + error.message);
     return;
   }
 
   const container = document.getElementById("products");
+
   container.innerHTML = "";
 
-  data.forEach(product => {
+  if (!data || data.length === 0) {
+    container.innerHTML = "<p>هنوز محصولی اضافه نشده.</p>";
+    return;
+  }
+
+  data.forEach(function(product) {
 
     container.innerHTML += `
       <div class="product">
         <strong>${product.name}</strong>
-        <p>قیمت: ${product.price}</p>
+        <p>دسته‌بندی: ${product.category || "-"}</p>
+        <p>قیمت: ${product.price || "-"}</p>
         <p>${product.description || ""}</p>
 
-        <button class="delete"
+        <button
+          class="delete"
           onclick="deleteProduct(${product.id})">
           حذف محصول
         </button>
@@ -182,11 +216,16 @@ async function loadProducts() {
     `;
 
   });
+
 }
 
+
+// حذف محصول
 async function deleteProduct(id) {
 
-  if (!confirm("حذف این محصول؟")) return;
+  if (!confirm("آیا از حذف این محصول مطمئنی؟")) {
+    return;
+  }
 
   const { error } = await supabase
     .from("products")
@@ -194,15 +233,17 @@ async function deleteProduct(id) {
     .eq("id", id);
 
   if (error) {
-    alert("❌ خطا: " + error.message);
+    alert("❌ خطا در حذف محصول:\n" + error.message);
     return;
   }
 
   alert("✅ محصول حذف شد");
+
   loadProducts();
+
 }
 
 </script>
 
 </body>
-</html>
+  </html>
