@@ -1,844 +1,901 @@
 /* =========================================================
-   NAVA STORE
-   Main JavaScript
-========================================================= */
+   NOVA STORE
+   Supabase + Storefront
+   ========================================================= */
 
-document.addEventListener("DOMContentLoaded", () => {
+/* =========================================================
+   SUPABASE
+   ========================================================= */
 
-    /* =====================================================
-       GLOBAL ELEMENTS
-    ====================================================== */
+// آدرس پروژه Supabase خودت را اینجا قرار بده.
+// اطلاعات ورود پنل مدیریت را اینجا قرار نده.
+const SUPABASE_URL = "YOUR_SUPABASE_URL";
+const SUPABASE_PUBLISHABLE_KEY = "YOUR_SUPABASE_PUBLISHABLE_KEY";
 
-    const body = document.body;
+const supabaseClient = window.supabase.createClient(
+    SUPABASE_URL,
+    SUPABASE_PUBLISHABLE_KEY
+);
 
-    const toast = document.getElementById("toast");
 
-    const searchForm = document.querySelector(".search-form");
-    const searchInput = document.getElementById("searchInput");
+/* =========================================================
+   GLOBAL STATE
+   ========================================================= */
 
-    const productsSection = document.getElementById("products");
+let allProducts = [];
+let filteredProducts = [];
 
-    const productCards = document.querySelectorAll(".product-card");
+let cart = JSON.parse(localStorage.getItem("nova_cart") || "[]");
+let favorites = JSON.parse(localStorage.getItem("nova_favorites") || "[]");
 
-    const cartButtons = document.querySelectorAll(
-        ".cart-button, .add-to-cart"
+let currentCategory = "all";
+let searchTerm = "";
+
+let currentSlide = 0;
+let slideTimer = null;
+
+
+/* =========================================================
+   HELPERS
+   ========================================================= */
+
+function $(selector) {
+    return document.querySelector(selector);
+}
+
+function $$(selector) {
+    return document.querySelectorAll(selector);
+}
+
+function escapeHTML(value) {
+    if (value === null || value === undefined) return "";
+
+    return String(value)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+}
+
+function formatPrice(price) {
+    if (price === null || price === undefined || price === "") {
+        return "تماس بگیرید";
+    }
+
+    const number = Number(price);
+
+    if (Number.isNaN(number)) {
+        return escapeHTML(price);
+    }
+
+    return new Intl.NumberFormat("fa-IR").format(number) + " تومان";
+}
+
+
+/* =========================================================
+   CART
+   ========================================================= */
+
+function saveCart() {
+    localStorage.setItem("nova_cart", JSON.stringify(cart));
+}
+
+function updateCartCount() {
+    const count = cart.reduce((total, item) => {
+        return total + Number(item.quantity || 1);
+    }, 0);
+
+    const elements = [
+        "#cartCount",
+        ".cart-count",
+        "[data-cart-count]"
+    ];
+
+    elements.forEach(selector => {
+        $$(selector).forEach(element => {
+            element.textContent = count;
+        });
+    });
+}
+
+function addToCart(productId) {
+    const product = allProducts.find(
+        item => String(item.id) === String(productId)
     );
 
-    const favoriteButtons = document.querySelectorAll(
-        ".favorite-button"
+    if (!product) return;
+
+    const existing = cart.find(
+        item => String(item.id) === String(product.id)
     );
 
+    if (existing) {
+        existing.quantity = Number(existing.quantity || 1) + 1;
+    } else {
+        cart.push({
+            id: product.id,
+            name: product.name,
+            price: product.price,
+            image: product.image,
+            quantity: 1
+        });
+    }
 
-    /* =====================================================
-       CART
-    ====================================================== */
+    saveCart();
+    updateCartCount();
 
-    let cartCount = 3;
+    showMessage("محصول به سبد خرید اضافه شد");
+}
 
-    const cartCountDesktop = document.querySelector(".cart-count");
-    const cartCountMobile = document.querySelector(".mobile-cart-count");
+function removeFromCart(productId) {
+    cart = cart.filter(
+        item => String(item.id) !== String(productId)
+    );
+
+    saveCart();
+    updateCartCount();
+}
+
+function changeCartQuantity(productId, change) {
+    const item = cart.find(
+        product => String(product.id) === String(productId)
+    );
+
+    if (!item) return;
+
+    item.quantity = Number(item.quantity || 1) + change;
+
+    if (item.quantity <= 0) {
+        removeFromCart(productId);
+        return;
+    }
+
+    saveCart();
+    updateCartCount();
+}
 
 
-    function updateCartCount() {
+/* =========================================================
+   FAVORITES
+   ========================================================= */
 
-        if (cartCountDesktop) {
-            cartCountDesktop.textContent = cartCount;
-        }
+function saveFavorites() {
+    localStorage.setItem(
+        "nova_favorites",
+        JSON.stringify(favorites)
+    );
+}
 
-        if (cartCountMobile) {
-            cartCountMobile.textContent = cartCount;
+function isFavorite(productId) {
+    return favorites.some(
+        id => String(id) === String(productId)
+    );
+}
+
+function toggleFavorite(productId) {
+    const index = favorites.findIndex(
+        id => String(id) === String(productId)
+    );
+
+    if (index >= 0) {
+        favorites.splice(index, 1);
+    } else {
+        favorites.push(productId);
+    }
+
+    saveFavorites();
+    renderProducts();
+}
+
+
+/* =========================================================
+   LOAD PRODUCTS FROM SUPABASE
+   ========================================================= */
+
+async function loadProducts() {
+    const container =
+        $("#productsContainer") ||
+        $(".products-grid") ||
+        $(".product-grid") ||
+        "[data-products]";
+
+    if (!container) {
+        console.warn("Product container not found.");
+        return;
+    }
+
+    container.innerHTML = `
+        <div class="products-loading">
+            در حال دریافت محصولات...
+        </div>
+    `;
+
+    const { data, error } = await supabaseClient
+        .from("products")
+        .select("*")
+        .order("id", { ascending: false });
+
+    if (error) {
+        console.error("Supabase products error:", error);
+
+        container.innerHTML = `
+            <div class="products-error">
+                <strong>خطا در دریافت محصولات</strong>
+                <p>لطفاً دوباره تلاش کنید.</p>
+                <button onclick="loadProducts()">تلاش مجدد</button>
+            </div>
+        `;
+
+        return;
+    }
+
+    allProducts = Array.isArray(data) ? data : [];
+
+    filteredProducts = [...allProducts];
+
+    renderCategories();
+    renderProducts();
+}
+
+
+/* =========================================================
+   FILTER PRODUCTS
+   ========================================================= */
+
+function filterProducts() {
+
+    filteredProducts = allProducts.filter(product => {
+
+        const categoryMatch =
+            currentCategory === "all" ||
+            String(product.category || "").trim() === currentCategory;
+
+        const text =
+            `${product.name || ""} ${product.description || ""} ${product.category || ""}`
+                .toLowerCase();
+
+        const searchMatch =
+            !searchTerm ||
+            text.includes(searchTerm.toLowerCase());
+
+        return categoryMatch && searchMatch;
+    });
+
+    renderProducts();
+}
+
+
+/* =========================================================
+   RENDER PRODUCTS
+   ========================================================= */
+
+function renderProducts() {
+
+    const container =
+        $("#productsContainer") ||
+        $(".products-grid") ||
+        $(".product-grid") ||
+        document.querySelector("[data-products]");
+
+    if (!container) return;
+
+    if (!filteredProducts.length) {
+        container.innerHTML = `
+            <div class="products-empty">
+                <div>محصولی پیدا نشد</div>
+            </div>
+        `;
+        return;
+    }
+
+    container.innerHTML = filteredProducts.map(product => {
+
+        const favorite = isFavorite(product.id);
+
+        const oldPrice =
+            product.old_price !== null &&
+            product.old_price !== undefined &&
+            product.old_price !== "" &&
+            Number(product.old_price) > Number(product.price || 0)
+                ? `
+                    <span class="old-price">
+                        ${formatPrice(product.old_price)}
+                    </span>
+                  `
+                : "";
+
+        const discount =
+            product.discount !== null &&
+            product.discount !== undefined &&
+            product.discount !== ""
+                ? `
+                    <span class="discount-badge">
+                        ${escapeHTML(product.discount)}٪
+                    </span>
+                  `
+                : "";
+
+        const newBadge =
+            product.is_new
+                ? `<span class="new-badge">جدید</span>`
+                : "";
+
+        const image =
+            product.image
+                ? escapeHTML(product.image)
+                : "images/product-placeholder.png";
+
+        return `
+            <article
+                class="product-card"
+                data-product-id="${escapeHTML(product.id)}"
+            >
+
+                <div class="product-image">
+
+                    <img
+                        src="${image}"
+                        alt="${escapeHTML(product.name)}"
+                        loading="lazy"
+                        onerror="this.src='images/product-placeholder.png'"
+                    >
+
+                    <div class="product-badges">
+                        ${newBadge}
+                        ${discount}
+                    </div>
+
+                    <button
+                        class="favorite-btn ${favorite ? "active" : ""}"
+                        type="button"
+                        onclick="toggleFavorite('${escapeHTML(product.id)}')"
+                        aria-label="افزودن به علاقه‌مندی‌ها"
+                    >
+                        ${favorite ? "♥" : "♡"}
+                    </button>
+
+                </div>
+
+                <div class="product-info">
+
+                    <div class="product-category">
+                        ${escapeHTML(product.category || "")}
+                    </div>
+
+                    <h3 class="product-title">
+                        ${escapeHTML(product.name || "محصول")}
+                    </h3>
+
+                    ${
+                        product.description
+                            ? `
+                                <p class="product-description">
+                                    ${escapeHTML(product.description)}
+                                </p>
+                              `
+                            : ""
+                    }
+
+                    <div class="product-price">
+
+                        <div class="current-price">
+                            ${formatPrice(product.price)}
+                        </div>
+
+                        ${oldPrice}
+
+                    </div>
+
+                    <button
+                        class="add-to-cart"
+                        type="button"
+                        onclick="addToCart('${escapeHTML(product.id)}')"
+                    >
+                        افزودن به سبد خرید
+                    </button>
+
+                </div>
+
+            </article>
+        `;
+
+    }).join("");
+}
+
+
+/* =========================================================
+   CATEGORIES
+   ========================================================= */
+
+function renderCategories() {
+
+    const categories = [
+        ...new Set(
+            allProducts
+                .map(product => String(product.category || "").trim())
+                .filter(Boolean)
+        )
+    ];
+
+    const containers = [
+        "#categories",
+        ".categories",
+        ".category-list",
+        "[data-categories]"
+    ];
+
+    let container = null;
+
+    for (const selector of containers) {
+        const element = $(selector);
+
+        if (element) {
+            container = element;
+            break;
         }
     }
 
+    if (!container) return;
 
-    function showToast(message) {
+    container.innerHTML = `
+        <button
+            type="button"
+            class="category-btn active"
+            data-category="all"
+        >
+            همه
+        </button>
 
-        if (!toast) return;
+        ${categories.map(category => `
+            <button
+                type="button"
+                class="category-btn"
+                data-category="${escapeHTML(category)}"
+            >
+                ${escapeHTML(category)}
+            </button>
+        `).join("")}
+    `;
 
-        toast.textContent = message;
+    $$(".category-btn").forEach(button => {
 
-        toast.classList.add("show");
+        button.addEventListener("click", () => {
 
-        clearTimeout(window.toastTimer);
+            $$(".category-btn").forEach(btn => {
+                btn.classList.remove("active");
+            });
 
-        window.toastTimer = setTimeout(() => {
+            button.classList.add("active");
 
-            toast.classList.remove("show");
+            currentCategory =
+                button.dataset.category || "all";
 
-        }, 2200);
-    }
-
-
-    /* =====================================================
-       ADD TO CART
-    ====================================================== */
-
-    document.querySelectorAll(".add-to-cart").forEach(button => {
-
-        button.addEventListener("click", function () {
-
-            cartCount++;
-
-            updateCartCount();
-
-            showToast("محصول با موفقیت به سبد خرید اضافه شد ✓");
-
-            const originalText = this.childNodes[0];
-
-            this.style.transform = "scale(0.97)";
-
-            setTimeout(() => {
-                this.style.transform = "";
-            }, 120);
-
+            filterProducts();
         });
 
     });
+}
 
 
-    /* =====================================================
-       CART BUTTON
-    ====================================================== */
+/* =========================================================
+   SEARCH
+   ========================================================= */
 
-    document.querySelectorAll(".cart-button").forEach(button => {
+function setupSearch() {
+
+    const inputs = [
+        "#searchInput",
+        ".search-input",
+        "[data-search]"
+    ];
+
+    let input = null;
+
+    for (const selector of inputs) {
+        const element = $(selector);
+
+        if (element) {
+            input = element;
+            break;
+        }
+    }
+
+    if (!input) return;
+
+    input.addEventListener("input", event => {
+
+        searchTerm = event.target.value.trim();
+
+        filterProducts();
+
+    });
+}
+
+
+/* =========================================================
+   VIEW ALL
+   ========================================================= */
+
+function setupViewAll() {
+
+    $$("[data-view-all]").forEach(button => {
 
         button.addEventListener("click", event => {
 
             event.preventDefault();
 
-            showToast(
-                `سبد خرید شما ${cartCount} محصول دارد 🛒`
-            );
+            currentCategory = "all";
+            searchTerm = "";
 
-        });
+            const input =
+                $("#searchInput") ||
+                $(".search-input") ||
+                document.querySelector("[data-search]");
 
-    });
+            if (input) {
+                input.value = "";
+            }
 
+            $$(".category-btn").forEach(btn => {
+                btn.classList.remove("active");
 
-    /* =====================================================
-       FAVORITES
-    ====================================================== */
+                if (btn.dataset.category === "all") {
+                    btn.classList.add("active");
+                }
+            });
 
-    favoriteButtons.forEach(button => {
+            filterProducts();
 
-        button.dataset.favorite = "false";
+            const productsSection =
+                $("#products") ||
+                $(".products-section") ||
+                $("#productsContainer");
 
-        button.addEventListener("click", function () {
-
-            const isFavorite =
-                this.dataset.favorite === "true";
-
-            if (isFavorite) {
-
-                this.dataset.favorite = "false";
-
-                this.textContent = "♡";
-
-                this.style.color = "";
-
-                showToast(
-                    "محصول از علاقه‌مندی‌ها حذف شد"
-                );
-
-            } else {
-
-                this.dataset.favorite = "true";
-
-                this.textContent = "♥";
-
-                this.style.color = "#f04462";
-
-                showToast(
-                    "محصول به علاقه‌مندی‌ها اضافه شد ❤️"
-                );
-
+            if (productsSection) {
+                productsSection.scrollIntoView({
+                    behavior: "smooth"
+                });
             }
 
         });
 
     });
+}
 
 
-    /* =====================================================
-       SEARCH
-    ====================================================== */
+/* =========================================================
+   MESSAGE
+   ========================================================= */
 
-    if (searchForm && searchInput) {
+function showMessage(message) {
 
-        searchForm.addEventListener("submit", event => {
+    let element = $("#novaMessage");
 
-            event.preventDefault();
+    if (!element) {
 
-            const searchValue =
-                searchInput.value.trim().toLowerCase();
+        element = document.createElement("div");
 
-            if (!searchValue) {
+        element.id = "novaMessage";
 
-                showToast(
-                    "لطفاً نام محصول را وارد کنید"
-                );
+        element.style.cssText = `
+            position: fixed;
+            right: 20px;
+            bottom: 20px;
+            z-index: 99999;
+            padding: 12px 18px;
+            border-radius: 12px;
+            background: #111827;
+            color: white;
+            font-size: 14px;
+            box-shadow: 0 10px 30px rgba(0,0,0,.18);
+            opacity: 0;
+            transform: translateY(10px);
+            transition: .25s;
+        `;
 
-                searchInput.focus();
-
-                return;
-            }
-
-
-            let foundProducts = 0;
-
-
-            productCards.forEach(card => {
-
-                const title =
-                    card.querySelector("h3");
-
-                if (!title) return;
-
-                const productName =
-                    title.textContent
-                        .trim()
-                        .toLowerCase();
-
-
-                if (
-                    productName.includes(searchValue)
-                ) {
-
-                    card.style.display = "";
-
-                    foundProducts++;
-
-                } else {
-
-                    card.style.display = "none";
-
-                }
-
-            });
-
-
-            productsSection?.scrollIntoView({
-                behavior: "smooth",
-                block: "start"
-            });
-
-
-            if (foundProducts > 0) {
-
-                showToast(
-                    `${foundProducts} محصول پیدا شد ✓`
-                );
-
-            } else {
-
-                showToast(
-                    "محصولی با این نام پیدا نشد"
-                );
-
-            }
-
-        });
-
-
-        /* Clear search */
-
-        searchInput.addEventListener(
-            "input",
-            function () {
-
-                if (this.value.trim() === "") {
-
-                    productCards.forEach(card => {
-
-                        card.style.display = "";
-
-                    });
-
-                }
-
-            }
-        );
-
+        document.body.appendChild(element);
     }
 
+    element.textContent = message;
 
-    /* =====================================================
-       CATEGORY BUTTONS
-    ====================================================== */
-
-    const categoryCards =
-        document.querySelectorAll(".category-card");
-
-
-    categoryCards.forEach(category => {
-
-        category.addEventListener("click", event => {
-
-            event.preventDefault();
-
-            const categoryName =
-                category.querySelector("h3")?.textContent.trim();
-
-            if (!categoryName) return;
-
-
-            if (
-                categoryName.includes("تخفیف")
-            ) {
-
-                showToast(
-                    "محصولات تخفیف‌دار در حال نمایش هستند 🔥"
-                );
-
-                productsSection?.scrollIntoView({
-                    behavior: "smooth",
-                    block: "start"
-                });
-
-                return;
-            }
-
-
-            showToast(
-                `دسته «${categoryName}» انتخاب شد`
-            );
-
-        });
-
+    requestAnimationFrame(() => {
+        element.style.opacity = "1";
+        element.style.transform = "translateY(0)";
     });
 
+    clearTimeout(element._timer);
 
-    /* =====================================================
-       VIEW ALL BUTTONS
-    ====================================================== */
-
-    document.querySelectorAll(".view-all").forEach(link => {
-
-        link.addEventListener("click", event => {
-
-            event.preventDefault();
-
-            productsSection?.scrollIntoView({
-                behavior: "smooth",
-                block: "start"
-            });
-
-        });
-
-    });
+    element._timer = setTimeout(() => {
+        element.style.opacity = "0";
+        element.style.transform = "translateY(10px)";
+    }, 2200);
+}
 
 
-    /* =====================================================
-       HERO SLIDER
-    ====================================================== */
+/* =========================================================
+   HERO SLIDER
+   ========================================================= */
 
-    const heroSlides =
-        document.querySelectorAll(".hero-slide");
+function setupHeroSlider() {
 
-    const sliderDots =
-        document.querySelectorAll(".slider-dot");
+    const slides = $$(".hero-slide");
+    const dots = $$(".hero-dot");
 
-    const prevButton =
-        document.querySelector(".slider-prev");
-
-    const nextButton =
-        document.querySelector(".slider-next");
-
-
-    let currentSlide = 0;
-
-    let sliderTimer;
-
+    if (!slides.length) return;
 
     function showSlide(index) {
 
-        if (!heroSlides.length) return;
+        currentSlide =
+            (index + slides.length) % slides.length;
 
-
-        if (index >= heroSlides.length) {
-            currentSlide = 0;
-        }
-
-        else if (index < 0) {
-            currentSlide =
-                heroSlides.length - 1;
-        }
-
-        else {
-            currentSlide = index;
-        }
-
-
-        heroSlides.forEach((slide, i) => {
-
-            if (i === currentSlide) {
-
-                slide.style.display = "grid";
-
-                slide.classList.add("active");
-
-            } else {
-
-                slide.style.display = "none";
-
-                slide.classList.remove("active");
-
-            }
-
+        slides.forEach((slide, i) => {
+            slide.classList.toggle(
+                "active",
+                i === currentSlide
+            );
         });
 
-
-        sliderDots.forEach((dot, i) => {
-
+        dots.forEach((dot, i) => {
             dot.classList.toggle(
                 "active",
                 i === currentSlide
             );
-
         });
-
     }
-
 
     function nextSlide() {
-
         showSlide(currentSlide + 1);
-
-        restartSlider();
-
     }
-
 
     function previousSlide() {
-
         showSlide(currentSlide - 1);
-
-        restartSlider();
-
     }
 
+    const nextButton =
+        $(".hero-next") ||
+        $("[data-slider-next]");
 
-    function startSlider() {
-
-        if (heroSlides.length <= 1) return;
-
-        sliderTimer = setInterval(() => {
-
-            showSlide(currentSlide + 1);
-
-        }, 5000);
-
-    }
-
-
-    function restartSlider() {
-
-        clearInterval(sliderTimer);
-
-        startSlider();
-
-    }
-
-
-    if (heroSlides.length) {
-
-        showSlide(0);
-
-        startSlider();
-
-    }
-
+    const prevButton =
+        $(".hero-prev") ||
+        $("[data-slider-prev]");
 
     if (nextButton) {
-
-        nextButton.addEventListener(
-            "click",
-            nextSlide
-        );
-
+        nextButton.addEventListener("click", nextSlide);
     }
-
 
     if (prevButton) {
-
-        prevButton.addEventListener(
-            "click",
-            previousSlide
-        );
-
+        prevButton.addEventListener("click", previousSlide);
     }
 
-
-    sliderDots.forEach((dot, index) => {
-
+    dots.forEach((dot, index) => {
         dot.addEventListener("click", () => {
-
             showSlide(index);
-
-            restartSlider();
-
         });
-
     });
 
+    function startAutoPlay() {
 
-    /* =====================================================
-       TOUCH / SWIPE SLIDER
-    ====================================================== */
+        clearInterval(slideTimer);
 
-    const heroSlider =
-        document.querySelector(".hero-slider");
+        slideTimer = setInterval(() => {
+            nextSlide();
+        }, 5000);
+    }
 
+    const hero =
+        $(".hero-slider") ||
+        $(".hero");
+
+    if (hero) {
+
+        hero.addEventListener("mouseenter", () => {
+            clearInterval(slideTimer);
+        });
+
+        hero.addEventListener("mouseleave", () => {
+            startAutoPlay();
+        });
+    }
 
     let touchStartX = 0;
-    let touchEndX = 0;
 
+    if (hero) {
 
-    if (heroSlider) {
+        hero.addEventListener("touchstart", event => {
+            touchStartX = event.touches[0].clientX;
+        }, { passive: true });
 
-        heroSlider.addEventListener(
-            "touchstart",
-            event => {
+        hero.addEventListener("touchend", event => {
 
-                touchStartX =
-                    event.changedTouches[0].screenX;
+            const touchEndX =
+                event.changedTouches[0].clientX;
 
-            },
-            { passive: true }
-        );
+            const difference =
+                touchStartX - touchEndX;
 
+            if (Math.abs(difference) > 50) {
 
-        heroSlider.addEventListener(
-            "touchend",
-            event => {
-
-                touchEndX =
-                    event.changedTouches[0].screenX;
-
-                handleSwipe();
-
-            },
-            { passive: true }
-        );
-
-    }
-
-
-    function handleSwipe() {
-
-        const distance =
-            touchEndX - touchStartX;
-
-
-        if (Math.abs(distance) < 50) {
-            return;
-        }
-
-
-        /*
-           چون صفحه RTL است:
-           حرکت انگشت به چپ = اسلاید بعدی
-           حرکت انگشت به راست = اسلاید قبلی
-        */
-
-        if (distance < 0) {
-
-            nextSlide();
-
-        } else {
-
-            previousSlide();
-
-        }
-
-    }
-
-
-    /* =====================================================
-       PAUSE SLIDER ON HOVER
-    ====================================================== */
-
-    if (heroSlider) {
-
-        heroSlider.addEventListener(
-            "mouseenter",
-            () => {
-
-                clearInterval(sliderTimer);
-
-            }
-        );
-
-
-        heroSlider.addEventListener(
-            "mouseleave",
-            () => {
-
-                startSlider();
-
-            }
-        );
-
-    }
-
-
-    /* =====================================================
-       MOBILE NAVIGATION
-    ====================================================== */
-
-    const mobileNavItems =
-        document.querySelectorAll(".mobile-nav-item");
-
-
-    mobileNavItems.forEach(item => {
-
-        item.addEventListener("click", event => {
-
-            event.preventDefault();
-
-
-            mobileNavItems.forEach(nav => {
-
-                nav.classList.remove("active");
-
-            });
-
-
-            item.classList.add("active");
-
-
-            const text =
-                item.querySelector("span")?.textContent.trim();
-
-
-            if (!text) return;
-
-
-            if (text === "خانه") {
-
-                window.scrollTo({
-                    top: 0,
-                    behavior: "smooth"
-                });
-
-                return;
-            }
-
-
-            if (text === "سبد خرید") {
-
-                showToast(
-                    `سبد خرید شما ${cartCount} محصول دارد 🛒`
-                );
-
-                return;
-            }
-
-
-            if (text === "علاقه‌مندی‌ها") {
-
-                showToast(
-                    "محصولات مورد علاقه شما ❤️"
-                );
-
-                return;
-            }
-
-
-            if (text === "دسته‌بندی‌ها") {
-
-                document
-                    .querySelector(".categories-section")
-                    ?.scrollIntoView({
-                        behavior: "smooth"
-                    });
-
-                return;
-            }
-
-
-            if (text === "پروفایل") {
-
-                showToast(
-                    "صفحه ورود و پروفایل به‌زودی فعال می‌شود"
-                );
-
-            }
-
-        });
-
-    });
-
-
-    /* =====================================================
-       ACCOUNT
-    ====================================================== */
-
-    const accountLink =
-        document.querySelector(".account-link");
-
-
-    if (accountLink) {
-
-        accountLink.addEventListener(
-            "click",
-            event => {
-
-                event.preventDefault();
-
-                showToast(
-                    "صفحه ورود و ثبت‌نام به‌زودی فعال می‌شود"
-                );
-
-            }
-        );
-
-    }
-
-
-    /* =====================================================
-       HERO PRIMARY BUTTON
-    ====================================================== */
-
-    const heroButton =
-        document.querySelector(".primary-button");
-
-
-    if (heroButton) {
-
-        heroButton.addEventListener(
-            "click",
-            event => {
-
-                event.preventDefault();
-
-                productsSection?.scrollIntoView({
-                    behavior: "smooth",
-                    block: "start"
-                });
-
-            }
-        );
-
-    }
-
-
-    /* =====================================================
-       HEADER SHOP BUTTON
-    ====================================================== */
-
-    const shopButton =
-        document.querySelector(".header-shop-button");
-
-
-    if (shopButton) {
-
-        shopButton.addEventListener(
-            "click",
-            event => {
-
-                event.preventDefault();
-
-                productsSection?.scrollIntoView({
-                    behavior: "smooth",
-                    block: "start"
-                });
-
-            }
-        );
-
-    }
-
-
-    /* =====================================================
-       KEYBOARD SHORTCUT
-    ====================================================== */
-
-    document.addEventListener(
-        "keydown",
-        event => {
-
-            /*
-             Ctrl + K
-             focus search
-            */
-
-            if (
-                (event.ctrlKey || event.metaKey) &&
-                event.key.toLowerCase() === "k"
-            ) {
-
-                event.preventDefault();
-
-                searchInput?.focus();
-
-            }
-
-
-            /*
-             Escape
-             clear search
-            */
-
-            if (event.key === "Escape") {
-
-                if (searchInput) {
-
-                    searchInput.value = "";
-
-                    productCards.forEach(card => {
-
-                        card.style.display = "";
-
-                    });
-
+                if (difference > 0) {
+                    nextSlide();
+                } else {
+                    previousSlide();
                 }
 
             }
+        }, { passive: true });
+    }
 
-        }
-    );
-
-
-    /* =====================================================
-       IMAGE / PRODUCT HOVER
-    ====================================================== */
-
-    productCards.forEach(card => {
-
-        card.addEventListener(
-            "mouseenter",
-            () => {
-
-                card.classList.add("is-hovered");
-
-            }
-        );
+    showSlide(0);
+    startAutoPlay();
+}
 
 
-        card.addEventListener(
-            "mouseleave",
-            () => {
+/* =========================================================
+   MOBILE MENU
+   ========================================================= */
 
-                card.classList.remove("is-hovered");
+function setupMobileMenu() {
 
-            }
-        );
+    const menuButton =
+        $(".mobile-menu-btn") ||
+        $("[data-mobile-menu]");
+
+    const menu =
+        $(".mobile-menu") ||
+        $(".mobile-nav") ||
+        $("[data-mobile-nav]");
+
+    if (!menuButton || !menu) return;
+
+    menuButton.addEventListener("click", () => {
+
+        menu.classList.toggle("active");
+
+        menuButton.classList.toggle("active");
 
     });
 
+}
 
-    /* =====================================================
-       UPDATE INITIAL CART
-    ====================================================== */
+
+/* =========================================================
+   ACCOUNT / SHOP BUTTONS
+   ========================================================= */
+
+function setupButtons() {
+
+    $$("[data-account]").forEach(button => {
+
+        button.addEventListener("click", () => {
+
+            const account =
+                $("#account") ||
+                $(".account-section");
+
+            if (account) {
+                account.scrollIntoView({
+                    behavior: "smooth"
+                });
+            }
+
+        });
+
+    });
+
+    $$("[data-shop]").forEach(button => {
+
+        button.addEventListener("click", () => {
+
+            const products =
+                $("#products") ||
+                $(".products-section") ||
+                $("#productsContainer");
+
+            if (products) {
+                products.scrollIntoView({
+                    behavior: "smooth"
+                });
+            }
+
+        });
+
+    });
+
+}
+
+
+/* =========================================================
+   KEYBOARD SHORTCUTS
+   ========================================================= */
+
+function setupKeyboard() {
+
+    document.addEventListener("keydown", event => {
+
+        // /
+        if (
+            event.key === "/" &&
+            document.activeElement.tagName !== "INPUT" &&
+            document.activeElement.tagName !== "TEXTAREA"
+        ) {
+
+            event.preventDefault();
+
+            const search =
+                $("#searchInput") ||
+                $(".search-input") ||
+                document.querySelector("[data-search]");
+
+            if (search) {
+                search.focus();
+            }
+        }
+
+        // Escape
+        if (event.key === "Escape") {
+
+            const menu =
+                $(".mobile-menu") ||
+                $(".mobile-nav") ||
+                $("[data-mobile-nav]");
+
+            if (menu) {
+                menu.classList.remove("active");
+            }
+
+        }
+
+    });
+
+}
+
+
+/* =========================================================
+   REALTIME
+   ========================================================= */
+
+function setupRealtime() {
+
+    supabaseClient
+        .channel("nova-products")
+        .on(
+            "postgres_changes",
+            {
+                event: "*",
+                schema: "public",
+                table: "products"
+            },
+            () => {
+
+                // هر تغییری در پنل مدیریت
+                // باعث تازه شدن محصولات سایت می‌شود.
+                loadProducts();
+
+            }
+        )
+        .subscribe();
+
+}
+
+
+/* =========================================================
+   INITIALIZE
+   ========================================================= */
+
+document.addEventListener("DOMContentLoaded", async () => {
 
     updateCartCount();
 
+    setupSearch();
+    setupViewAll();
+    setupHeroSlider();
+    setupMobileMenu();
+    setupButtons();
+    setupKeyboard();
 
-    /* =====================================================
-       PAGE LOADED
-    ====================================================== */
+    await loadProducts();
 
-    body.classList.add("page-ready");
+    setupRealtime();
 
 });
