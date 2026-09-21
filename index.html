@@ -1,116 +1,279 @@
 <!DOCTYPE html>
 <html lang="fa" dir="rtl">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <title>نُوا | فروشگاه آنلاین | خرید آنلاین با قیمت مناسب</title>
 
-<meta
-    name="description"
-    content="فروشگاه آنلاین نُوا؛ خرید انواع محصولات با قیمت مناسب، تنوع بالا و تجربه‌ای ساده و سریع."
->
+    <meta
+        name="description"
+        content="فروشگاه آنلاین نُوا؛ خرید انواع محصولات با قیمت مناسب، تنوع بالا و تجربه‌ای ساده و سریع."
+    >
 
-<meta
-    name="keywords"
-    content="فروشگاه آنلاین, خرید آنلاین, خرید اینترنتی, نُوا, Nova Store, محصولات آنلاین"
->
+    <meta
+        name="keywords"
+        content="فروشگاه آنلاین, خرید آنلاین, خرید اینترنتی, نُوا, Nova Store, محصولات آنلاین"
+    >
 
-<meta name="robots" content="index, follow">
-<meta name="google-site-verification" content="EbpBriVsTRGCwpisWP8u-z-ixM6pMUqhPTW_4PXG1Z4" />
-<link rel="canonical" href="https://ehsan772.github.io/nova-store/">
+    <meta name="robots" content="index, follow">
 
-<link rel="stylesheet" href="style.css">
+    <meta
+        name="google-site-verification"
+        content="EbpBriVsTRGCwpisWP8u-z-ixM6pMUqhPTW_4PXG1Z4"
+    >
+
+    <link
+        rel="canonical"
+        href="https://ehsan772.github.io/nova-store/"
+    >
+
+    <link rel="stylesheet" href="style.css">
 
     <script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@type": "OnlineStore",
-  "name": "نُوا",
-  "alternateName": "Nova Store",
-  "url": "https://ehsan772.github.io/nova-store/",
-  "description": "فروشگاه آنلاین نُوا با محصولات متنوع و تجربه خرید ساده و سریع."
-}
+    {
+      "@context": "https://schema.org",
+      "@type": "OnlineStore",
+      "name": "نُوا",
+      "alternateName": "Nova Store",
+      "url": "https://ehsan772.github.io/nova-store/",
+      "description": "فروشگاه آنلاین نُوا با محصولات متنوع و تجربه خرید ساده و سریع."
+    }
     </script>
 </head>
 
 <body>
 
-<!-- Header -->
+<!-- ================= HEADER ================= -->
+
 <header class="header">
 
-    <div class="logo">
-        <span>نُوا</span>
-        <small>فروشگاه آنلاین</small>
+    <div class="header-inner">
+
+        <a href="#home" class="logo">
+
+            <div class="logo-icon">
+                <svg viewBox="0 0 64 64" aria-hidden="true">
+                    <path d="M18 23h28l-3 30H21z"></path>
+                    <path d="M25 23v-5a7 7 0 0 1 14 0v5"></path>
+                </svg>
+            </div>
+
+            <div class="logo-text">
+                <strong>نُوا</strong>
+                <small>Nova Store</small>
+            </div>
+
+        </a>
+
+
+        <nav class="main-nav">
+
+            <a class="active" href="#home">خانه</a>
+            <a href="#products">محصولات</a>
+            <a href="#about">درباره ما</a>
+
+        </nav>
+
+
+        <div class="header-actions">
+
+            <div class="desktop-search">
+                <span>⌕</span>
+
+                <input
+                    type="text"
+                    id="header-search"
+                    placeholder="جستجوی محصول..."
+                    onkeyup="searchFromHeader()"
+                >
+            </div>
+
+
+            <button
+                class="theme-btn"
+                id="theme-toggle"
+                onclick="toggleTheme()"
+                aria-label="تغییر تم"
+            >
+                ☾
+            </button>
+
+
+            <button
+                class="cart-btn"
+                onclick="openCart()"
+                aria-label="سبد خرید"
+            >
+                🛒
+                <span id="cart-count">0</span>
+            </button>
+
+
+            <button
+                class="mobile-menu-btn"
+                onclick="toggleMobileMenu()"
+                aria-label="منو"
+            >
+                ☰
+            </button>
+
+        </div>
+
     </div>
 
-    <nav>
-        <a href="#home">خانه</a>
-        <a href="#products">محصولات</a>
-        <a href="#about">درباره ما</a>
-    </nav>
 
-    <button class="cart-btn" onclick="openCart()">
-        🛒
-        <span id="cart-count">0</span>
-    </button>
+    <div class="mobile-menu" id="mobile-menu">
+
+        <a href="#home" onclick="toggleMobileMenu()">خانه</a>
+        <a href="#products" onclick="toggleMobileMenu()">محصولات</a>
+        <a href="#about" onclick="toggleMobileMenu()">درباره ما</a>
+
+    </div>
 
 </header>
 
 
-<!-- Hero -->
+<!-- ================= HERO ================= -->
+
 <section class="hero" id="home">
 
-    <div class="hero-content">
+    <div class="hero-bg-shape shape-one"></div>
+    <div class="hero-bg-shape shape-two"></div>
 
-        <div class="badge">
-            ✨ خریدی متفاوت را تجربه کن
+    <div class="hero-inner">
+
+        <div class="hero-content">
+
+            <div class="hero-badge">
+                ✨ انتخابی متفاوت برای خریدی بهتر
+            </div>
+
+            <h1>
+                همه‌چیز برای
+                <span>یک انتخاب خوب</span>
+            </h1>
+
+            <p>
+                جدیدترین و کاربردی‌ترین محصولات را با قیمت مناسب
+                در فروشگاه نُوا پیدا کنید.
+            </p>
+
+            <div class="hero-actions">
+
+                <a href="#products" class="hero-btn">
+                    مشاهده محصولات
+                    <span>←</span>
+                </a>
+
+                <a href="#categories" class="hero-secondary-btn">
+                    دسته‌بندی‌ها
+                </a>
+
+            </div>
+
         </div>
 
-        <h1>
-            انتخاب‌های خوب،
-            <span>از اینجا شروع میشن.</span>
-        </h1>
 
-        <p>
-            جدیدترین محصولات را با قیمت مناسب
-            و ارسال سریع از فروشگاه نُوا تهیه کنید.
-        </p>
+        <div class="hero-visual">
 
-        <a href="#products" class="hero-btn">
-            مشاهده محصولات
-        </a>
+            <div class="hero-glow"></div>
+
+            <div class="shopping-bag">
+
+                <div class="bag-handle"></div>
+
+                <div class="bag-body">
+
+                    <strong>نُوا</strong>
+                    <small>Nova Store</small>
+
+                    <div class="bag-symbol">
+                        ◆
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="floating-product product-one">
+                🎧
+            </div>
+
+            <div class="floating-product product-two">
+                ⌚
+            </div>
+
+            <div class="floating-product product-three">
+                📱
+            </div>
+
+        </div>
 
     </div>
 
 </section>
 
 
-<!-- Categories -->
-<section class="categories">
+<!-- ================= CATEGORIES ================= -->
 
-    <h2>دسته‌بندی‌ها</h2>
+<section class="categories" id="categories">
 
-    <div class="category-list">
+    <div class="container">
 
-        <div class="category">
-            👕
-            <span>پوشاک</span>
+        <div class="section-heading">
+
+            <div>
+                <span>دسته‌بندی‌ها</span>
+                <h2>چی می‌خوای بخری؟</h2>
+            </div>
+
+            <p>
+                محصولات مورد علاقه‌ات را سریع‌تر پیدا کن.
+            </p>
+
         </div>
 
-        <div class="category">
-            🎧
-            <span>لوازم دیجیتال</span>
-        </div>
 
-        <div class="category">
-            👟
-            <span>کفش</span>
-        </div>
+        <div class="category-list">
 
-        <div class="category">
-            🎒
-            <span>اکسسوری</span>
+            <a href="#products" class="category category-purple">
+                <div class="category-icon">🎧</div>
+                <strong>لوازم جانبی</strong>
+                <small>مشاهده محصولات</small>
+            </a>
+
+            <a href="#products" class="category category-pink">
+                <div class="category-icon">👕</div>
+                <strong>پوشاک</strong>
+                <small>مشاهده محصولات</small>
+            </a>
+
+            <a href="#products" class="category category-green">
+                <div class="category-icon">🏠</div>
+                <strong>لوازم خانگی</strong>
+                <small>مشاهده محصولات</small>
+            </a>
+
+            <a href="#products" class="category category-blue">
+                <div class="category-icon">📱</div>
+                <strong>دیجیتال</strong>
+                <small>مشاهده محصولات</small>
+            </a>
+
+            <a href="#products" class="category category-orange">
+                <div class="category-icon">💪</div>
+                <strong>ورزشی</strong>
+                <small>مشاهده محصولات</small>
+            </a>
+
+            <a href="#products" class="category category-red">
+                <div class="category-icon">🏷️</div>
+                <strong>تخفیف ویژه</strong>
+                <small>مشاهده محصولات</small>
+            </a>
+
         </div>
 
     </div>
@@ -118,31 +281,128 @@
 </section>
 
 
-<!-- Products -->
+<!-- ================= PRODUCTS ================= -->
+
 <section class="products-section" id="products">
 
-    <div class="section-title">
+    <div class="container">
 
-        <div>
-            <span>پیشنهاد ما</span>
-            <h2>محصولات محبوب</h2>
+        <div class="section-heading products-heading">
+
+            <div>
+                <span>پیشنهاد نُوا</span>
+                <h2>محصولات محبوب</h2>
+            </div>
+
+
+            <div class="product-search">
+
+                <span>⌕</span>
+
+                <input
+                    type="text"
+                    id="search"
+                    placeholder="جستجوی محصول..."
+                    onkeyup="searchProducts()"
+                >
+
+            </div>
+
         </div>
 
-        <input
-            type="text"
-            id="search"
-            placeholder="جستجوی محصول..."
-            onkeyup="searchProducts()"
+
+        <div
+            class="products"
+            id="product-list"
         >
+
+            <div class="loading">
+                <div class="loader"></div>
+                <p>در حال دریافت محصولات...</p>
+            </div>
+
+        </div>
 
     </div>
 
+</section>
 
-    <!-- محصولات Supabase اینجا قرار می‌گیرند -->
-    <div class="products" id="product-list">
 
-        <p style="text-align:center; width:100%;">
-            در حال دریافت محصولات...
+<!-- ================= FEATURES ================= -->
+
+<section class="features">
+
+    <div class="container features-inner">
+
+        <div class="feature">
+
+            <div class="feature-icon">🚚</div>
+
+            <div>
+                <strong>ارسال سریع</strong>
+                <p>ارسال سفارش در سریع‌ترین زمان</p>
+            </div>
+
+        </div>
+
+
+        <div class="feature">
+
+            <div class="feature-icon">🔒</div>
+
+            <div>
+                <strong>پرداخت امن</strong>
+                <p>امنیت اطلاعات شما برای ما مهم است</p>
+            </div>
+
+        </div>
+
+
+        <div class="feature">
+
+            <div class="feature-icon">💬</div>
+
+            <div>
+                <strong>پشتیبانی</strong>
+                <p>همیشه برای پاسخگویی آماده‌ایم</p>
+            </div>
+
+        </div>
+
+
+        <div class="feature">
+
+            <div class="feature-icon">✓</div>
+
+            <div>
+                <strong>کیفیت محصولات</strong>
+                <p>انتخاب محصولات با دقت بالا</p>
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- ================= ABOUT ================= -->
+
+<section class="about" id="about">
+
+    <div class="about-card">
+
+        <span>درباره نُوا</span>
+
+        <h2>
+            خرید ساده‌تر،
+            <strong>انتخاب بهتر.</strong>
+        </h2>
+
+        <p>
+            نُوا یک فروشگاه آنلاین مدرن است که تلاش می‌کند
+            تجربه‌ای ساده، سریع و لذت‌بخش برای خرید اینترنتی
+            ایجاد کند.
         </p>
 
     </div>
@@ -150,79 +410,98 @@
 </section>
 
 
-<!-- Features -->
-<section class="features">
+<!-- ================= FOOTER ================= -->
 
-    <div>
-        🚚
-        <h3>ارسال سریع</h3>
-        <p>ارسال سفارش در سریع‌ترین زمان</p>
-    </div>
-
-    <div>
-        🔒
-        <h3>پرداخت امن</h3>
-        <p>امنیت اطلاعات شما برای ما مهم است</p>
-    </div>
-
-    <div>
-        💬
-        <h3>پشتیبانی</h3>
-        <p>همیشه برای پاسخگویی آماده‌ایم</p>
-    </div>
-
-</section>
-
-
-<!-- About -->
-<section class="about" id="about">
-
-    <span>درباره نُوا</span>
-
-    <h2>خرید ساده‌تر از همیشه</h2>
-
-    <p>
-        نُوا یک فروشگاه آنلاین مدرن است که تلاش می‌کند
-        تجربه‌ای ساده، سریع و لذت‌بخش برای خرید اینترنتی ایجاد کند.
-    </p>
-
-</section>
-
-
-<!-- Footer -->
 <footer>
 
-    <div class="footer-logo">
-        نُوا
+    <div class="footer-inner">
+
+        <div class="footer-brand">
+
+            <div class="footer-logo">
+                نُوا
+            </div>
+
+            <p>
+                ساخته شده برای یک تجربه بهتر از خرید آنلاین.
+            </p>
+
+        </div>
+
+
+        <div class="footer-links">
+
+            <a href="#home">خانه</a>
+            <a href="#products">محصولات</a>
+            <a href="#about">درباره ما</a>
+
+        </div>
+
+
+        <div class="footer-social">
+
+            <span>ما را دنبال کنید</span>
+
+            <div>
+                Instagram &nbsp; • &nbsp; Telegram
+            </div>
+
+        </div>
+
     </div>
 
-    <p>
-        ساخته شده برای یک تجربه بهتر از خرید آنلاین.
-    </p>
 
-    <div class="social">
-        Instagram &nbsp; | &nbsp; Telegram
+    <div class="footer-bottom">
+
+        <small>
+            © 2026 Nova Store
+        </small>
+
+        <span>
+            تمامی حقوق محفوظ است.
+        </span>
+
     </div>
-
-    <small>
-        © 2026 Nova Store
-    </small>
 
 </footer>
 
 
-<!-- Cart Modal -->
-<div class="cart-modal" id="cart-modal">
+<!-- ================= CART ================= -->
+
+<div
+    class="cart-modal"
+    id="cart-modal"
+>
 
     <div class="cart-box">
 
-        <button class="close" onclick="closeCart()">×</button>
+        <button
+            class="close"
+            onclick="closeCart()"
+        >
+            ×
+        </button>
 
-        <h2>🛒 سبد خرید</h2>
+        <div class="cart-title">
+
+            <span>🛒</span>
+
+            <div>
+                <strong>سبد خرید</strong>
+                <small>محصولات انتخاب‌شده</small>
+            </div>
+
+        </div>
+
 
         <div id="cart-items">
-            <p>سبد خرید خالی است.</p>
+
+            <p>
+                سبد خرید خالی است.
+            </p>
+
         </div>
+
 
         <button class="checkout">
             ادامه خرید
@@ -233,7 +512,8 @@
 </div>
 
 
-<!-- Supabase -->
+<!-- ================= SUPABASE ================= -->
+
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <script>
@@ -244,27 +524,31 @@ const SUPABASE_URL =
 const SUPABASE_PUBLISHABLE_KEY =
     "sb_publishable_rU0rSsuonmSoDYzK9-S1ig_uNPkAOha";
 
-const supabaseClient = window.supabase.createClient(
-    SUPABASE_URL,
-    SUPABASE_PUBLISHABLE_KEY
-);
+const supabaseClient =
+    window.supabase.createClient(
+        SUPABASE_URL,
+        SUPABASE_PUBLISHABLE_KEY
+    );
 
 
-// دریافت محصولات از Supabase
 async function loadStoreProducts() {
 
-    const productList = document.getElementById("product-list");
+    const productList =
+        document.getElementById("product-list");
 
     productList.innerHTML = `
-        <p style="text-align:center; width:100%;">
-            در حال دریافت محصولات...
-        </p>
+        <div class="loading">
+            <div class="loader"></div>
+            <p>در حال دریافت محصولات...</p>
+        </div>
     `;
 
-    const { data, error } = await supabaseClient
-        .from("products")
-        .select("*")
-        .order("id", { ascending: false });
+
+    const { data, error } =
+        await supabaseClient
+            .from("products")
+            .select("*")
+            .order("id", { ascending: false });
 
 
     if (error) {
@@ -272,9 +556,9 @@ async function loadStoreProducts() {
         console.error(error);
 
         productList.innerHTML = `
-            <p style="text-align:center; width:100%;">
+            <div class="empty-state">
                 ❌ خطا در دریافت محصولات
-            </p>
+            </div>
         `;
 
         return;
@@ -284,9 +568,9 @@ async function loadStoreProducts() {
     if (!data || data.length === 0) {
 
         productList.innerHTML = `
-            <p style="text-align:center; width:100%;">
+            <div class="empty-state">
                 هنوز محصولی اضافه نشده است.
-            </p>
+            </div>
         `;
 
         return;
@@ -298,7 +582,8 @@ async function loadStoreProducts() {
 
     data.forEach(function(product) {
 
-        const card = document.createElement("div");
+        const card =
+            document.createElement("div");
 
         card.className = "product";
 
@@ -346,7 +631,9 @@ async function loadStoreProducts() {
         }
 
 
-        const price = Number(product.price).toLocaleString("fa-IR");
+        const price =
+            Number(product.price)
+                .toLocaleString("fa-IR");
 
 
         const image =
@@ -362,9 +649,14 @@ async function loadStoreProducts() {
 
                 ${newHTML}
 
+                <div class="product-favorite">
+                    ♡
+                </div>
+
                 <img
                     src="${image}"
                     alt="${product.name}"
+                    loading="lazy"
                 >
 
             </div>
@@ -376,11 +668,9 @@ async function loadStoreProducts() {
                     ${product.category || ""}
                 </small>
 
-
                 <h3>
                     ${product.name}
                 </h3>
-
 
                 <p>
                     ${product.description || ""}
@@ -389,11 +679,15 @@ async function loadStoreProducts() {
 
                 <div class="price">
 
-                    ${oldPriceHTML}
+                    <div>
+                        ${oldPriceHTML}
 
-                    <strong>
-                        ${price} تومان
-                    </strong>
+                        <strong>
+                            ${price}
+                        </strong>
+
+                        <span>تومان</span>
+                    </div>
 
                 </div>
 
@@ -402,6 +696,7 @@ async function loadStoreProducts() {
                     onclick="addToCart('${String(product.name).replace(/'/g, "\\'")}')"
                 >
                     افزودن به سبد
+                    <span>←</span>
                 </button>
 
             </div>
@@ -416,14 +711,79 @@ async function loadStoreProducts() {
 }
 
 
-// وقتی صفحه باز شد، محصولات را بگیر
 loadStoreProducts();
+
+
+/* Theme */
+
+function toggleTheme() {
+
+    document.body.classList.toggle("dark");
+
+    const isDark =
+        document.body.classList.contains("dark");
+
+    localStorage.setItem(
+        "nova-theme",
+        isDark ? "dark" : "light"
+    );
+
+    document.getElementById("theme-toggle").textContent =
+        isDark ? "☀" : "☾";
+}
+
+
+(function loadTheme() {
+
+    const savedTheme =
+        localStorage.getItem("nova-theme");
+
+    if (savedTheme === "dark") {
+
+        document.body.classList.add("dark");
+
+        const btn =
+            document.getElementById("theme-toggle");
+
+        if (btn) btn.textContent = "☀";
+
+    }
+
+})();
+
+
+/* Mobile menu */
+
+function toggleMobileMenu() {
+
+    document
+        .getElementById("mobile-menu")
+        .classList.toggle("show");
+
+}
+
+
+/* Header search */
+
+function searchFromHeader() {
+
+    const value =
+        document
+            .getElementById("header-search")
+            .value;
+
+    document
+        .getElementById("search")
+        .value = value;
+
+    searchProducts();
+
+}
 
 </script>
 
 
-<!-- فایل اصلی امکانات سایت -->
 <script src="script.js"></script>
 
 </body>
-    </html>
+                    </html>
