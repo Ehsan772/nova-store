@@ -9,8 +9,8 @@
 
 // آدرس پروژه Supabase خودت را اینجا قرار بده.
 // اطلاعات ورود پنل مدیریت را اینجا قرار نده.
-const SUPABASE_URL = "YOUR_SUPABASE_URL";
-const SUPABASE_PUBLISHABLE_KEY = "YOUR_SUPABASE_PUBLISHABLE_KEY";
+const SUPABASE_URL = "https://zwtbrgsphgjyczdibldj.supabase.co/rest/v1/";
+const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_rU0rSsuonmSoDYzK9-S1ig_uNPkAOha";
 
 const supabaseClient = window.supabase.createClient(
     SUPABASE_URL,
