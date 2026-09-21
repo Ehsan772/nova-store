@@ -1,1272 +1,1029 @@
-/* =========================================================
-   NOVA STORE - MAIN SCRIPT
-   ========================================================= */
+/* =================================
+   NOVA STORE — SCRIPT
+================================= */
 
-document.addEventListener("DOMContentLoaded", () => {
+let products = [];
+let cart = JSON.parse(localStorage.getItem("novaCart")) || [];
+let favorites = JSON.parse(localStorage.getItem("novaFavorites")) || [];
+let currentCategory = "all";
 
-  /* =========================
-     VARIABLES
-  ========================= */
+/* =================================
+   ELEMENTS
+================================= */
 
-  let products = [];
-  let cart = JSON.parse(localStorage.getItem("nova_cart") || "[]");
-  let favorites = JSON.parse(localStorage.getItem("nova_favorites") || "[]");
+const productsGrid = document.getElementById("productsGrid");
+const searchInput = document.getElementById("searchInput");
 
-  const productsGrid = document.getElementById("productsGrid");
-  const searchInput = document.getElementById("searchInput");
+const cartButton = document.getElementById("cartButton");
+const favoritesButton = document.getElementById("favoritesButton");
+const themeToggle = document.getElementById("themeToggle");
+const menuButton = document.getElementById("menuButton");
 
-  const cartCount = document.getElementById("cartCount");
-  const favoriteCount = document.getElementById("favoriteCount");
+const cartCount = document.getElementById("cartCount");
+const favoriteCount = document.getElementById("favoriteCount");
 
-  const productModal = document.getElementById("productModal");
-  const cartModal = document.getElementById("cartModal");
-  const favoritesModal = document.getElementById("favoritesModal");
+const cartModal = document.getElementById("cartModal");
+const favoritesModal = document.getElementById("favoritesModal");
+const productModal = document.getElementById("productModal");
 
-  const productModalContent =
-    document.getElementById("productModalContent");
+const cartItems = document.getElementById("cartItems");
+const favoritesItems = document.getElementById("favoritesItems");
+const cartTotal = document.getElementById("cartTotal");
 
-  const cartItems =
-    document.getElementById("cartItems");
+const mobileMenu = document.getElementById("mobileMenu");
 
-  const favoritesItems =
-    document.getElementById("favoritesItems");
 
-  const cartTotal =
-    document.getElementById("cartTotal");
+/* =================================
+   LOAD PRODUCTS
+================================= */
 
-  /* =========================
-     SUPABASE
-  ========================= */
+async function loadProducts() {
 
-  const SUPABASE_URL =
-    "https://zwtbrgsphgjyczdibldj.supabase.co";
+    if (window.novaProductsLoaded) return;
 
-  const SUPABASE_KEY =
-    "sb_publishable_rU0rSsuonmSoDYzK9-S1ig_uNPkAOha";
+    window.novaProductsLoaded = true;
 
-  let db = window.supabaseClient;
+    try {
 
-  if (!db && window.supabase) {
-    db = window.supabase.createClient(
-      SUPABASE_URL,
-      SUPABASE_KEY
-    );
-  }
+        const { data, error } =
+            await window.supabaseClient
+                .from("products")
+                .select("*")
+                .order("created_at", { ascending: false });
 
-  /* =========================
-     SAVE DATA
-  ========================= */
+        if (error) throw error;
 
-  function saveCart() {
-    localStorage.setItem(
-      "nova_cart",
-      JSON.stringify(cart)
-    );
-  }
+        products = data || [];
 
-  function saveFavorites() {
-    localStorage.setItem(
-      "nova_favorites",
-      JSON.stringify(favorites)
-    );
-  }
+        renderProducts(products);
 
-  /* =========================
-     COUNTS
-  ========================= */
+        updateCounts();
 
-  function updateCounts() {
+    } catch (error) {
 
-    if (cartCount) {
-      const total = cart.reduce(
-        (sum, item) => sum + (item.quantity || 1),
-        0
-      );
+        console.error("Product loading error:", error);
 
-      cartCount.textContent = total;
+        if (productsGrid) {
+            productsGrid.innerHTML = `
+                <div class="products-loading">
+                    <strong>خطا در دریافت محصولات</strong>
+                    <span>لطفاً صفحه را دوباره باز کنید.</span>
+                </div>
+            `;
+        }
     }
+}
 
-    if (favoriteCount) {
-      favoriteCount.textContent = favorites.length;
-    }
-  }
 
-  /* =========================
-     FORMAT PRICE
-  ========================= */
+/* =================================
+   RENDER PRODUCTS
+================================= */
 
-  function formatPrice(price) {
-
-    if (price === undefined || price === null || price === "") {
-      return "تماس بگیرید";
-    }
-
-    return Number(price).toLocaleString("fa-IR") + " تومان";
-  }
-
-  /* =========================
-     ESCAPE HTML
-  ========================= */
-
-  function escapeHTML(value) {
-
-    if (!value) return "";
-
-    return String(value)
-      .replace(/&/g, "&amp;")
-      .replace(/</g, "&lt;")
-      .replace(/>/g, "&gt;")
-      .replace(/"/g, "&quot;")
-      .replace(/'/g, "&#039;");
-  }
-
-  /* =========================
-     PRODUCT CARD
-  ========================= */
-
-  function productCard(product) {
-
-    const isFavorite =
-      favorites.some(
-        item => String(item.id) === String(product.id)
-      );
-
-    const oldPrice =
-      product.old_price
-        ? `<span class="old-price">
-             ${formatPrice(product.old_price)}
-           </span>`
-        : "";
-
-    const discount =
-      product.discount
-        ? `<span class="discount-badge">
-             ${escapeHTML(product.discount)}٪
-           </span>`
-        : "";
-
-    const newBadge =
-      product.is_new
-        ? `<span class="new-badge">جدید</span>`
-        : "";
-
-    const image =
-      product.image ||
-      "https://via.placeholder.com/600x600?text=Nova+Store";
-
-    return `
-      <article
-        class="product-card"
-        data-id="${escapeHTML(product.id)}"
-      >
-
-        <div class="product-image-wrap">
-
-          <img
-            src="${escapeHTML(image)}"
-            alt="${escapeHTML(product.name)}"
-            class="product-image"
-            loading="lazy"
-          >
-
-          <div class="product-badges">
-            ${newBadge}
-            ${discount}
-          </div>
-
-          <button
-            class="favorite-btn ${isFavorite ? "active" : ""}"
-            data-favorite="${escapeHTML(product.id)}"
-            aria-label="افزودن به علاقه‌مندی"
-          >
-            ${isFavorite ? "♥" : "♡"}
-          </button>
-
-        </div>
-
-        <div class="product-info">
-
-          <span class="product-category">
-            ${escapeHTML(product.category || "محصول")}
-          </span>
-
-          <h3>
-            ${escapeHTML(product.name || "محصول بدون نام")}
-          </h3>
-
-          <p class="product-description">
-            ${escapeHTML(
-              product.description ||
-              product.text ||
-              "توضیحات محصول"
-            )}
-          </p>
-
-          <div class="product-price">
-            ${oldPrice}
-            <strong>
-              ${formatPrice(product.price)}
-            </strong>
-          </div>
-
-          <div class="product-actions">
-
-            <button
-              class="view-product"
-              data-product="${escapeHTML(product.id)}"
-            >
-              مشاهده
-            </button>
-
-            <button
-              class="add-cart"
-              data-cart="${escapeHTML(product.id)}"
-            >
-              افزودن به سبد
-            </button>
-
-          </div>
-
-        </div>
-
-      </article>
-    `;
-  }
-
-  /* =========================
-     RENDER PRODUCTS
-  ========================= */
-
-  function renderProducts(list = products) {
+function renderProducts(list) {
 
     if (!productsGrid) return;
 
     if (!list.length) {
 
-      productsGrid.innerHTML = `
-        <div class="empty-products">
-          <div class="empty-icon">🛍️</div>
-          <h3>محصولی پیدا نشد</h3>
-          <p>
-            فعلاً محصولی در این بخش وجود ندارد.
-          </p>
-        </div>
-      `;
-
-      return;
-    }
-
-    productsGrid.innerHTML =
-      list.map(productCard).join("");
-
-    updateCounts();
-  }
-
-  /* =========================
-     SET PRODUCTS
-  ========================= */
-
-  window.setNovaProducts = function (data) {
-
-    products = Array.isArray(data)
-      ? data
-      : [];
-
-    renderProducts(products);
-    updateCounts();
-  };
-
-  /* =========================
-     LOAD PRODUCTS
-  ========================= */
-
-  async function loadProducts() {
-
-    if (!db) {
-      console.error("Supabase پیدا نشد.");
-      return;
-    }
-
-    try {
-
-      const { data, error } =
-        await db
-          .from("products")
-          .select("*")
-          .order("created_at", {
-            ascending: false
-          });
-
-      if (error) {
-        console.error(error);
-
-        if (!products.length) {
-          renderProducts([]);
-        }
+        productsGrid.innerHTML = `
+            <div class="products-loading">
+                <strong>محصولی پیدا نشد</strong>
+                <span>محصول دیگری را جستجو کنید.</span>
+            </div>
+        `;
 
         return;
-      }
-
-      products = data || [];
-
-      renderProducts(products);
-
-    } catch (error) {
-
-      console.error(
-        "خطا در دریافت محصولات:",
-        error
-      );
-
     }
-  }
 
-  /* =========================
-     SEARCH
-  ========================= */
+    productsGrid.innerHTML = list.map(product => {
 
-  if (searchInput) {
+        const isFavorite = favorites.includes(product.id);
 
-    searchInput.addEventListener(
-      "input",
-      () => {
+        const price = Number(product.price || 0);
+        const oldPrice = Number(product.old_price || 0);
 
-        const query =
-          searchInput.value
-            .trim()
-            .toLowerCase();
+        return `
+            <article class="product-card">
 
-        if (!query) {
-          renderProducts(products);
-          return;
-        }
+                <div class="product-image-wrap">
 
-        const filtered =
-          products.filter(product => {
+                    <img
+                        class="product-image"
+                        src="${product.image || "https://via.placeholder.com/600x600?text=NOVA"}"
+                        alt="${escapeHTML(product.name || "محصول")}"
+                        loading="lazy"
+                    >
+
+                    <div class="product-badges">
+
+                        ${
+                            product.is_new
+                                ? `<span class="new-badge">جدید</span>`
+                                : ""
+                        }
+
+                        ${
+                            product.discount
+                                ? `<span class="discount-badge">${product.discount}% تخفیف</span>`
+                                : ""
+                        }
+
+                    </div>
+
+                    <button
+                        class="favorite-btn ${isFavorite ? "active" : ""}"
+                        onclick="toggleFavorite(${product.id})"
+                        aria-label="افزودن به علاقه‌مندی"
+                    >
+                        ${isFavorite ? "♥" : "♡"}
+                    </button>
+
+                </div>
+
+                <div class="product-info">
+
+                    <span class="product-category">
+                        ${escapeHTML(product.category || "سایر")}
+                    </span>
+
+                    <h3>
+                        ${escapeHTML(product.name || "محصول بدون نام")}
+                    </h3>
+
+                    <p class="product-description">
+                        ${escapeHTML(
+                            product.description ||
+                            product.text ||
+                            "توضیحی برای این محصول ثبت نشده است."
+                        )}
+                    </p>
+
+                    <div class="product-price">
+
+                        <strong>
+                            ${formatPrice(price)} تومان
+                        </strong>
+
+                        ${
+                            oldPrice > price
+                                ? `<span class="old-price">
+                                    ${formatPrice(oldPrice)} تومان
+                                   </span>`
+                                : ""
+                        }
+
+                    </div>
+
+                    <div class="product-actions">
+
+                        <button
+                            class="view-product"
+                            onclick="openProduct(${product.id})"
+                        >
+                            مشاهده
+                        </button>
+
+                        <button
+                            class="add-cart"
+                            onclick="addToCart(${product.id})"
+                        >
+                            افزودن به سبد
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </article>
+        `;
+
+    }).join("");
+}
+
+
+/* =================================
+   SEARCH
+================================= */
+
+function searchProducts() {
+
+    const query =
+        searchInput?.value.trim().toLowerCase() || "";
+
+    let result = [...products];
+
+    if (currentCategory !== "all") {
+
+        result = result.filter(product =>
+            String(product.category || "").toLowerCase() ===
+            currentCategory.toLowerCase()
+        );
+    }
+
+    if (query) {
+
+        result = result.filter(product => {
 
             const name =
-              String(product.name || "")
-                .toLowerCase();
-
-            const category =
-              String(product.category || "")
-                .toLowerCase();
+                String(product.name || "").toLowerCase();
 
             const description =
-              String(
-                product.description ||
-                product.text ||
-                ""
-              ).toLowerCase();
+                String(
+                    product.description ||
+                    product.text ||
+                    ""
+                ).toLowerCase();
+
+            const category =
+                String(product.category || "").toLowerCase();
 
             return (
-              name.includes(query) ||
-              category.includes(query) ||
-              description.includes(query)
+                name.includes(query) ||
+                description.includes(query) ||
+                category.includes(query)
             );
-          });
-
-        renderProducts(filtered);
-      }
-    );
-  }
-
-  /* =========================
-     CATEGORY FILTER
-  ========================= */
-
-  document.addEventListener(
-    "click",
-    event => {
-
-      const category =
-        event.target.closest(
-          ".category-card"
-        );
-
-      if (!category) return;
-
-      const categoryName =
-        category.dataset.category;
-
-      if (!categoryName) return;
-
-      /*
-       * فعلاً دسته‌بندی را در همان صفحه فیلتر می‌کنیم.
-       * برای صفحه جداگانه بعداً category.html اضافه می‌کنیم.
-       */
-
-      const filtered =
-        products.filter(product =>
-          String(product.category || "")
-            .trim()
-            .toLowerCase() ===
-          String(categoryName)
-            .trim()
-            .toLowerCase()
-        );
-
-      if (filtered.length) {
-        renderProducts(filtered);
-
-        const productsSection =
-          document.getElementById("products");
-
-        if (productsSection) {
-          productsSection.scrollIntoView({
-            behavior: "smooth"
-          });
-        }
-
-      } else {
-
-        renderProducts([]);
-
-        const productsSection =
-          document.getElementById("products");
-
-        if (productsSection) {
-          productsSection.scrollIntoView({
-            behavior: "smooth"
-          });
-        }
-      }
+        });
     }
-  );
 
-  /* =========================
-     SHOW ALL PRODUCTS
-  ========================= */
+    renderProducts(result);
+}
 
-  const showAll =
-    document.getElementById("showAllProducts");
 
-  if (showAll) {
+/* =================================
+   CATEGORY FILTER
+================================= */
 
-    showAll.addEventListener(
-      "click",
-      () => {
+function filterCategory(category) {
 
-        renderProducts(products);
+    currentCategory = category || "all";
 
-        const productsSection =
-          document.getElementById("products");
+    searchProducts();
 
-        if (productsSection) {
-          productsSection.scrollIntoView({
+    document
+        .getElementById("products")
+        ?.scrollIntoView({
             behavior: "smooth"
-          });
-        }
-      }
-    );
-  }
+        });
+}
 
-  /* =========================
-     FAVORITE
-  ========================= */
 
-  function toggleFavorite(id) {
+/* =================================
+   CATEGORY BUTTONS
+================================= */
 
-    const product =
-      products.find(
-        item => String(item.id) === String(id)
-      );
+document.querySelectorAll(".category-card").forEach(button => {
 
-    if (!product) return;
+    button.addEventListener("click", () => {
 
-    const index =
-      favorites.findIndex(
-        item => String(item.id) === String(id)
-      );
+        const category =
+            button.dataset.category || "all";
 
-    if (index >= 0) {
+        filterCategory(category);
 
-      favorites.splice(index, 1);
+    });
+
+});
+
+
+/* =================================
+   SHOW ALL PRODUCTS
+================================= */
+
+function showAllProducts() {
+
+    currentCategory = "all";
+
+    if (searchInput) {
+        searchInput.value = "";
+    }
+
+    renderProducts(products);
+
+    document
+        .getElementById("products")
+        ?.scrollIntoView({
+            behavior: "smooth"
+        });
+}
+
+document
+    .getElementById("showAllProducts")
+    ?.addEventListener("click", showAllProducts);
+
+document
+    .getElementById("showAllProductsTop")
+    ?.addEventListener("click", showAllProducts);
+
+
+/* =================================
+   SEARCH INPUT
+================================= */
+
+searchInput?.addEventListener(
+    "input",
+    searchProducts
+);
+
+
+/* =================================
+   FAVORITES
+================================= */
+
+function toggleFavorite(id) {
+
+    const index = favorites.indexOf(id);
+
+    if (index === -1) {
+
+        favorites.push(id);
+
+        showToast("به علاقه‌مندی‌ها اضافه شد");
 
     } else {
 
-      favorites.push(product);
+        favorites.splice(index, 1);
+
+        showToast("از علاقه‌مندی‌ها حذف شد");
     }
 
-    saveFavorites();
+    localStorage.setItem(
+        "novaFavorites",
+        JSON.stringify(favorites)
+    );
+
     updateCounts();
 
-    renderProducts(
-      getCurrentVisibleProducts()
-    );
-  }
+    searchProducts();
 
-  /* =========================
-     CURRENT PRODUCTS
-  ========================= */
+    if (favoritesModal?.classList.contains("active")) {
+        renderFavorites();
+    }
+}
 
-  function getCurrentVisibleProducts() {
 
-    if (!productsGrid) {
-      return products;
+function renderFavorites() {
+
+    if (!favoritesItems) return;
+
+    const favoriteProducts =
+        products.filter(product =>
+            favorites.includes(product.id)
+        );
+
+    if (!favoriteProducts.length) {
+
+        favoritesItems.innerHTML = `
+            <div class="products-loading">
+                <strong>هنوز محصولی اضافه نکرده‌اید</strong>
+                <span>محصولات مورد علاقه‌تان اینجا نمایش داده می‌شوند.</span>
+            </div>
+        `;
+
+        return;
     }
 
-    const cards =
-      productsGrid.querySelectorAll(
-        ".product-card"
-      );
+    favoritesItems.innerHTML =
+        favoriteProducts.map(product => {
 
-    if (!cards.length) {
-      return products;
-    }
+            return `
+                <article class="product-card">
 
-    const ids =
-      Array.from(cards)
-        .map(card => card.dataset.id);
+                    <div class="product-image-wrap">
 
-    return products.filter(product =>
-      ids.includes(String(product.id))
+                        <img
+                            class="product-image"
+                            src="${product.image || "https://via.placeholder.com/600x600?text=NOVA"}"
+                            alt="${escapeHTML(product.name || "محصول")}"
+                        >
+
+                    </div>
+
+                    <div class="product-info">
+
+                        <span class="product-category">
+                            ${escapeHTML(product.category || "سایر")}
+                        </span>
+
+                        <h3>
+                            ${escapeHTML(product.name || "محصول")}
+                        </h3>
+
+                        <div class="product-price">
+                            <strong>
+                                ${formatPrice(Number(product.price || 0))} تومان
+                            </strong>
+                        </div>
+
+                        <div class="product-actions">
+
+                            <button
+                                class="view-product"
+                                onclick="openProduct(${product.id})"
+                            >
+                                مشاهده
+                            </button>
+
+                            <button
+                                class="add-cart"
+                                onclick="addToCart(${product.id})"
+                            >
+                                افزودن به سبد
+                            </button>
+
+                        </div>
+
+                    </div>
+
+                </article>
+            `;
+
+        }).join("");
+}
+
+
+/* =================================
+   CART
+================================= */
+
+function addToCart(id) {
+
+    const product = products.find(
+        product => product.id === id
     );
-  }
-
-  /* =========================
-     CART
-  ========================= */
-
-  function addToCart(id) {
-
-    const product =
-      products.find(
-        item => String(item.id) === String(id)
-      );
 
     if (!product) return;
 
     const existing =
-      cart.find(
-        item => String(item.id) === String(id)
-      );
+        cart.find(item => item.id === id);
 
     if (existing) {
 
-      existing.quantity =
-        (existing.quantity || 1) + 1;
+        existing.quantity += 1;
 
     } else {
 
-      cart.push({
-        ...product,
-        quantity: 1
-      });
+        cart.push({
+            id: id,
+            quantity: 1
+        });
     }
 
     saveCart();
+
     updateCounts();
 
-    showToast("محصول به سبد خرید اضافه شد 🛒");
-  }
+    showToast("محصول به سبد خرید اضافه شد");
+}
 
-  function removeFromCart(id) {
+
+function removeFromCart(id) {
 
     cart =
-      cart.filter(
-        item => String(item.id) !== String(id)
-      );
+        cart.filter(item => item.id !== id);
 
     saveCart();
-    renderCart();
-    updateCounts();
-  }
 
-  function changeQuantity(id, amount) {
+    renderCart();
+
+    updateCounts();
+}
+
+
+function changeQuantity(id, amount) {
 
     const item =
-      cart.find(
-        product => String(product.id) === String(id)
-      );
+        cart.find(item => item.id === id);
 
     if (!item) return;
 
-    item.quantity =
-      (item.quantity || 1) + amount;
+    item.quantity += amount;
 
     if (item.quantity <= 0) {
-      removeFromCart(id);
-      return;
+
+        removeFromCart(id);
+
+        return;
     }
 
     saveCart();
+
     renderCart();
+
     updateCounts();
-  }
+}
 
-  /* =========================
-     RENDER CART
-  ========================= */
 
-  function renderCart() {
+function renderCart() {
 
     if (!cartItems) return;
 
     if (!cart.length) {
 
-      cartItems.innerHTML = `
-        <div class="empty-cart">
-          <div>🛒</div>
-          <h3>سبد خرید خالی است</h3>
-          <p>
-            هنوز محصولی به سبد خرید اضافه نکرده‌اید.
-          </p>
-        </div>
-      `;
+        cartItems.innerHTML = `
+            <div class="products-loading">
+                <strong>سبد خرید خالی است</strong>
+                <span>هنوز محصولی به سبد اضافه نکرده‌اید.</span>
+            </div>
+        `;
 
-      if (cartTotal) {
-        cartTotal.textContent =
-          formatPrice(0);
-      }
+        if (cartTotal) {
+            cartTotal.textContent = "0 تومان";
+        }
 
-      return;
+        return;
     }
+
+    let total = 0;
 
     cartItems.innerHTML =
-      cart.map(item => {
+        cart.map(item => {
 
-        const image =
-          item.image ||
-          "https://via.placeholder.com/120";
+            const product =
+                products.find(
+                    product => product.id === item.id
+                );
 
-        return `
-          <div class="cart-item">
+            if (!product) return "";
 
-            <img
-              src="${escapeHTML(image)}"
-              alt="${escapeHTML(item.name)}"
-            >
+            const price =
+                Number(product.price || 0);
 
-            <div class="cart-item-info">
+            total += price * item.quantity;
 
-              <h4>
-                ${escapeHTML(item.name)}
-              </h4>
+            return `
+                <div class="cart-item">
 
-              <strong>
-                ${formatPrice(item.price)}
-              </strong>
+                    <img
+                        src="${product.image || "https://via.placeholder.com/100?text=NOVA"}"
+                        alt="${escapeHTML(product.name || "محصول")}"
+                    >
 
-              <div class="quantity-controls">
+                    <div class="cart-item-info">
 
-                <button
-                  data-minus="${escapeHTML(item.id)}"
-                >
-                  −
-                </button>
+                        <strong>
+                            ${escapeHTML(product.name || "محصول")}
+                        </strong>
 
-                <span>
-                  ${item.quantity || 1}
-                </span>
+                        <span>
+                            ${formatPrice(price)} تومان
+                        </span>
 
-                <button
-                  data-plus="${escapeHTML(item.id)}"
-                >
-                  +
-                </button>
+                        <div style="
+                            display:flex;
+                            align-items:center;
+                            gap:8px;
+                            margin-top:7px;
+                        ">
 
-              </div>
+                            <button
+                                onclick="changeQuantity(${product.id}, -1)"
+                                style="
+                                    width:25px;
+                                    height:25px;
+                                    border-radius:7px;
+                                "
+                            >−</button>
 
-            </div>
+                            <span>
+                                ${item.quantity}
+                            </span>
 
-            <button
-              class="remove-cart"
-              data-remove="${escapeHTML(item.id)}"
-            >
-              ×
-            </button>
+                            <button
+                                onclick="changeQuantity(${product.id}, 1)"
+                                style="
+                                    width:25px;
+                                    height:25px;
+                                    border-radius:7px;
+                                "
+                            >+</button>
 
-          </div>
-        `;
+                        </div>
 
-      }).join("");
+                    </div>
 
-    const total =
-      cart.reduce(
-        (sum, item) =>
-          sum +
-          Number(item.price || 0) *
-          Number(item.quantity || 1),
-        0
-      );
+                    <button
+                        onclick="removeFromCart(${product.id})"
+                        style="
+                            color:#ef4444;
+                            background:transparent;
+                            font-size:18px;
+                        "
+                    >
+                        ×
+                    </button>
+
+                </div>
+            `;
+
+        }).join("");
 
     if (cartTotal) {
-      cartTotal.textContent =
-        formatPrice(total);
+        cartTotal.textContent =
+            `${formatPrice(total)} تومان`;
     }
-  }
+}
 
-  /* =========================
-     FAVORITES MODAL
-  ========================= */
 
-  function renderFavorites() {
+function saveCart() {
 
-    if (!favoritesItems) return;
+    localStorage.setItem(
+        "novaCart",
+        JSON.stringify(cart)
+    );
+}
 
-    if (!favorites.length) {
 
-      favoritesItems.innerHTML = `
-        <div class="empty-favorites">
-          <div>♡</div>
-          <h3>هنوز محصولی ذخیره نکرده‌اید</h3>
-          <p>
-            روی قلب محصولات بزنید تا اینجا ذخیره شوند.
-          </p>
-        </div>
-      `;
+/* =================================
+   PRODUCT MODAL
+================================= */
 
-      return;
-    }
-
-    favoritesItems.innerHTML =
-      favorites.map(product => {
-
-        const image =
-          product.image ||
-          "https://via.placeholder.com/150";
-
-        return `
-          <div class="favorite-item">
-
-            <img
-              src="${escapeHTML(image)}"
-              alt="${escapeHTML(product.name)}"
-            >
-
-            <div>
-
-              <h4>
-                ${escapeHTML(product.name)}
-              </h4>
-
-              <strong>
-                ${formatPrice(product.price)}
-              </strong>
-
-              <div class="favorite-actions">
-
-                <button
-                  data-fav-cart="${escapeHTML(product.id)}"
-                >
-                  افزودن به سبد
-                </button>
-
-                <button
-                  data-fav-remove="${escapeHTML(product.id)}"
-                >
-                  حذف
-                </button>
-
-              </div>
-
-            </div>
-
-          </div>
-        `;
-
-      }).join("");
-  }
-
-  /* =========================
-     PRODUCT MODAL
-  ========================= */
-
-  function openProduct(id) {
+function openProduct(id) {
 
     const product =
-      products.find(
-        item => String(item.id) === String(id)
-      );
+        products.find(product => product.id === id);
 
     if (!product || !productModal) return;
 
-    const image =
-      product.image ||
-      "https://via.placeholder.com/600";
+    const content =
+        document.getElementById("productModalContent");
 
-    if (productModalContent) {
+    if (!content) return;
 
-      productModalContent.innerHTML = `
+    content.innerHTML = `
 
-        <div class="modal-product">
+        <img
+            src="${product.image || "https://via.placeholder.com/600x600?text=NOVA"}"
+            alt="${escapeHTML(product.name || "محصول")}"
+        >
 
-          <img
-            src="${escapeHTML(image)}"
-            alt="${escapeHTML(product.name)}"
-          >
-
-          <div class="modal-product-info">
+        <div>
 
             <span class="product-category">
-              ${escapeHTML(
-                product.category || "محصول"
-              )}
+                ${escapeHTML(product.category || "سایر")}
             </span>
 
-            <h2>
-              ${escapeHTML(product.name)}
+            <h2 style="margin:10px 0;">
+                ${escapeHTML(product.name || "محصول")}
             </h2>
 
-            <p>
-              ${escapeHTML(
-                product.description ||
-                product.text ||
-                "توضیحی برای این محصول ثبت نشده است."
-              )}
+            <p style="
+                color:var(--text-light);
+                font-size:13px;
+                line-height:2;
+                margin-bottom:18px;
+            ">
+                ${escapeHTML(
+                    product.description ||
+                    product.text ||
+                    "توضیحی برای این محصول ثبت نشده است."
+                )}
             </p>
 
-            <div class="modal-price">
-              ${formatPrice(product.price)}
+            <div class="product-price">
+
+                <strong style="font-size:20px;">
+                    ${formatPrice(Number(product.price || 0))}
+                    تومان
+                </strong>
+
+                ${
+                    product.old_price
+                        ? `
+                            <span class="old-price">
+                                ${formatPrice(Number(product.old_price))}
+                                تومان
+                            </span>
+                        `
+                        : ""
+                }
+
             </div>
 
             <button
-              class="modal-add-cart"
-              data-modal-cart="${escapeHTML(product.id)}"
+                class="add-cart"
+                onclick="addToCart(${product.id}); closeModal('productModal')"
+                style="
+                    width:100%;
+                    height:48px;
+                    border-radius:10px;
+                    margin-top:15px;
+                    font-weight:bold;
+                "
             >
-              افزودن به سبد خرید
+                افزودن به سبد خرید
             </button>
 
-          </div>
-
         </div>
+    `;
 
-      `;
-    }
+    openModal("productModal");
+}
 
-    productModal.classList.add("active");
+
+/* =================================
+   MODALS
+================================= */
+
+function openModal(id) {
+
+    const modal =
+        document.getElementById(id);
+
+    if (!modal) return;
+
+    modal.classList.add("active");
+
     document.body.classList.add("modal-open");
-  }
+}
 
-  /* =========================
-     CLOSE MODALS
-  ========================= */
 
-  function closeModal(modal) {
+function closeModal(id) {
+
+    const modal =
+        document.getElementById(id);
 
     if (!modal) return;
 
     modal.classList.remove("active");
-    document.body.classList.remove("modal-open");
-  }
 
-  /* =========================
-     GLOBAL CLICK HANDLER
-  ========================= */
-
-  document.addEventListener(
-    "click",
-    event => {
-
-      /* Favorite */
-
-      const favoriteButton =
-        event.target.closest(
-          "[data-favorite]"
-        );
-
-      if (favoriteButton) {
-
-        event.stopPropagation();
-
-        toggleFavorite(
-          favoriteButton.dataset.favorite
-        );
-
-        return;
-      }
-
-      /* Add Cart */
-
-      const cartButton =
-        event.target.closest(
-          "[data-cart]"
-        );
-
-      if (cartButton) {
-
-        event.stopPropagation();
-
-        addToCart(
-          cartButton.dataset.cart
-        );
-
-        return;
-      }
-
-      /* Product */
-
-      const productButton =
-        event.target.closest(
-          "[data-product]"
-        );
-
-      if (productButton) {
-
-        openProduct(
-          productButton.dataset.product
-        );
-
-        return;
-      }
-
-      /* Cart + */
-
-      const plus =
-        event.target.closest(
-          "[data-plus]"
-        );
-
-      if (plus) {
-
-        changeQuantity(
-          plus.dataset.plus,
-          1
-        );
-
-        return;
-      }
-
-      /* Cart - */
-
-      const minus =
-        event.target.closest(
-          "[data-minus]"
-        );
-
-      if (minus) {
-
-        changeQuantity(
-          minus.dataset.minus,
-          -1
-        );
-
-        return;
-      }
-
-      /* Remove Cart */
-
-      const remove =
-        event.target.closest(
-          "[data-remove]"
-        );
-
-      if (remove) {
-
-        removeFromCart(
-          remove.dataset.remove
-        );
-
-        return;
-      }
-
-      /* Favorite Cart */
-
-      const favoriteCart =
-        event.target.closest(
-          "[data-fav-cart]"
-        );
-
-      if (favoriteCart) {
-
-        addToCart(
-          favoriteCart.dataset.favCart
-        );
-
-        return;
-      }
-
-      /* Favorite Remove */
-
-      const favoriteRemove =
-        event.target.closest(
-          "[data-fav-remove]"
-        );
-
-      if (favoriteRemove) {
-
-        toggleFavorite(
-          favoriteRemove.dataset.favRemove
-        );
-
-        renderFavorites();
-
-        return;
-      }
-
-      /* Modal Cart */
-
-      const modalCart =
-        event.target.closest(
-          "[data-modal-cart]"
-        );
-
-      if (modalCart) {
-
-        addToCart(
-          modalCart.dataset.modalCart
-        );
-
-        closeModal(productModal);
-
-        return;
-      }
-
-      /* Close */
-
-      const closeButton =
-        event.target.closest(
-          "[data-close]"
-        );
-
-      if (closeButton) {
-
-        closeModal(productModal);
-        closeModal(cartModal);
-        closeModal(favoritesModal);
-
-        return;
-      }
-
-      /* Click outside modal */
-
-      if (
-        event.target === productModal
-      ) {
-        closeModal(productModal);
-      }
-
-      if (
-        event.target === cartModal
-      ) {
-        closeModal(cartModal);
-      }
-
-      if (
-        event.target === favoritesModal
-      ) {
-        closeModal(favoritesModal);
-      }
-
+    if (
+        !document.querySelector(".modal.active")
+    ) {
+        document.body.classList.remove("modal-open");
     }
-  );
+}
 
-  /* =========================
-     CART BUTTON
-  ========================= */
 
-  const cartButton =
-    document.getElementById("cartButton");
+document
+    .querySelectorAll(".modal-close")
+    .forEach(button => {
 
-  if (cartButton) {
+        button.addEventListener("click", () => {
 
-    cartButton.addEventListener(
-      "click",
-      () => {
+            const modal =
+                button.closest(".modal");
+
+            if (modal) {
+                closeModal(modal.id);
+            }
+
+        });
+
+    });
+
+
+document
+    .querySelectorAll(".modal")
+    .forEach(modal => {
+
+        modal.addEventListener("click", event => {
+
+            if (event.target === modal) {
+                closeModal(modal.id);
+            }
+
+        });
+
+    });
+
+
+/* =================================
+   CART BUTTON
+================================= */
+
+cartButton?.addEventListener(
+    "click",
+    () => {
 
         renderCart();
 
-        if (cartModal) {
-          cartModal.classList.add("active");
-          document.body.classList.add("modal-open");
-        }
-      }
-    );
-  }
+        openModal("cartModal");
+    }
+);
 
-  /* =========================
-     FAVORITES BUTTON
-  ========================= */
 
-  const favoritesButton =
-    document.getElementById("favoritesButton");
+/* =================================
+   FAVORITES BUTTON
+================================= */
 
-  if (favoritesButton) {
-
-    favoritesButton.addEventListener(
-      "click",
-      () => {
+favoritesButton?.addEventListener(
+    "click",
+    () => {
 
         renderFavorites();
 
-        if (favoritesModal) {
-          favoritesModal.classList.add("active");
-          document.body.classList.add("modal-open");
-        }
-      }
+        openModal("favoritesModal");
+    }
+);
+
+
+/* =================================
+   THEME
+================================= */
+
+function applyTheme() {
+
+    const dark =
+        localStorage.getItem("novaTheme") === "dark";
+
+    document.body.classList.toggle(
+        "dark-mode",
+        dark
     );
-  }
 
-  /* =========================
-     THEME
-  ========================= */
+    if (themeToggle) {
 
-  const themeToggle =
-    document.getElementById("themeToggle");
+        themeToggle.innerHTML =
+            dark ? "☀️" : "🌙";
+    }
+}
 
-  const savedTheme =
-    localStorage.getItem("nova_theme");
 
-  if (savedTheme === "dark") {
-    document.body.classList.add("dark");
-  }
+themeToggle?.addEventListener(
+    "click",
+    () => {
 
-  if (themeToggle) {
-
-    themeToggle.addEventListener(
-      "click",
-      () => {
-
-        document.body.classList.toggle("dark");
+        const dark =
+            document.body.classList.toggle(
+                "dark-mode"
+            );
 
         localStorage.setItem(
-          "nova_theme",
-          document.body.classList.contains("dark")
-            ? "dark"
-            : "light"
+            "novaTheme",
+            dark ? "dark" : "light"
         );
-      }
-    );
-  }
 
-  /* =========================
-     MOBILE MENU
-  ========================= */
+        applyTheme();
+    }
+);
 
-  const menuButton =
-    document.getElementById("menuButton");
 
-  const mobileMenu =
-    document.getElementById("mobileMenu");
+/* =================================
+   MOBILE MENU
+================================= */
 
-  if (menuButton && mobileMenu) {
+menuButton?.addEventListener(
+    "click",
+    () => {
 
-    menuButton.addEventListener(
-      "click",
-      () => {
+        if (!mobileMenu) return;
 
-        mobileMenu.classList.toggle("active");
-      }
-    );
+        const isOpen =
+            mobileMenu.style.display === "block";
 
-  }
+        mobileMenu.style.display =
+            isOpen ? "none" : "block";
+    }
+);
 
-  /* =========================
-     TOAST
-  ========================= */
 
-  function showToast(message) {
+document
+    .querySelectorAll(".mobile-menu a")
+    .forEach(link => {
+
+        link.addEventListener("click", () => {
+
+            if (mobileMenu) {
+                mobileMenu.style.display = "none";
+            }
+
+        });
+
+    });
+
+
+/* =================================
+   ESC KEY
+================================= */
+
+document.addEventListener(
+    "keydown",
+    event => {
+
+        if (event.key !== "Escape") return;
+
+        document
+            .querySelectorAll(".modal.active")
+            .forEach(modal => {
+                closeModal(modal.id);
+            });
+
+    }
+);
+
+
+/* =================================
+   COUNTERS
+================================= */
+
+function updateCounts() {
+
+    if (favoriteCount) {
+
+        favoriteCount.textContent =
+            favorites.length;
+
+        favoriteCount.style.display =
+            favorites.length
+                ? "flex"
+                : "none";
+    }
+
+    if (cartCount) {
+
+        const count =
+            cart.reduce(
+                (sum, item) =>
+                    sum + item.quantity,
+                0
+            );
+
+        cartCount.textContent = count;
+
+        cartCount.style.display =
+            count
+                ? "flex"
+                : "none";
+    }
+}
+
+
+/* =================================
+   TOAST
+================================= */
+
+function showToast(message) {
 
     let toast =
-      document.getElementById("novaToast");
+        document.getElementById("novaToast");
 
     if (!toast) {
 
-      toast =
-        document.createElement("div");
+        toast =
+            document.createElement("div");
 
-      toast.id = "novaToast";
+        toast.id = "novaToast";
 
-      toast.className = "nova-toast";
+        toast.style.cssText = `
+            position:fixed;
+            bottom:25px;
+            right:25px;
+            z-index:5000;
+            padding:12px 18px;
+            border-radius:12px;
+            background:#18181b;
+            color:white;
+            font-size:12px;
+            box-shadow:0 10px 30px rgba(0,0,0,.2);
+            transition:.25s;
+        `;
 
-      document.body.appendChild(toast);
+        document.body.appendChild(toast);
     }
 
     toast.textContent = message;
 
-    toast.classList.add("show");
+    toast.style.opacity = "1";
 
-    clearTimeout(
-      window.novaToastTimer
-    );
+    clearTimeout(window.novaToastTimer);
 
     window.novaToastTimer =
-      setTimeout(() => {
+        setTimeout(() => {
 
-        toast.classList.remove("show");
+            toast.style.opacity = "0";
 
-      }, 2200);
-  }
+        }, 2200);
+}
 
-  /* =========================
-     NAVIGATION
-  ========================= */
 
-  document.querySelectorAll(
-    'a[href^="#"]'
-  ).forEach(link => {
+/* =================================
+   HELPERS
+================================= */
 
-    link.addEventListener(
-      "click",
-      event => {
+function formatPrice(number) {
 
-        const id =
-          link.getAttribute("href");
+    return Number(number || 0)
+        .toLocaleString("fa-IR");
+}
 
-        if (!id || id === "#") return;
 
-        const target =
-          document.querySelector(id);
+function escapeHTML(value) {
 
-        if (!target) return;
+    return String(value ?? "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+}
 
-        event.preventDefault();
 
-        target.scrollIntoView({
-          behavior: "smooth"
-        });
+/* =================================
+   INITIALIZE
+================================= */
 
-        if (mobileMenu) {
-          mobileMenu.classList.remove(
-            "active"
-          );
-        }
-      }
-    );
-  });
+applyTheme();
 
-  /* =========================
-     ESCAPE KEY
-  ========================= */
+updateCounts();
 
-  document.addEventListener(
-    "keydown",
-    event => {
-
-      if (event.key !== "Escape") return;
-
-      closeModal(productModal);
-      closeModal(cartModal);
-      closeModal(favoritesModal);
-
-      if (mobileMenu) {
-        mobileMenu.classList.remove(
-          "active"
-        );
-      }
-    }
-  );
-
-  /* =========================
-     INITIALIZE
-  ========================= */
-
-  updateCounts();
-
-  renderCart();
-
-  renderFavorites();
-
-  /*
-   * اگر index.html خودش محصولات را از Supabase
-   * گرفته باشد، همان داده‌ها استفاده می‌شوند.
-   *
-   * در غیر این صورت خودمان محصولات را می‌گیریم.
-   */
-
-  if (!window.novaProductsLoaded) {
-    loadProducts();
-  }
-
-});
+loadProducts();
