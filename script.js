@@ -1,686 +1,844 @@
-/* =====================================================
-   NOVA STORE - SCRIPT.JS
-===================================================== */
+/* =========================================================
+   NAVA STORE
+   Main JavaScript
+========================================================= */
 
-document.addEventListener("DOMContentLoaded", function () {
+document.addEventListener("DOMContentLoaded", () => {
 
-  /* =====================================================
-     SLIDER
-  ===================================================== */
+    /* =====================================================
+       GLOBAL ELEMENTS
+    ====================================================== */
 
-  const slides = document.querySelectorAll(".hero-slide");
-  const dots = document.querySelectorAll(".slider-dots .dot");
+    const body = document.body;
 
-  const nextButton = document.getElementById("nextSlide");
-  const prevButton = document.getElementById("prevSlide");
+    const toast = document.getElementById("toast");
 
-  let currentSlide = 0;
-  let sliderTimer;
+    const searchForm = document.querySelector(".search-form");
+    const searchInput = document.getElementById("searchInput");
 
+    const productsSection = document.getElementById("products");
 
-  /* نمایش اسلاید */
+    const productCards = document.querySelectorAll(".product-card");
 
-  function showSlide(index) {
+    const cartButtons = document.querySelectorAll(
+        ".cart-button, .add-to-cart"
+    );
 
-    if (slides.length === 0) {
-      return;
-    }
-
-    if (index >= slides.length) {
-      index = 0;
-    }
-
-    if (index < 0) {
-      index = slides.length - 1;
-    }
-
-    currentSlide = index;
-
-
-    /* حذف active از همه اسلایدها */
-
-    slides.forEach(function (slide) {
-      slide.classList.remove("active");
-    });
-
-
-    /* حذف active از نقطه‌ها */
-
-    dots.forEach(function (dot) {
-      dot.classList.remove("active");
-    });
-
-
-    /* فعال کردن اسلاید */
-
-    slides[currentSlide].classList.add("active");
-
-
-    /* فعال کردن نقطه */
-
-    if (dots[currentSlide]) {
-      dots[currentSlide].classList.add("active");
-    }
-
-  }
-
-
-  /* اسلاید بعدی */
-
-  function nextSlide() {
-    showSlide(currentSlide + 1);
-    restartSlider();
-  }
-
-
-  /* اسلاید قبلی */
-
-  function previousSlide() {
-    showSlide(currentSlide - 1);
-    restartSlider();
-  }
-
-
-  /* تایمر اسلایدر */
-
-  function startSlider() {
-
-    clearInterval(sliderTimer);
-
-    sliderTimer = setInterval(function () {
-
-      showSlide(currentSlide + 1);
-
-    }, 5000);
-
-  }
-
-
-  /* شروع دوباره تایمر */
-
-  function restartSlider() {
-
-    clearInterval(sliderTimer);
-
-    startSlider();
-
-  }
-
-
-  /* دکمه بعدی */
-
-  if (nextButton) {
-
-    nextButton.addEventListener("click", function () {
-
-      nextSlide();
-
-    });
-
-  }
-
-
-  /* دکمه قبلی */
-
-  if (prevButton) {
-
-    prevButton.addEventListener("click", function () {
-
-      previousSlide();
-
-    });
-
-  }
-
-
-  /* کلیک روی نقطه‌ها */
-
-  dots.forEach(function (dot, index) {
-
-    dot.addEventListener("click", function () {
-
-      showSlide(index);
-
-      restartSlider();
-
-    });
-
-  });
-
-
-  /* شروع اسلایدر */
-
-  if (slides.length > 0) {
-
-    showSlide(0);
-
-    startSlider();
-
-  }
-
-
-
-  /* =====================================================
-     توقف اسلایدر هنگام نگه داشتن موس
-  ===================================================== */
-
-  const heroSlider = document.getElementById("heroSlider");
-
-  if (heroSlider) {
-
-    heroSlider.addEventListener("mouseenter", function () {
-
-      clearInterval(sliderTimer);
-
-    });
-
-
-    heroSlider.addEventListener("mouseleave", function () {
-
-      startSlider();
-
-    });
-
-  }
-
-
-
-  /* =====================================================
-     SWIPE برای موبایل
-  ===================================================== */
-
-  let touchStartX = 0;
-  let touchEndX = 0;
-
-
-  if (heroSlider) {
-
-    heroSlider.addEventListener(
-      "touchstart",
-      function (event) {
-
-        touchStartX = event.changedTouches[0].screenX;
-
-      },
-      { passive: true }
+    const favoriteButtons = document.querySelectorAll(
+        ".favorite-button"
     );
 
 
-    heroSlider.addEventListener(
-      "touchend",
-      function (event) {
+    /* =====================================================
+       CART
+    ====================================================== */
 
-        touchEndX = event.changedTouches[0].screenX;
+    let cartCount = 3;
 
-        handleSwipe();
+    const cartCountDesktop = document.querySelector(".cart-count");
+    const cartCountMobile = document.querySelector(".mobile-cart-count");
 
-      },
-      { passive: true }
-    );
 
-  }
+    function updateCartCount() {
 
-
-  function handleSwipe() {
-
-    const distance = touchEndX - touchStartX;
-
-    if (Math.abs(distance) < 50) {
-      return;
-    }
-
-
-    /* در RTL جهت مناسب اسلایدر */
-
-    if (distance > 0) {
-
-      previousSlide();
-
-    } else {
-
-      nextSlide();
-
-    }
-
-  }
-
-
-
-  /* =====================================================
-     SHOPPING CART
-  ===================================================== */
-
-  const cartCount = document.getElementById("cartCount");
-
-  const addCartButtons = document.querySelectorAll(".add-cart");
-
-  let cartItems = 0;
-
-
-  /* گرفتن تعداد قبلی از حافظه مرورگر */
-
-  const savedCart = localStorage.getItem("novaCartCount");
-
-  if (savedCart !== null) {
-
-    cartItems = parseInt(savedCart, 10);
-
-    if (isNaN(cartItems)) {
-      cartItems = 0;
-    }
-
-  }
-
-
-  /* نمایش تعداد سبد */
-
-  function updateCart() {
-
-    if (cartCount) {
-
-      cartCount.textContent = cartItems;
-
-      if (cartItems > 0) {
-
-        cartCount.classList.add("has-items");
-
-      } else {
-
-        cartCount.classList.remove("has-items");
-
-      }
-
-    }
-
-
-    localStorage.setItem(
-      "novaCartCount",
-      cartItems
-    );
-
-  }
-
-
-  updateCart();
-
-
-  /* افزودن محصول */
-
-  addCartButtons.forEach(function (button) {
-
-    button.addEventListener("click", function () {
-
-      cartItems++;
-
-      updateCart();
-
-
-      /* متن اصلی دکمه */
-
-      const originalText = button.innerHTML;
-
-
-      button.classList.add("added");
-
-      button.innerHTML =
-        '✓ اضافه شد';
-
-
-      /* برگرداندن دکمه */
-
-      setTimeout(function () {
-
-        button.innerHTML = originalText;
-
-        button.classList.remove("added");
-
-      }, 1200);
-
-    });
-
-  });
-
-
-
-  /* =====================================================
-     HEART / FAVORITE
-  ===================================================== */
-
-  const heartButtons = document.querySelectorAll(".heart");
-
-
-  heartButtons.forEach(function (button) {
-
-    button.addEventListener("click", function () {
-
-      button.classList.toggle("liked");
-
-
-      const icon = button.querySelector("i");
-
-      if (!icon) {
-        return;
-      }
-
-
-      if (button.classList.contains("liked")) {
-
-        icon.classList.remove("fa-regular");
-
-        icon.classList.add("fa-solid");
-
-      } else {
-
-        icon.classList.remove("fa-solid");
-
-        icon.classList.add("fa-regular");
-
-      }
-
-    });
-
-  });
-
-
-
-  /* =====================================================
-     SEARCH
-  ===================================================== */
-
-  const searchInput = document.querySelector(
-    ".search-box input"
-  );
-
-  const productCards = document.querySelectorAll(
-    ".product-card"
-  );
-
-
-  if (searchInput) {
-
-    searchInput.addEventListener(
-      "input",
-      function () {
-
-        const searchText =
-          searchInput.value
-            .trim()
-            .toLowerCase();
-
-
-        productCards.forEach(function (product) {
-
-          const productName =
-            product
-              .querySelector("h3")
-              ?.textContent
-              .toLowerCase() || "";
-
-
-          if (
-            searchText === "" ||
-            productName.includes(searchText)
-          ) {
-
-            product.style.display = "";
-
-          } else {
-
-            product.style.display = "none";
-
-          }
-
-        });
-
-      }
-    );
-
-  }
-
-
-
-  /* =====================================================
-     SEARCH با ENTER
-  ===================================================== */
-
-  if (searchInput) {
-
-    searchInput.addEventListener(
-      "keydown",
-      function (event) {
-
-        if (event.key === "Enter") {
-
-          event.preventDefault();
-
-          searchInput.blur();
-
+        if (cartCountDesktop) {
+            cartCountDesktop.textContent = cartCount;
         }
 
-      }
-    );
-
-  }
-
-
-
-  /* =====================================================
-     SMOOTH SCROLL
-  ===================================================== */
-
-  const internalLinks = document.querySelectorAll(
-    'a[href^="#"]'
-  );
+        if (cartCountMobile) {
+            cartCountMobile.textContent = cartCount;
+        }
+    }
 
 
-  internalLinks.forEach(function (link) {
+    function showToast(message) {
 
-    link.addEventListener("click", function (event) {
+        if (!toast) return;
 
-      const targetId =
-        link.getAttribute("href");
+        toast.textContent = message;
 
+        toast.classList.add("show");
 
-      if (
-        !targetId ||
-        targetId === "#"
-      ) {
+        clearTimeout(window.toastTimer);
 
-        return;
+        window.toastTimer = setTimeout(() => {
 
-      }
+            toast.classList.remove("show");
 
-
-      const target =
-        document.querySelector(targetId);
+        }, 2200);
+    }
 
 
-      if (target) {
+    /* =====================================================
+       ADD TO CART
+    ====================================================== */
 
-        event.preventDefault();
+    document.querySelectorAll(".add-to-cart").forEach(button => {
 
+        button.addEventListener("click", function () {
 
-        target.scrollIntoView({
-          behavior: "smooth",
-          block: "start"
+            cartCount++;
+
+            updateCartCount();
+
+            showToast("محصول با موفقیت به سبد خرید اضافه شد ✓");
+
+            const originalText = this.childNodes[0];
+
+            this.style.transform = "scale(0.97)";
+
+            setTimeout(() => {
+                this.style.transform = "";
+            }, 120);
+
         });
 
-      }
+    });
+
+
+    /* =====================================================
+       CART BUTTON
+    ====================================================== */
+
+    document.querySelectorAll(".cart-button").forEach(button => {
+
+        button.addEventListener("click", event => {
+
+            event.preventDefault();
+
+            showToast(
+                `سبد خرید شما ${cartCount} محصول دارد 🛒`
+            );
+
+        });
 
     });
 
-  });
 
+    /* =====================================================
+       FAVORITES
+    ====================================================== */
 
+    favoriteButtons.forEach(button => {
 
-  /* =====================================================
-     HEADER هنگام اسکرول
-  ===================================================== */
+        button.dataset.favorite = "false";
 
-  const header =
-    document.querySelector(".site-header");
+        button.addEventListener("click", function () {
 
+            const isFavorite =
+                this.dataset.favorite === "true";
 
-  window.addEventListener(
-    "scroll",
-    function () {
+            if (isFavorite) {
 
-      if (!header) {
-        return;
-      }
+                this.dataset.favorite = "false";
 
+                this.textContent = "♡";
 
-      if (window.scrollY > 30) {
+                this.style.color = "";
 
-        header.classList.add("scrolled");
+                showToast(
+                    "محصول از علاقه‌مندی‌ها حذف شد"
+                );
 
-      } else {
+            } else {
 
-        header.classList.remove("scrolled");
+                this.dataset.favorite = "true";
 
-      }
+                this.textContent = "♥";
 
-    },
-    { passive: true }
-  );
+                this.style.color = "#f04462";
 
+                showToast(
+                    "محصول به علاقه‌مندی‌ها اضافه شد ❤️"
+                );
 
+            }
 
-  /* =====================================================
-     جلوگیری از کلیک خالی روی لینک‌های #
-  ===================================================== */
-
-  const emptyLinks =
-    document.querySelectorAll('a[href="#"]');
-
-
-  emptyLinks.forEach(function (link) {
-
-    link.addEventListener("click", function (event) {
-
-      event.preventDefault();
+        });
 
     });
 
-  });
+
+    /* =====================================================
+       SEARCH
+    ====================================================== */
+
+    if (searchForm && searchInput) {
+
+        searchForm.addEventListener("submit", event => {
+
+            event.preventDefault();
+
+            const searchValue =
+                searchInput.value.trim().toLowerCase();
+
+            if (!searchValue) {
+
+                showToast(
+                    "لطفاً نام محصول را وارد کنید"
+                );
+
+                searchInput.focus();
+
+                return;
+            }
 
 
-
-  /* =====================================================
-     نمایش پیام ساده برای ورود / سبد
-  ===================================================== */
-
-  const loginButton =
-    document.querySelector(".login");
+            let foundProducts = 0;
 
 
-  if (loginButton) {
+            productCards.forEach(card => {
 
-    loginButton.addEventListener(
-      "click",
-      function (event) {
+                const title =
+                    card.querySelector("h3");
 
-        event.preventDefault();
+                if (!title) return;
 
-        alert(
-          "بخش ورود و ثبت‌نام به‌زودی فعال می‌شود."
+                const productName =
+                    title.textContent
+                        .trim()
+                        .toLowerCase();
+
+
+                if (
+                    productName.includes(searchValue)
+                ) {
+
+                    card.style.display = "";
+
+                    foundProducts++;
+
+                } else {
+
+                    card.style.display = "none";
+
+                }
+
+            });
+
+
+            productsSection?.scrollIntoView({
+                behavior: "smooth",
+                block: "start"
+            });
+
+
+            if (foundProducts > 0) {
+
+                showToast(
+                    `${foundProducts} محصول پیدا شد ✓`
+                );
+
+            } else {
+
+                showToast(
+                    "محصولی با این نام پیدا نشد"
+                );
+
+            }
+
+        });
+
+
+        /* Clear search */
+
+        searchInput.addEventListener(
+            "input",
+            function () {
+
+                if (this.value.trim() === "") {
+
+                    productCards.forEach(card => {
+
+                        card.style.display = "";
+
+                    });
+
+                }
+
+            }
         );
 
-      }
-    );
-
-  }
+    }
 
 
+    /* =====================================================
+       CATEGORY BUTTONS
+    ====================================================== */
 
-  /* =====================================================
-     CART BUTTON
-  ===================================================== */
-
-  const cartButton =
-    document.querySelector(".cart");
+    const categoryCards =
+        document.querySelectorAll(".category-card");
 
 
-  if (cartButton) {
+    categoryCards.forEach(category => {
 
-    cartButton.addEventListener(
-      "click",
-      function (event) {
+        category.addEventListener("click", event => {
 
-        event.preventDefault();
+            event.preventDefault();
 
-        if (cartItems === 0) {
+            const categoryName =
+                category.querySelector("h3")?.textContent.trim();
 
-          alert(
-            "سبد خرید شما خالی است."
-          );
+            if (!categoryName) return;
+
+
+            if (
+                categoryName.includes("تخفیف")
+            ) {
+
+                showToast(
+                    "محصولات تخفیف‌دار در حال نمایش هستند 🔥"
+                );
+
+                productsSection?.scrollIntoView({
+                    behavior: "smooth",
+                    block: "start"
+                });
+
+                return;
+            }
+
+
+            showToast(
+                `دسته «${categoryName}» انتخاب شد`
+            );
+
+        });
+
+    });
+
+
+    /* =====================================================
+       VIEW ALL BUTTONS
+    ====================================================== */
+
+    document.querySelectorAll(".view-all").forEach(link => {
+
+        link.addEventListener("click", event => {
+
+            event.preventDefault();
+
+            productsSection?.scrollIntoView({
+                behavior: "smooth",
+                block: "start"
+            });
+
+        });
+
+    });
+
+
+    /* =====================================================
+       HERO SLIDER
+    ====================================================== */
+
+    const heroSlides =
+        document.querySelectorAll(".hero-slide");
+
+    const sliderDots =
+        document.querySelectorAll(".slider-dot");
+
+    const prevButton =
+        document.querySelector(".slider-prev");
+
+    const nextButton =
+        document.querySelector(".slider-next");
+
+
+    let currentSlide = 0;
+
+    let sliderTimer;
+
+
+    function showSlide(index) {
+
+        if (!heroSlides.length) return;
+
+
+        if (index >= heroSlides.length) {
+            currentSlide = 0;
+        }
+
+        else if (index < 0) {
+            currentSlide =
+                heroSlides.length - 1;
+        }
+
+        else {
+            currentSlide = index;
+        }
+
+
+        heroSlides.forEach((slide, i) => {
+
+            if (i === currentSlide) {
+
+                slide.style.display = "grid";
+
+                slide.classList.add("active");
+
+            } else {
+
+                slide.style.display = "none";
+
+                slide.classList.remove("active");
+
+            }
+
+        });
+
+
+        sliderDots.forEach((dot, i) => {
+
+            dot.classList.toggle(
+                "active",
+                i === currentSlide
+            );
+
+        });
+
+    }
+
+
+    function nextSlide() {
+
+        showSlide(currentSlide + 1);
+
+        restartSlider();
+
+    }
+
+
+    function previousSlide() {
+
+        showSlide(currentSlide - 1);
+
+        restartSlider();
+
+    }
+
+
+    function startSlider() {
+
+        if (heroSlides.length <= 1) return;
+
+        sliderTimer = setInterval(() => {
+
+            showSlide(currentSlide + 1);
+
+        }, 5000);
+
+    }
+
+
+    function restartSlider() {
+
+        clearInterval(sliderTimer);
+
+        startSlider();
+
+    }
+
+
+    if (heroSlides.length) {
+
+        showSlide(0);
+
+        startSlider();
+
+    }
+
+
+    if (nextButton) {
+
+        nextButton.addEventListener(
+            "click",
+            nextSlide
+        );
+
+    }
+
+
+    if (prevButton) {
+
+        prevButton.addEventListener(
+            "click",
+            previousSlide
+        );
+
+    }
+
+
+    sliderDots.forEach((dot, index) => {
+
+        dot.addEventListener("click", () => {
+
+            showSlide(index);
+
+            restartSlider();
+
+        });
+
+    });
+
+
+    /* =====================================================
+       TOUCH / SWIPE SLIDER
+    ====================================================== */
+
+    const heroSlider =
+        document.querySelector(".hero-slider");
+
+
+    let touchStartX = 0;
+    let touchEndX = 0;
+
+
+    if (heroSlider) {
+
+        heroSlider.addEventListener(
+            "touchstart",
+            event => {
+
+                touchStartX =
+                    event.changedTouches[0].screenX;
+
+            },
+            { passive: true }
+        );
+
+
+        heroSlider.addEventListener(
+            "touchend",
+            event => {
+
+                touchEndX =
+                    event.changedTouches[0].screenX;
+
+                handleSwipe();
+
+            },
+            { passive: true }
+        );
+
+    }
+
+
+    function handleSwipe() {
+
+        const distance =
+            touchEndX - touchStartX;
+
+
+        if (Math.abs(distance) < 50) {
+            return;
+        }
+
+
+        /*
+           چون صفحه RTL است:
+           حرکت انگشت به چپ = اسلاید بعدی
+           حرکت انگشت به راست = اسلاید قبلی
+        */
+
+        if (distance < 0) {
+
+            nextSlide();
 
         } else {
 
-          alert(
-            "تعداد محصولات سبد خرید: " +
-            cartItems
-          );
+            previousSlide();
 
         }
 
-      }
+    }
+
+
+    /* =====================================================
+       PAUSE SLIDER ON HOVER
+    ====================================================== */
+
+    if (heroSlider) {
+
+        heroSlider.addEventListener(
+            "mouseenter",
+            () => {
+
+                clearInterval(sliderTimer);
+
+            }
+        );
+
+
+        heroSlider.addEventListener(
+            "mouseleave",
+            () => {
+
+                startSlider();
+
+            }
+        );
+
+    }
+
+
+    /* =====================================================
+       MOBILE NAVIGATION
+    ====================================================== */
+
+    const mobileNavItems =
+        document.querySelectorAll(".mobile-nav-item");
+
+
+    mobileNavItems.forEach(item => {
+
+        item.addEventListener("click", event => {
+
+            event.preventDefault();
+
+
+            mobileNavItems.forEach(nav => {
+
+                nav.classList.remove("active");
+
+            });
+
+
+            item.classList.add("active");
+
+
+            const text =
+                item.querySelector("span")?.textContent.trim();
+
+
+            if (!text) return;
+
+
+            if (text === "خانه") {
+
+                window.scrollTo({
+                    top: 0,
+                    behavior: "smooth"
+                });
+
+                return;
+            }
+
+
+            if (text === "سبد خرید") {
+
+                showToast(
+                    `سبد خرید شما ${cartCount} محصول دارد 🛒`
+                );
+
+                return;
+            }
+
+
+            if (text === "علاقه‌مندی‌ها") {
+
+                showToast(
+                    "محصولات مورد علاقه شما ❤️"
+                );
+
+                return;
+            }
+
+
+            if (text === "دسته‌بندی‌ها") {
+
+                document
+                    .querySelector(".categories-section")
+                    ?.scrollIntoView({
+                        behavior: "smooth"
+                    });
+
+                return;
+            }
+
+
+            if (text === "پروفایل") {
+
+                showToast(
+                    "صفحه ورود و پروفایل به‌زودی فعال می‌شود"
+                );
+
+            }
+
+        });
+
+    });
+
+
+    /* =====================================================
+       ACCOUNT
+    ====================================================== */
+
+    const accountLink =
+        document.querySelector(".account-link");
+
+
+    if (accountLink) {
+
+        accountLink.addEventListener(
+            "click",
+            event => {
+
+                event.preventDefault();
+
+                showToast(
+                    "صفحه ورود و ثبت‌نام به‌زودی فعال می‌شود"
+                );
+
+            }
+        );
+
+    }
+
+
+    /* =====================================================
+       HERO PRIMARY BUTTON
+    ====================================================== */
+
+    const heroButton =
+        document.querySelector(".primary-button");
+
+
+    if (heroButton) {
+
+        heroButton.addEventListener(
+            "click",
+            event => {
+
+                event.preventDefault();
+
+                productsSection?.scrollIntoView({
+                    behavior: "smooth",
+                    block: "start"
+                });
+
+            }
+        );
+
+    }
+
+
+    /* =====================================================
+       HEADER SHOP BUTTON
+    ====================================================== */
+
+    const shopButton =
+        document.querySelector(".header-shop-button");
+
+
+    if (shopButton) {
+
+        shopButton.addEventListener(
+            "click",
+            event => {
+
+                event.preventDefault();
+
+                productsSection?.scrollIntoView({
+                    behavior: "smooth",
+                    block: "start"
+                });
+
+            }
+        );
+
+    }
+
+
+    /* =====================================================
+       KEYBOARD SHORTCUT
+    ====================================================== */
+
+    document.addEventListener(
+        "keydown",
+        event => {
+
+            /*
+             Ctrl + K
+             focus search
+            */
+
+            if (
+                (event.ctrlKey || event.metaKey) &&
+                event.key.toLowerCase() === "k"
+            ) {
+
+                event.preventDefault();
+
+                searchInput?.focus();
+
+            }
+
+
+            /*
+             Escape
+             clear search
+            */
+
+            if (event.key === "Escape") {
+
+                if (searchInput) {
+
+                    searchInput.value = "";
+
+                    productCards.forEach(card => {
+
+                        card.style.display = "";
+
+                    });
+
+                }
+
+            }
+
+        }
     );
 
-  }
+
+    /* =====================================================
+       IMAGE / PRODUCT HOVER
+    ====================================================== */
+
+    productCards.forEach(card => {
+
+        card.addEventListener(
+            "mouseenter",
+            () => {
+
+                card.classList.add("is-hovered");
+
+            }
+        );
 
 
+        card.addEventListener(
+            "mouseleave",
+            () => {
 
-  /* =====================================================
-     LAZY LOAD IMAGES
-  ===================================================== */
+                card.classList.remove("is-hovered");
 
-  const images =
-    document.querySelectorAll("img");
+            }
+        );
 
-
-  images.forEach(function (image) {
-
-    image.loading = "lazy";
-
-  });
+    });
 
 
+    /* =====================================================
+       UPDATE INITIAL CART
+    ====================================================== */
 
-  /* =====================================================
-     فعال کردن لینک شبکه‌های اجتماعی
-  ===================================================== */
-
-  const socialLinks =
-    document.querySelectorAll(
-      ".social-links a"
-    );
+    updateCartCount();
 
 
-  socialLinks.forEach(function (link) {
+    /* =====================================================
+       PAGE LOADED
+    ====================================================== */
 
-    link.addEventListener(
-      "click",
-      function () {
-
-        /*
-          لینک‌های واقعی تلگرام،
-          اینستاگرام و یوتیوب را
-          بعداً می‌توانی جایگزین کنی.
-        */
-
-      }
-    );
-
-  });
-
-
-  /* =====================================================
-     پایان
-  ===================================================== */
-
-  console.log(
-    "Nova Store - Website Loaded Successfully"
-  );
+    body.classList.add("page-ready");
 
 });
