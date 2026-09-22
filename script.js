@@ -1,1382 +1,3096 @@
-<!DOCTYPE html>
-<html lang="fa" dir="rtl">
+/* =========================================================
+   NOVA STORE - MAIN JAVASCRIPT
+========================================================= */
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <meta
-        name="description"
-        content="نوا استور؛ فروشگاه اینترنتی مدرن با محصولات متنوع و تخفیف‌های ویژه"
-    >
+/* =========================================================
+   SUPABASE
+========================================================= */
 
-    <title>نوا | فروشگاه اینترنتی</title>
+const SUPABASE_URL =
+    "https://zwtbrgsphgjyczdibldj.supabase.co";
 
-    <!-- Font Awesome -->
-    <link
-        rel="stylesheet"
-        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css"
-    >
+/*
+ * مهم:
+ * این مقدار را با همان Publishable / Anon Key
+ * قبلی خودت جایگزین کن.
+ *
+ * هرگز Service Role Key را اینجا قرار نده.
+ */
+const SUPABASE_KEY =
+    "sb_publishable_rU0rSsuonmSoDYzK9-S1ig_uNPkAOha";
 
-    <!-- Main CSS -->
-    <link rel="stylesheet" href="style.css">
-</head>
 
-<body>
+let supabaseClient = null;
 
-    <!-- =====================================================
-         HEADER
-    ====================================================== -->
 
-    <header class="site-header">
+/* =========================================================
+   GLOBAL STATE
+========================================================= */
 
-        <div class="container header-inner">
+let allProducts = [];
+let filteredProducts = [];
 
-            <!-- Logo -->
-            <a href="#home" class="brand" id="brandHome">
-                <span class="brand-icon">
-                    <i class="fa-solid fa-bag-shopping"></i>
+let favorites = [];
+let cart = [];
+
+let currentCategory = "";
+let currentSearch = "";
+
+let currentSlide = 0;
+let sliderTimer = null;
+let toastTimer = null;
+
+
+/* =========================================================
+   LOCAL STORAGE KEYS
+========================================================= */
+
+const FAVORITES_KEY = "novaFavorites";
+const CART_KEY = "novaCart";
+
+
+/* =========================================================
+   DOM READY
+========================================================= */
+
+document.addEventListener("DOMContentLoaded", () => {
+
+    initializeApp();
+
+});
+
+
+/* =========================================================
+   INITIALIZE APP
+========================================================= */
+
+async function initializeApp() {
+
+    loadLocalData();
+
+    initializeSupabase();
+
+    setupHeader();
+
+    setupNavigation();
+
+    setupCategories();
+
+    setupCart();
+
+    setupFavorites();
+
+    setupHeroSlider();
+
+    setupSearch();
+
+    setupProductButtons();
+
+    setupScrollButtons();
+
+    updateFavoritesUI();
+
+    updateCartUI();
+
+    renderFavorites();
+
+    await loadProducts();
+
+}
+
+
+/* =========================================================
+   SUPABASE INITIALIZATION
+========================================================= */
+
+function initializeSupabase() {
+
+    if (
+        !window.supabase ||
+        typeof window.supabase.createClient !== "function"
+    ) {
+
+        showToast(
+            "کتابخانه اتصال به فروشگاه بارگذاری نشده است."
+        );
+
+        return;
+
+    }
+
+
+    try {
+
+        supabaseClient =
+            window.supabase.createClient(
+                SUPABASE_URL,
+                SUPABASE_KEY
+            );
+
+    } catch (error) {
+
+        console.error(
+            "Supabase initialization error:",
+            error
+        );
+
+        showToast(
+            "خطا در اتصال به فروشگاه."
+        );
+
+    }
+
+}
+
+
+/* =========================================================
+   LOCAL DATA
+========================================================= */
+
+function loadLocalData() {
+
+    try {
+
+        const savedFavorites =
+            localStorage.getItem(FAVORITES_KEY);
+
+        const savedCart =
+            localStorage.getItem(CART_KEY);
+
+
+        if (savedFavorites) {
+
+            const parsedFavorites =
+                JSON.parse(savedFavorites);
+
+            if (Array.isArray(parsedFavorites)) {
+
+                favorites =
+                    parsedFavorites.map(String);
+
+            }
+
+        }
+
+
+        if (savedCart) {
+
+            const parsedCart =
+                JSON.parse(savedCart);
+
+            if (Array.isArray(parsedCart)) {
+
+                cart = parsedCart
+                    .map(item => ({
+                        id: String(item.id),
+                        quantity:
+                            Math.max(
+                                1,
+                                Number(item.quantity) || 1
+                            )
+                    }));
+
+            }
+
+        }
+
+    } catch (error) {
+
+        console.error(
+            "Local storage error:",
+            error
+        );
+
+        favorites = [];
+        cart = [];
+
+    }
+
+}
+
+
+function saveFavorites() {
+
+    try {
+
+        localStorage.setItem(
+            FAVORITES_KEY,
+            JSON.stringify(favorites)
+        );
+
+    } catch (error) {
+
+        console.error(
+            "Could not save favorites:",
+            error
+        );
+
+    }
+
+}
+
+
+function saveCart() {
+
+    try {
+
+        localStorage.setItem(
+            CART_KEY,
+            JSON.stringify(cart)
+        );
+
+    } catch (error) {
+
+        console.error(
+            "Could not save cart:",
+            error
+        );
+
+    }
+
+}
+
+
+/* =========================================================
+   LOAD PRODUCTS
+========================================================= */
+
+async function loadProducts() {
+
+    const productsGrid =
+        document.getElementById("productsGrid");
+
+
+    if (!supabaseClient) {
+
+        if (productsGrid) {
+
+            productsGrid.innerHTML = `
+                <div class="products-loading">
+                    <i class="fa-solid fa-triangle-exclamation"></i>
+                    <span>اتصال به فروشگاه برقرار نشد.</span>
+                </div>
+            `;
+
+        }
+
+        return;
+
+    }
+
+
+    if (productsGrid) {
+
+        productsGrid.innerHTML = `
+            <div class="products-loading">
+                <i class="fa-solid fa-spinner fa-spin"></i>
+                <span>در حال دریافت محصولات...</span>
+            </div>
+        `;
+
+    }
+
+
+    try {
+
+        const {
+            data,
+            error
+        } = await supabaseClient
+            .from("products")
+            .select("*")
+            .order("id", {
+                ascending: false
+            });
+
+
+        if (error) {
+
+            throw error;
+
+        }
+
+
+        allProducts =
+            Array.isArray(data)
+                ? data
+                : [];
+
+
+        cleanupLocalData();
+
+        applyFilters();
+
+        renderFavorites();
+
+        updateFavoritesUI();
+
+        updateCartUI();
+
+
+    } catch (error) {
+
+        console.error(
+            "Products loading error:",
+            error
+        );
+
+
+        if (productsGrid) {
+
+            productsGrid.innerHTML = `
+                <div class="products-loading">
+                    <i class="fa-solid fa-circle-exclamation"></i>
+                    <span>
+                        خطا در دریافت محصولات
+                    </span>
+                </div>
+            `;
+
+        }
+
+
+        showToast(
+            "خطا در دریافت محصولات."
+        );
+
+    }
+
+}
+
+
+/* =========================================================
+   CLEAN INVALID LOCAL DATA
+========================================================= */
+
+function cleanupLocalData() {
+
+    const validIds =
+        new Set(
+            allProducts.map(
+                product => String(product.id)
+            )
+        );
+
+
+    favorites =
+        favorites.filter(
+            id => validIds.has(String(id))
+        );
+
+
+    cart =
+        cart.filter(
+            item => validIds.has(String(item.id))
+        );
+
+
+    saveFavorites();
+
+    saveCart();
+
+}
+
+
+/* =========================================================
+   PRODUCT HELPERS
+========================================================= */
+
+function getProductId(product) {
+
+    return String(product.id);
+
+}
+
+
+function getProductImage(product) {
+
+    return (
+        product.image_url ||
+        product.image ||
+        product.imageUrl ||
+        ""
+    );
+
+}
+
+
+function getProductName(product) {
+
+    return (
+        product.name ||
+        "محصول بدون نام"
+    );
+
+}
+
+
+function getProductCategory(product) {
+
+    return (
+        product.category ||
+        "عمومی"
+    );
+
+}
+
+
+function getProductDescription(product) {
+
+    return (
+        product.description ||
+        "توضیحی برای این محصول ثبت نشده است."
+    );
+
+}
+
+
+function getProductPrice(product) {
+
+    return Number(product.price) || 0;
+
+}
+
+
+function getProductOldPrice(product) {
+
+    return Number(product.old_price) || 0;
+
+}
+
+
+function isProductNew(product) {
+
+    return (
+        product.is_new === true ||
+        product.is_new === "true" ||
+        product.is_new === 1
+    );
+
+}
+
+
+function getProductDiscount(product) {
+
+    const directDiscount =
+        Number(product.discount) || 0;
+
+
+    if (directDiscount > 0) {
+
+        return Math.round(
+            directDiscount
+        );
+
+    }
+
+
+    const price =
+        getProductPrice(product);
+
+    const oldPrice =
+        getProductOldPrice(product);
+
+
+    if (
+        oldPrice > price &&
+        price > 0
+    ) {
+
+        return Math.round(
+            ((oldPrice - price) / oldPrice) * 100
+        );
+
+    }
+
+
+    return 0;
+
+}
+
+
+/* =========================================================
+   FILTERS
+========================================================= */
+
+function applyFilters() {
+
+    const search =
+        currentSearch
+            .trim()
+            .toLowerCase();
+
+
+    filteredProducts =
+        allProducts.filter(product => {
+
+            const category =
+                String(
+                    getProductCategory(product)
+                ).toLowerCase();
+
+
+            const name =
+                String(
+                    getProductName(product)
+                ).toLowerCase();
+
+
+            const description =
+                String(
+                    getProductDescription(product)
+                ).toLowerCase();
+
+
+            const matchesCategory =
+                !currentCategory ||
+                category ===
+                    currentCategory.toLowerCase();
+
+
+            const matchesSearch =
+                !search ||
+                name.includes(search) ||
+                category.includes(search) ||
+                description.includes(search);
+
+
+            return (
+                matchesCategory &&
+                matchesSearch
+            );
+
+        });
+
+
+    renderProducts(
+        filteredProducts
+    );
+
+}
+
+
+/* =========================================================
+   RENDER PRODUCTS
+========================================================= */
+
+function renderProducts(products) {
+
+    const grid =
+        document.getElementById("productsGrid");
+
+
+    if (!grid) {
+
+        return;
+
+    }
+
+
+    if (!products.length) {
+
+        grid.innerHTML = `
+            <div class="empty-state">
+                <div class="empty-icon">
+                    <i class="fa-solid fa-box-open"></i>
+                </div>
+
+                <h3>
+                    محصولی پیدا نشد
+                </h3>
+
+                <p>
+                    عبارت جستجو یا دسته‌بندی دیگری را امتحان کنید.
+                </p>
+
+                <button
+                    class="primary-btn"
+                    type="button"
+                    data-clear-filters
+                >
+                    نمایش همه محصولات
+                </button>
+            </div>
+        `;
+
+
+        const clearButton =
+            grid.querySelector(
+                "[data-clear-filters]"
+            );
+
+
+        if (clearButton) {
+
+            clearButton.addEventListener(
+                "click",
+                clearFilters
+            );
+
+        }
+
+
+        return;
+
+    }
+
+
+    grid.innerHTML =
+        products
+            .map(
+                product =>
+                    createProductCard(product)
+            )
+            .join("");
+
+
+    bindProductCardEvents();
+
+}
+
+
+/* =========================================================
+   CREATE PRODUCT CARD
+========================================================= */
+
+function createProductCard(product) {
+
+    const id =
+        getProductId(product);
+
+    const name =
+        escapeHtml(
+            getProductName(product)
+        );
+
+    const category =
+        escapeHtml(
+            getProductCategory(product)
+        );
+
+    const description =
+        escapeHtml(
+            getProductDescription(product)
+        );
+
+    const image =
+        getProductImage(product);
+
+    const price =
+        getProductPrice(product);
+
+    const oldPrice =
+        getProductOldPrice(product);
+
+    const discount =
+        getProductDiscount(product);
+
+    const isNew =
+        isProductNew(product);
+
+
+    const isFavorite =
+        favorites.includes(id);
+
+
+    const imageHTML =
+        image
+            ? `
+                <img
+                    src="${escapeAttribute(image)}"
+                    alt="${escapeAttribute(
+                        getProductName(product)
+                    )}"
+                    loading="lazy"
+                >
+            `
+            : "";
+
+
+    const oldPriceHTML =
+        oldPrice > price
+            ? `
+                <span class="old-price">
+                    ${formatPrice(oldPrice)}
+                </span>
+            `
+            : "";
+
+
+    const discountHTML =
+        discount > 0
+            ? `
+                <span class="discount-badge">
+                    ${discount}٪ تخفیف
+                </span>
+            `
+            : "";
+
+
+    const newHTML =
+        isNew
+            ? `
+                <span class="new-badge">
+                    جدید
+                </span>
+            `
+            : "";
+
+
+    return `
+        <article
+            class="product-card"
+            data-product-id="${escapeAttribute(id)}"
+        >
+
+            <div
+                class="product-image ${
+                    image ? "" : "no-image"
+                }"
+            >
+
+                ${imageHTML}
+
+                <div class="product-badges">
+                    ${discountHTML}
+                    ${newHTML}
+                </div>
+
+
+                <button
+                    class="favorite-btn ${
+                        isFavorite ? "active" : ""
+                    }"
+                    type="button"
+                    data-favorite-id="${escapeAttribute(id)}"
+                    aria-label="افزودن به علاقه‌مندی"
+                >
+                    <i class="${
+                        isFavorite
+                            ? "fa-solid"
+                            : "fa-regular"
+                    } fa-heart"></i>
+                </button>
+
+            </div>
+
+
+            <div class="product-info">
+
+                <span class="product-category">
+                    ${category}
                 </span>
 
-                <span class="brand-text">
-                    <strong>نوا</strong>
-                    <small>فروشگاه آنلاین</small>
-                </span>
-            </a>
+                <h3 class="product-title">
+                    ${name}
+                </h3>
+
+                <p class="product-description">
+                    ${description}
+                </p>
 
 
-            <!-- Desktop Navigation -->
-            <nav class="desktop-nav" aria-label="منوی اصلی">
+                <div class="product-price">
 
-                <a href="#home" class="nav-link active">
-                    خانه
-                </a>
+                    <span class="current-price">
+                        ${formatPrice(price)}
+                    </span>
 
-                <a href="#categories" class="nav-link">
-                    دسته‌بندی‌ها
-                </a>
-
-                <a href="#products" class="nav-link">
-                    محصولات
-                </a>
-
-                <a href="#about" class="nav-link">
-                    درباره ما
-                </a>
-
-            </nav>
-
-
-            <!-- Header Actions -->
-            <div class="header-actions">
-
-                <!-- Search -->
-                <div class="search-box">
-
-                    <i class="fa-solid fa-magnifying-glass"></i>
-
-                    <input
-                        type="search"
-                        id="searchInput"
-                        placeholder="جستجوی محصول..."
-                        autocomplete="off"
-                    >
+                    ${oldPriceHTML}
 
                 </div>
 
 
-                <!-- Favorites -->
                 <button
-                    id="headerFavoritesBtn"
-                    class="header-icon-btn"
+                    class="add-to-cart"
                     type="button"
-                    aria-label="علاقه‌مندی‌ها"
+                    data-add-cart-id="${escapeAttribute(id)}"
                 >
 
-                    <i class="fa-regular fa-heart"></i>
+                    <i class="fa-solid fa-cart-plus"></i>
 
-                    <span
-                        id="headerFavoritesCount"
-                        class="header-count"
-                        hidden
-                    >
-                        0
-                    </span>
-
-                </button>
-
-
-                <!-- Account -->
-                <button
-                    id="headerAccountBtn"
-                    class="header-icon-btn"
-                    type="button"
-                    aria-label="حساب کاربری"
-                >
-
-                    <i class="fa-regular fa-user"></i>
-
-                </button>
-
-
-                <!-- Cart -->
-                <button
-                    id="headerCartBtn"
-                    class="header-icon-btn cart-header-btn"
-                    type="button"
-                    aria-label="سبد خرید"
-                >
-
-                    <i class="fa-solid fa-cart-shopping"></i>
-
-                    <span
-                        id="cartCount"
-                        class="header-count"
-                        hidden
-                    >
-                        0
+                    <span>
+                        افزودن به سبد
                     </span>
 
                 </button>
 
             </div>
 
-        </div>
+        </article>
+    `;
 
-    </header>
-
-
-    <!-- =====================================================
-         MAIN
-    ====================================================== -->
-
-    <main id="home">
+}
 
 
-        <!-- =================================================
-             HERO
-        ================================================== -->
+/* =========================================================
+   BIND PRODUCT EVENTS
+========================================================= */
 
-        <section class="hero-section">
+function bindProductCardEvents() {
 
-            <div class="container">
+    document
+        .querySelectorAll(
+            "[data-favorite-id]"
+        )
+        .forEach(button => {
 
-                <div
-                    class="hero-slider"
-                    id="heroSlider"
+            button.addEventListener(
+                "click",
+                event => {
+
+                    event.preventDefault();
+                    event.stopPropagation();
+
+                    const id =
+                        button.dataset.favoriteId;
+
+                    toggleFavorite(id);
+
+                }
+            );
+
+        });
+
+
+    document
+        .querySelectorAll(
+            "[data-add-cart-id]"
+        )
+        .forEach(button => {
+
+            button.addEventListener(
+                "click",
+                event => {
+
+                    event.preventDefault();
+                    event.stopPropagation();
+
+                    const id =
+                        button.dataset.addCartId;
+
+                    addToCart(id);
+
+                }
+            );
+
+        });
+
+
+    document
+        .querySelectorAll(".product-card")
+        .forEach(card => {
+
+            card.addEventListener(
+                "click",
+                event => {
+
+                    if (
+                        event.target.closest(
+                            "button"
+                        )
+                    ) {
+
+                        return;
+
+                    }
+
+                    const id =
+                        card.dataset.productId;
+
+                    if (id) {
+
+                        const product =
+                            findProduct(id);
+
+                        if (product) {
+
+                            showToast(
+                                getProductName(product)
+                            );
+
+                        }
+
+                    }
+
+                }
+            );
+
+        });
+
+}
+
+
+/* =========================================================
+   PRODUCT BUTTON FALLBACK
+========================================================= */
+
+function setupProductButtons() {
+
+    document.addEventListener(
+        "click",
+        event => {
+
+            const addButton =
+                event.target.closest(
+                    "[data-add-cart-id]"
+                );
+
+
+            if (
+                addButton &&
+                !addButton.dataset.bound
+            ) {
+
+                addButton.dataset.bound = "true";
+
+            }
+
+        }
+    );
+
+}
+
+
+/* =========================================================
+   FIND PRODUCT
+========================================================= */
+
+function findProduct(id) {
+
+    return allProducts.find(
+        product =>
+            String(product.id) === String(id)
+    );
+
+}
+
+
+/* =========================================================
+   FAVORITES
+========================================================= */
+
+function toggleFavorite(id) {
+
+    id = String(id);
+
+
+    const index =
+        favorites.indexOf(id);
+
+
+    if (index === -1) {
+
+        favorites.push(id);
+
+        showToast(
+            "محصول به علاقه‌مندی‌ها اضافه شد."
+        );
+
+    } else {
+
+        favorites.splice(index, 1);
+
+        showToast(
+            "محصول از علاقه‌مندی‌ها حذف شد."
+        );
+
+    }
+
+
+    saveFavorites();
+
+    updateFavoritesUI();
+
+    renderFavorites();
+
+
+    if (
+        currentCategory ||
+        currentSearch
+    ) {
+
+        renderProducts(
+            filteredProducts
+        );
+
+    } else {
+
+        renderProducts(
+            allProducts
+        );
+
+    }
+
+}
+
+
+function renderFavorites() {
+
+    const grid =
+        document.getElementById(
+            "favoritesGrid"
+        );
+
+    const empty =
+        document.getElementById(
+            "emptyFavorites"
+        );
+
+
+    if (!grid || !empty) {
+
+        return;
+
+    }
+
+
+    const favoriteProducts =
+        allProducts.filter(
+            product =>
+                favorites.includes(
+                    getProductId(product)
+                )
+        );
+
+
+    if (!favoriteProducts.length) {
+
+        grid.innerHTML = "";
+
+        empty.hidden = false;
+
+        return;
+
+    }
+
+
+    empty.hidden = true;
+
+
+    grid.innerHTML =
+        favoriteProducts
+            .map(
+                product =>
+                    createProductCard(product)
+            )
+            .join("");
+
+
+    bindProductCardEvents();
+
+}
+
+
+function updateFavoritesUI() {
+
+    const count =
+        favorites.length;
+
+
+    const mobileCount =
+        document.getElementById(
+            "favoritesCount"
+        );
+
+
+    const headerCount =
+        document.getElementById(
+            "headerFavoritesCount"
+        );
+
+
+    if (mobileCount) {
+
+        mobileCount.textContent =
+            String(count);
+
+        mobileCount.hidden =
+            count === 0;
+
+    }
+
+
+    if (headerCount) {
+
+        headerCount.textContent =
+            String(count);
+
+        headerCount.hidden =
+            count === 0;
+
+    }
+
+}
+
+
+/* =========================================================
+   FAVORITES SECTION
+========================================================= */
+
+function openFavorites() {
+
+    const section =
+        document.getElementById(
+            "favoritesSection"
+        );
+
+
+    if (!section) {
+
+        return;
+
+    }
+
+
+    closeCart(false);
+
+    section.hidden = false;
+
+
+    section.scrollIntoView({
+        behavior: "smooth",
+        block: "start"
+    });
+
+
+    setMobileNavActive(
+        "favorites"
+    );
+
+}
+
+
+function closeFavorites() {
+
+    const section =
+        document.getElementById(
+            "favoritesSection"
+        );
+
+
+    if (!section) {
+
+        return;
+
+    }
+
+
+    section.hidden = true;
+
+    setMobileNavActive(
+        "home"
+    );
+
+}
+
+
+function setupFavorites() {
+
+    const headerButton =
+        document.getElementById(
+            "headerFavoritesBtn"
+        );
+
+
+    if (headerButton) {
+
+        headerButton.addEventListener(
+            "click",
+            openFavorites
+        );
+
+    }
+
+
+    const closeButton =
+        document.getElementById(
+            "closeFavoritesBtn"
+        );
+
+
+    if (closeButton) {
+
+        closeButton.addEventListener(
+            "click",
+            closeFavorites
+        );
+
+    }
+
+
+    const backButton =
+        document.getElementById(
+            "backToProductsBtn"
+        );
+
+
+    if (backButton) {
+
+        backButton.addEventListener(
+            "click",
+            () => {
+
+                closeFavorites();
+
+                scrollToProducts();
+
+            }
+        );
+
+    }
+
+}
+
+
+/* =========================================================
+   CART
+========================================================= */
+
+function addToCart(id) {
+
+    id = String(id);
+
+
+    const product =
+        findProduct(id);
+
+
+    if (!product) {
+
+        showToast(
+            "این محصول پیدا نشد."
+        );
+
+        return;
+
+    }
+
+
+    const existing =
+        cart.find(
+            item =>
+                String(item.id) === id
+        );
+
+
+    if (existing) {
+
+        existing.quantity += 1;
+
+    } else {
+
+        cart.push({
+            id,
+            quantity: 1
+        });
+
+    }
+
+
+    saveCart();
+
+    updateCartUI();
+
+    showToast(
+        "محصول به سبد خرید اضافه شد."
+    );
+
+
+    /*
+     * سبد را خودکار باز نمی‌کنیم
+     * تا کاربر بتواند محصولات بیشتری
+     * انتخاب کند.
+     */
+
+}
+
+
+function decreaseCartQuantity(id) {
+
+    id = String(id);
+
+
+    const item =
+        cart.find(
+            item =>
+                String(item.id) === id
+        );
+
+
+    if (!item) {
+
+        return;
+
+    }
+
+
+    item.quantity -= 1;
+
+
+    if (item.quantity <= 0) {
+
+        removeFromCart(
+            id,
+            false
+        );
+
+        return;
+
+    }
+
+
+    saveCart();
+
+    updateCartUI();
+
+}
+
+
+function increaseCartQuantity(id) {
+
+    id = String(id);
+
+
+    const item =
+        cart.find(
+            item =>
+                String(item.id) === id
+        );
+
+
+    if (!item) {
+
+        return;
+
+    }
+
+
+    item.quantity += 1;
+
+    saveCart();
+
+    updateCartUI();
+
+}
+
+
+function removeFromCart(
+    id,
+    showMessage = true
+) {
+
+    id = String(id);
+
+
+    cart =
+        cart.filter(
+            item =>
+                String(item.id) !== id
+        );
+
+
+    saveCart();
+
+    updateCartUI();
+
+
+    if (showMessage) {
+
+        showToast(
+            "محصول از سبد خرید حذف شد."
+        );
+
+    }
+
+}
+
+
+/* =========================================================
+   CART UI
+========================================================= */
+
+function updateCartUI() {
+
+    const totalItems =
+        cart.reduce(
+            (sum, item) =>
+                sum +
+                (Number(item.quantity) || 0),
+            0
+        );
+
+
+    const countElement =
+        document.getElementById(
+            "cartCount"
+        );
+
+
+    const mobileCountElement =
+        document.getElementById(
+            "mobileCartCount"
+        );
+
+
+    if (countElement) {
+
+        countElement.textContent =
+            String(totalItems);
+
+        countElement.hidden =
+            totalItems === 0;
+
+    }
+
+
+    if (mobileCountElement) {
+
+        mobileCountElement.textContent =
+            String(totalItems);
+
+        mobileCountElement.hidden =
+            totalItems === 0;
+
+    }
+
+
+    renderCart();
+
+}
+
+
+function renderCart() {
+
+    const cartItemsElement =
+        document.getElementById(
+            "cartItems"
+        );
+
+    const emptyCart =
+        document.getElementById(
+            "emptyCart"
+        );
+
+
+    if (
+        !cartItemsElement ||
+        !emptyCart
+    ) {
+
+        return;
+
+    }
+
+
+    const validItems =
+        cart
+            .map(item => {
+
+                const product =
+                    findProduct(item.id);
+
+                if (!product) {
+
+                    return null;
+
+                }
+
+                return {
+                    product,
+                    quantity:
+                        Math.max(
+                            1,
+                            Number(item.quantity) || 1
+                        )
+                };
+
+            })
+            .filter(Boolean);
+
+
+    if (!validItems.length) {
+
+        cartItemsElement.innerHTML = "";
+
+        emptyCart.hidden = false;
+
+        updateCartSummary([]);
+
+        return;
+
+    }
+
+
+    emptyCart.hidden = true;
+
+
+    cartItemsElement.innerHTML =
+        validItems
+            .map(
+                ({ product, quantity }) =>
+                    createCartItem(
+                        product,
+                        quantity
+                    )
+            )
+            .join("");
+
+
+    bindCartEvents(
+        cartItemsElement
+    );
+
+
+    updateCartSummary(
+        validItems
+    );
+
+}
+
+
+function createCartItem(
+    product,
+    quantity
+) {
+
+    const id =
+        getProductId(product);
+
+    const image =
+        getProductImage(product);
+
+    const imageHTML =
+        image
+            ? `
+                <img
+                    src="${escapeAttribute(image)}"
+                    alt="${escapeAttribute(
+                        getProductName(product)
+                    )}"
                 >
-
-
-                    <!-- Slide 1 -->
-                    <article
-                        class="hero-slide active"
-                        data-slide="0"
-                    >
-
-                        <div class="hero-content">
-
-                            <span class="hero-badge">
-                                تخفیف ویژه
-                            </span>
-
-                            <h1>
-                                خریدی متفاوت
-                                <br>
-                                با نوا
-                            </h1>
-
-                            <p>
-                                بهترین محصولات را با بهترین قیمت
-                                <br>
-                                در فروشگاه اینترنتی نوا پیدا کنید.
-                            </p>
-
-                            <button
-                                class="hero-btn"
-                                type="button"
-                                data-scroll-products
-                            >
-                                مشاهده محصولات
-
-                                <i class="fa-solid fa-arrow-left"></i>
-                            </button>
-
-                        </div>
-
-
-                        <!-- AI Human -->
-                        <div class="hero-person">
-
-                            <img
-                                src="assets/hero-person.png"
-                                alt="مدل زن واقعی‌نما ساخته‌شده با هوش مصنوعی"
-                                loading="eager"
-                            >
-
-                        </div>
-
-
-                        <!-- Decorative Shopping Bag -->
-                        <div class="hero-product hero-bag">
-
-                            <i class="fa-solid fa-bag-shopping"></i>
-
-                        </div>
-
-
-                        <!-- Floating Card -->
-                        <div class="floating-card floating-card-one">
-
-                            <i class="fa-solid fa-percent"></i>
-
-                            <div>
-                                <strong>تا ۵۰٪</strong>
-                                <span>تخفیف ویژه</span>
-                            </div>
-
-                        </div>
-
-
-                        <div class="floating-card floating-card-two">
-
-                            <i class="fa-solid fa-star"></i>
-
-                            <div>
-                                <strong>محبوب‌ترین‌ها</strong>
-                                <span>محصولات منتخب</span>
-                            </div>
-
-                        </div>
-
-                    </article>
-
-
-                    <!-- Slide 2 -->
-                    <article
-                        class="hero-slide"
-                        data-slide="1"
-                    >
-
-                        <div class="hero-content">
-
-                            <span class="hero-badge">
-                                محصولات جدید
-                            </span>
-
-                            <h2>
-                                تازه‌ترین محصولات
-                                <br>
-                                برای شما
-                            </h2>
-
-                            <p>
-                                جدیدترین کالاها را با قیمت مناسب
-                                <br>
-                                در نوا ببینید.
-                            </p>
-
-                            <button
-                                class="hero-btn"
-                                type="button"
-                                data-scroll-products
-                            >
-                                خرید کنید
-
-                                <i class="fa-solid fa-arrow-left"></i>
-                            </button>
-
-                        </div>
-
-
-                        <div class="hero-product hero-device">
-
-                            <i class="fa-solid fa-mobile-screen-button"></i>
-
-                        </div>
-
-
-                        <div class="floating-card floating-card-one">
-
-                            <i class="fa-solid fa-bolt"></i>
-
-                            <div>
-                                <strong>جدید</strong>
-                                <span>محصولات تازه</span>
-                            </div>
-
-                        </div>
-
-                    </article>
-
-
-                    <!-- Slide 3 -->
-                    <article
-                        class="hero-slide"
-                        data-slide="2"
-                    >
-
-                        <div class="hero-content">
-
-                            <span class="hero-badge">
-                                پیشنهاد نوا
-                            </span>
-
-                            <h2>
-                                کیفیت خوب،
-                                <br>
-                                قیمت مناسب
-                            </h2>
-
-                            <p>
-                                انتخاب هوشمندانه برای خرید روزانه
-                                <br>
-                                با نوا ساده‌تر است.
-                            </p>
-
-                            <button
-                                class="hero-btn"
-                                type="button"
-                                data-scroll-products
-                            >
-                                شروع خرید
-
-                                <i class="fa-solid fa-arrow-left"></i>
-                            </button>
-
-                        </div>
-
-
-                        <div class="hero-product hero-gift">
-
-                            <i class="fa-solid fa-gift"></i>
-
-                        </div>
-
-
-                        <div class="floating-card floating-card-one">
-
-                            <i class="fa-solid fa-truck-fast"></i>
-
-                            <div>
-                                <strong>ارسال سریع</strong>
-                                <span>تحویل آسان</span>
-                            </div>
-
-                        </div>
-
-                    </article>
-
-
-                    <!-- Slider Arrows -->
-
-                    <button
-                        id="prevSlide"
-                        class="slider-arrow slider-prev"
-                        type="button"
-                        aria-label="اسلاید قبلی"
-                    >
-                        <i class="fa-solid fa-chevron-right"></i>
-                    </button>
-
-
-                    <button
-                        id="nextSlide"
-                        class="slider-arrow slider-next"
-                        type="button"
-                        aria-label="اسلاید بعدی"
-                    >
-                        <i class="fa-solid fa-chevron-left"></i>
-                    </button>
-
-
-                    <!-- Slider Dots -->
-
-                    <div
-                        id="sliderDots"
-                        class="slider-dots"
-                    >
-
-                        <button
-                            type="button"
-                            class="slider-dot active"
-                            data-slide-to="0"
-                            aria-label="اسلاید اول"
-                        ></button>
-
-                        <button
-                            type="button"
-                            class="slider-dot"
-                            data-slide-to="1"
-                            aria-label="اسلاید دوم"
-                        ></button>
-
-                        <button
-                            type="button"
-                            class="slider-dot"
-                            data-slide-to="2"
-                            aria-label="اسلاید سوم"
-                        ></button>
-
-                    </div>
-
-                </div>
-
-            </div>
-
-        </section>
-
-
-        <!-- =================================================
-             CATEGORIES
-        ================================================== -->
-
-        <section
-            id="categories"
-            class="section categories-section"
+            `
+            : `
+                <i class="fa-solid fa-box"></i>
+            `;
+
+
+    return `
+        <article
+            class="cart-item"
+            data-cart-id="${escapeAttribute(id)}"
         >
 
-            <div class="container">
+            <div class="cart-item-image">
+                ${imageHTML}
+            </div>
 
-                <div class="section-heading">
 
-                    <div>
-                        <span class="section-eyebrow">
-                            انتخاب آسان
-                        </span>
+            <div class="cart-item-info">
 
-                        <h2>
-                            دسته‌بندی محصولات
-                        </h2>
-                    </div>
+                <h3>
+                    ${escapeHtml(
+                        getProductName(product)
+                    )}
+                </h3>
 
+                <div class="cart-item-category">
+                    ${escapeHtml(
+                        getProductCategory(product)
+                    )}
                 </div>
 
-
-                <div
-                    id="categoriesGrid"
-                    class="categories-grid"
-                >
-
-                    <button
-                        class="category-card"
-                        type="button"
-                        data-category=""
-                    >
-
-                        <span class="category-icon">
-                            <i class="fa-solid fa-border-all"></i>
-                        </span>
-
-                        <strong>همه محصولات</strong>
-
-                        <small>مشاهده همه</small>
-
-                    </button>
-
-
-                    <button
-                        class="category-card"
-                        type="button"
-                        data-category="موبایل"
-                    >
-
-                        <span class="category-icon">
-                            <i class="fa-solid fa-mobile-screen-button"></i>
-                        </span>
-
-                        <strong>موبایل</strong>
-
-                        <small>گوشی و لوازم جانبی</small>
-
-                    </button>
-
-
-                    <button
-                        class="category-card"
-                        type="button"
-                        data-category="لپ تاپ"
-                    >
-
-                        <span class="category-icon">
-                            <i class="fa-solid fa-laptop"></i>
-                        </span>
-
-                        <strong>لپ تاپ</strong>
-
-                        <small>کامپیوتر و لپ‌تاپ</small>
-
-                    </button>
-
-
-                    <button
-                        class="category-card"
-                        type="button"
-                        data-category="پوشاک"
-                    >
-
-                        <span class="category-icon">
-                            <i class="fa-solid fa-shirt"></i>
-                        </span>
-
-                        <strong>پوشاک</strong>
-
-                        <small>لباس و پوشیدنی</small>
-
-                    </button>
-
-
-                    <button
-                        class="category-card"
-                        type="button"
-                        data-category="لوازم جانبی"
-                    >
-
-                        <span class="category-icon">
-                            <i class="fa-solid fa-headphones"></i>
-                        </span>
-
-                        <strong>لوازم جانبی</strong>
-
-                        <small>هدفون و اکسسوری</small>
-
-                    </button>
-
-
-                    <button
-                        class="category-card"
-                        type="button"
-                        data-category="زیبایی"
-                    >
-
-                        <span class="category-icon">
-                            <i class="fa-solid fa-wand-magic-sparkles"></i>
-                        </span>
-
-                        <strong>زیبایی</strong>
-
-                        <small>زیبایی و سلامت</small>
-
-                    </button>
-
-
-                    <button
-                        class="category-card"
-                        type="button"
-                        data-category="خانه"
-                    >
-
-                        <span class="category-icon">
-                            <i class="fa-solid fa-house"></i>
-                        </span>
-
-                        <strong>خانه</strong>
-
-                        <small>لوازم خانه</small>
-
-                    </button>
-
-
-                    <button
-                        class="category-card"
-                        type="button"
-                        data-category="ورزش"
-                    >
-
-                        <span class="category-icon">
-                            <i class="fa-solid fa-dumbbell"></i>
-                        </span>
-
-                        <strong>ورزش</strong>
-
-                        <small>ورزش و سفر</small>
-
-                    </button>
-
+                <div class="cart-item-price">
+                    ${formatPrice(
+                        getProductPrice(product)
+                    )}
                 </div>
 
             </div>
 
-        </section>
 
+            <div class="cart-item-controls">
 
-        <!-- =================================================
-             PRODUCTS
-        ================================================== -->
-
-        <section
-            id="products"
-            class="section products-section"
-        >
-
-            <div class="container">
-
-                <div class="section-heading products-heading">
-
-                    <div>
-
-                        <span class="section-eyebrow">
-                            فروشگاه نوا
-                        </span>
-
-                        <h2>
-                            محصولات
-                        </h2>
-
-                    </div>
-
+                <div class="quantity-control">
 
                     <button
-                        id="viewAllBtn"
-                        class="view-all-btn"
+                        class="quantity-btn"
                         type="button"
+                        data-cart-plus="${escapeAttribute(id)}"
+                        aria-label="افزایش تعداد"
                     >
-                        مشاهده همه
-
-                        <i class="fa-solid fa-arrow-left"></i>
+                        <i class="fa-solid fa-plus"></i>
                     </button>
 
-                </div>
-
-
-                <div
-                    id="productsGrid"
-                    class="products-grid"
-                >
-
-                    <div class="products-loading">
-
-                        <i class="fa-solid fa-spinner fa-spin"></i>
-
-                        <span>
-                            در حال دریافت محصولات...
-                        </span>
-
-                    </div>
-
-                </div>
-
-            </div>
-
-        </section>
-
-
-        <!-- =================================================
-             FAVORITES
-        ================================================== -->
-
-        <section
-            id="favoritesSection"
-            class="section favorites-section"
-            hidden
-        >
-
-            <div class="container">
-
-                <div class="section-heading">
-
-                    <div>
-
-                        <span class="section-eyebrow">
-                            انتخاب‌های شما
-                        </span>
-
-                        <h2>
-                            علاقه‌مندی‌ها
-                        </h2>
-
-                    </div>
-
-
-                    <button
-                        id="closeFavoritesBtn"
-                        class="section-close-btn"
-                        type="button"
-                        aria-label="بستن علاقه‌مندی‌ها"
-                    >
-                        <i class="fa-solid fa-xmark"></i>
-                    </button>
-
-                </div>
-
-
-                <div
-                    id="favoritesGrid"
-                    class="products-grid"
-                ></div>
-
-
-                <div
-                    id="emptyFavorites"
-                    class="empty-state"
-                    hidden
-                >
-
-                    <div class="empty-icon">
-
-                        <i class="fa-regular fa-heart"></i>
-
-                    </div>
-
-                    <h3>
-                        هنوز محصولی به علاقه‌مندی‌ها اضافه نکرده‌اید
-                    </h3>
-
-                    <p>
-                        روی قلب محصولات بزنید تا اینجا ذخیره شوند.
-                    </p>
-
-                    <button
-                        id="backToProductsBtn"
-                        class="primary-btn"
-                        type="button"
-                    >
-                        مشاهده محصولات
-                    </button>
-
-                </div>
-
-            </div>
-
-        </section>
-
-
-        <!-- =================================================
-             CART
-        ================================================== -->
-
-        <section
-            id="cartSection"
-            class="cart-section"
-            hidden
-        >
-
-            <div class="container">
-
-                <div class="cart-header">
-
-                    <div>
-
-                        <span class="section-eyebrow">
-                            سفارش شما
-                        </span>
-
-                        <h2>
-                            سبد خرید
-                        </h2>
-
-                    </div>
-
-
-                    <!-- IMPORTANT CLOSE BUTTON -->
-
-                    <button
-                        id="closeCartBtn"
-                        class="cart-close"
-                        type="button"
-                        aria-label="بستن سبد خرید"
-                    >
-
-                        <i class="fa-solid fa-xmark"></i>
-
-                    </button>
-
-                </div>
-
-
-                <div class="cart-layout">
-
-
-                    <!-- Cart Items -->
-
-                    <div class="cart-items-wrapper">
-
-                        <div
-                            id="cartItems"
-                            class="cart-items"
-                        ></div>
-
-
-                        <!-- Empty Cart -->
-
-                        <div
-                            id="emptyCart"
-                            class="empty-state"
-                            hidden
-                        >
-
-                            <div class="empty-icon">
-
-                                <i class="fa-solid fa-cart-shopping"></i>
-
-                            </div>
-
-                            <h3>
-                                سبد خرید شما خالی است
-                            </h3>
-
-                            <p>
-                                هنوز محصولی به سبد خرید اضافه نکرده‌اید.
-                            </p>
-
-                            <button
-                                id="emptyCartProductsBtn"
-                                class="primary-btn"
-                                type="button"
-                            >
-                                مشاهده محصولات
-                            </button>
-
-                        </div>
-
-                    </div>
-
-
-                    <!-- Cart Summary -->
-
-                    <aside class="cart-summary">
-
-                        <h3>
-                            خلاصه سفارش
-                        </h3>
-
-
-                        <div class="summary-row">
-
-                            <span>
-                                تعداد کالاها
-                            </span>
-
-                            <strong id="cartTotalItems">
-                                0
-                            </strong>
-
-                        </div>
-
-
-                        <div class="summary-row">
-
-                            <span>
-                                مبلغ کالاها
-                            </span>
-
-                            <strong id="cartSubtotal">
-                                ۰ تومان
-                            </strong>
-
-                        </div>
-
-
-                        <div class="summary-row discount-row">
-
-                            <span>
-                                تخفیف
-                            </span>
-
-                            <strong id="cartDiscount">
-                                ۰ تومان
-                            </strong>
-
-                        </div>
-
-
-                        <div class="summary-row">
-
-                            <span>
-                                هزینه ارسال
-                            </span>
-
-                            <strong id="cartShipping">
-                                ۰ تومان
-                            </strong>
-
-                        </div>
-
-
-                        <div class="summary-divider"></div>
-
-
-                        <div class="summary-total">
-
-                            <span>
-                                مبلغ نهایی
-                            </span>
-
-                            <strong id="cartTotal">
-                                ۰ تومان
-                            </strong>
-
-                        </div>
-
-
-                        <button
-                            id="checkoutBtn"
-                            class="checkout-btn"
-                            type="button"
-                        >
-
-                            <span>
-                                ادامه و پرداخت
-                            </span>
-
-                            <i class="fa-solid fa-arrow-left"></i>
-
-                        </button>
-
-
-                        <button
-                            id="continueShoppingBtn"
-                            class="continue-shopping-btn"
-                            type="button"
-                        >
-
-                            ادامه خرید
-
-                        </button>
-
-                    </aside>
-
-                </div>
-
-            </div>
-
-        </section>
-
-
-        <!-- =================================================
-             SERVICES
-        ================================================== -->
-
-        <section
-            id="about"
-            class="section services-section"
-        >
-
-            <div class="container">
-
-                <div class="services-grid">
-
-
-                    <div class="service-card">
-
-                        <span class="service-icon">
-                            <i class="fa-solid fa-truck-fast"></i>
-                        </span>
-
-                        <div>
-
-                            <h3>
-                                ارسال سریع
-                            </h3>
-
-                            <p>
-                                ارسال سفارش‌ها با سرعت و دقت
-                            </p>
-
-                        </div>
-
-                    </div>
-
-
-                    <div class="service-card">
-
-                        <span class="service-icon">
-                            <i class="fa-solid fa-shield-halved"></i>
-                        </span>
-
-                        <div>
-
-                            <h3>
-                                خرید امن
-                            </h3>
-
-                            <p>
-                                امنیت اطلاعات و سفارش شما
-                            </p>
-
-                        </div>
-
-                    </div>
-
-
-                    <div class="service-card">
-
-                        <span class="service-icon">
-                            <i class="fa-solid fa-headset"></i>
-                        </span>
-
-                        <div>
-
-                            <h3>
-                                پشتیبانی
-                            </h3>
-
-                            <p>
-                                پاسخ‌گویی به سوالات شما
-                            </p>
-
-                        </div>
-
-                    </div>
-
-
-                    <div class="service-card">
-
-                        <span class="service-icon">
-                            <i class="fa-solid fa-rotate-left"></i>
-                        </span>
-
-                        <div>
-
-                            <h3>
-                                ضمانت بازگشت
-                            </h3>
-
-                            <p>
-                                تجربه خرید مطمئن و راحت
-                            </p>
-
-                        </div>
-
-                    </div>
-
-                </div>
-
-            </div>
-
-        </section>
-
-    </main>
-
-
-    <!-- =====================================================
-         FOOTER
-    ====================================================== -->
-
-    <footer class="site-footer">
-
-        <div class="container footer-grid">
-
-
-            <!-- Brand -->
-
-            <div class="footer-column footer-brand">
-
-                <a href="#home" class="brand">
-
-                    <span class="brand-icon">
-                        <i class="fa-solid fa-bag-shopping"></i>
+                    <span class="quantity-value">
+                        ${quantity}
                     </span>
 
-                    <span class="brand-text">
-
-                        <strong>نوا</strong>
-
-                        <small>
-                            فروشگاه آنلاین
-                        </small>
-
-                    </span>
-
-                </a>
-
-
-                <p>
-                    تجربه‌ای ساده، سریع و لذت‌بخش
-                    برای خرید اینترنتی.
-                </p>
-
-
-                <div class="social-links">
-
-                    <a
-                        href="https://t.me/"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        aria-label="تلگرام"
+                    <button
+                        class="quantity-btn"
+                        type="button"
+                        data-cart-minus="${escapeAttribute(id)}"
+                        aria-label="کاهش تعداد"
                     >
-                        <i class="fa-brands fa-telegram"></i>
-                    </a>
-
-                    <a
-                        href="https://instagram.com/"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        aria-label="اینستاگرام"
-                    >
-                        <i class="fa-brands fa-instagram"></i>
-                    </a>
-
-                    <a
-                        href="https://youtube.com/"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        aria-label="یوتیوب"
-                    >
-                        <i class="fa-brands fa-youtube"></i>
-                    </a>
+                        <i class="fa-solid fa-minus"></i>
+                    </button>
 
                 </div>
 
-            </div>
 
-
-            <!-- Quick Links -->
-
-            <div class="footer-column">
-
-                <h3>
-                    لینک‌های سریع
-                </h3>
-
-                <a href="#home">
-                    خانه
-                </a>
-
-                <a href="#categories">
-                    دسته‌بندی‌ها
-                </a>
-
-                <a href="#products">
-                    محصولات
-                </a>
-
-                <a href="#about">
-                    درباره ما
-                </a>
-
-            </div>
-
-
-            <!-- Customer Service -->
-
-            <div class="footer-column">
-
-                <h3>
-                    خدمات مشتریان
-                </h3>
-
-                <a href="#">
-                    راهنمای خرید
-                </a>
-
-                <a href="#">
-                    قوانین و مقررات
-                </a>
-
-                <a href="#">
-                    پیگیری سفارش
-                </a>
-
-                <a href="#">
-                    تماس با ما
-                </a>
-
-            </div>
-
-
-            <!-- Contact -->
-
-            <div class="footer-column">
-
-                <h3>
-                    درباره نوا
-                </h3>
-
-                <p>
-                    نوا برای یک خرید ساده،
-                    امن و سریع ساخته شده است.
-                </p>
-
-                <p class="footer-contact">
-                    <i class="fa-solid fa-phone"></i>
-                    پشتیبانی آنلاین
-                </p>
-
-            </div>
-
-        </div>
-
-
-        <div class="footer-bottom">
-
-            <div class="container">
-
-                <p>
-                    © ۲۰۲۶ نوا استور — تمامی حقوق محفوظ است.
-                </p>
-
-            </div>
-
-        </div>
-
-    </footer>
-
-
-    <!-- =====================================================
-         MOBILE BOTTOM NAVIGATION
-    ====================================================== -->
-
-    <nav
-        class="mobile-bottom-nav"
-        aria-label="منوی پایین موبایل"
-    >
-
-
-        <!-- HOME -->
-
-        <button
-            class="mobile-nav-item active"
-            type="button"
-            data-action="home"
-            aria-label="خانه"
-        >
-
-            <span class="mobile-icon-wrap">
-
-                <i class="fa-solid fa-house"></i>
-
-            </span>
-
-            <span>
-                خانه
-            </span>
-
-        </button>
-
-
-        <!-- CATEGORIES -->
-
-        <button
-            class="mobile-nav-item"
-            type="button"
-            data-action="categories"
-            aria-label="دسته‌بندی‌ها"
-        >
-
-            <span class="mobile-icon-wrap">
-
-                <i class="fa-solid fa-layer-group"></i>
-
-            </span>
-
-            <span>
-                دسته‌بندی
-            </span>
-
-        </button>
-
-
-        <!-- FAVORITES -->
-
-        <button
-            class="mobile-nav-item"
-            type="button"
-            data-action="favorites"
-            aria-label="علاقه‌مندی‌ها"
-        >
-
-            <span class="mobile-icon-wrap">
-
-                <i class="fa-regular fa-heart"></i>
-
-                <b
-                    id="favoritesCount"
-                    class="mobile-badge"
-                    hidden
+                <button
+                    class="remove-cart-item"
+                    type="button"
+                    data-cart-remove="${escapeAttribute(id)}"
+                    aria-label="حذف محصول"
                 >
-                    0
-                </b>
+                    <i class="fa-solid fa-trash"></i>
+                </button>
 
-            </span>
+            </div>
 
-            <span>
-                علاقه‌مندی
-            </span>
+        </article>
+    `;
 
-        </button>
-
-
-        <!-- CART -->
-
-        <button
-            class="mobile-nav-item"
-            type="button"
-            data-action="cart"
-            aria-label="سبد خرید"
-        >
-
-            <span class="mobile-icon-wrap">
-
-                <i class="fa-solid fa-cart-shopping"></i>
-
-                <b
-                    id="mobileCartCount"
-                    class="mobile-badge"
-                    hidden
-                >
-                    0
-                </b>
-
-            </span>
-
-            <span>
-                سبد خرید
-            </span>
-
-        </button>
+}
 
 
-        <!-- ACCOUNT -->
+function bindCartEvents(container) {
 
-        <button
-            class="mobile-nav-item"
-            type="button"
-            data-action="account"
-            aria-label="حساب کاربری"
-        >
+    container
+        .querySelectorAll(
+            "[data-cart-plus]"
+        )
+        .forEach(button => {
 
-            <span class="mobile-icon-wrap">
+            button.addEventListener(
+                "click",
+                () => {
 
-                <i class="fa-regular fa-user"></i>
+                    increaseCartQuantity(
+                        button.dataset.cartPlus
+                    );
 
-            </span>
+                }
+            );
 
-            <span>
-                حساب من
-            </span>
-
-        </button>
-
-    </nav>
+        });
 
 
-    <!-- =====================================================
-         TOAST
-    ====================================================== -->
+    container
+        .querySelectorAll(
+            "[data-cart-minus]"
+        )
+        .forEach(button => {
 
-    <div
-        id="toast"
-        class="toast"
-        role="status"
-        aria-live="polite"
-    >
+            button.addEventListener(
+                "click",
+                () => {
 
-        <i class="fa-solid fa-circle-check"></i>
+                    decreaseCartQuantity(
+                        button.dataset.cartMinus
+                    );
 
-        <span id="toastMessage"></span>
+                }
+            );
 
-    </div>
+        });
 
 
-    <!-- =====================================================
-         SUPABASE
-    ====================================================== -->
+    container
+        .querySelectorAll(
+            "[data-cart-remove]"
+        )
+        .forEach(button => {
 
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+            button.addEventListener(
+                "click",
+                () => {
 
-    <!-- Main JS -->
-    <script src="script.js"></script>
+                    removeFromCart(
+                        button.dataset.cartRemove
+                    );
 
-</body>
+                }
+            );
 
-</html>
+        });
+
+}
+
+
+/* =========================================================
+   CART SUMMARY
+========================================================= */
+
+function updateCartSummary(items) {
+
+    let totalItems = 0;
+    let subtotal = 0;
+    let discount = 0;
+
+
+    items.forEach(
+        ({ product, quantity }) => {
+
+            const price =
+                getProductPrice(product);
+
+            const oldPrice =
+                getProductOldPrice(product);
+
+
+            totalItems += quantity;
+
+            subtotal +=
+                price * quantity;
+
+
+            if (oldPrice > price) {
+
+                discount +=
+                    (oldPrice - price) *
+                    quantity;
+
+            }
+
+        }
+    );
+
+
+    const shipping =
+        subtotal === 0
+            ? 0
+            : subtotal >= 2000000
+                ? 0
+                : 50000;
+
+
+    const total =
+        subtotal + shipping;
+
+
+    setText(
+        "cartTotalItems",
+        formatNumber(totalItems)
+    );
+
+    setText(
+        "cartSubtotal",
+        formatPrice(subtotal)
+    );
+
+    setText(
+        "cartDiscount",
+        formatPrice(discount)
+    );
+
+    setText(
+        "cartShipping",
+        shipping === 0 && subtotal > 0
+            ? "رایگان"
+            : formatPrice(shipping)
+    );
+
+    setText(
+        "cartTotal",
+        formatPrice(total)
+    );
+
+}
+
+
+/* =========================================================
+   OPEN / CLOSE CART
+========================================================= */
+
+function openCart() {
+
+    const cartSection =
+        document.getElementById(
+            "cartSection"
+        );
+
+
+    if (!cartSection) {
+
+        return;
+
+    }
+
+
+    closeFavorites();
+
+    cartSection.hidden = false;
+
+
+    cartSection.scrollIntoView({
+        behavior: "smooth",
+        block: "start"
+    });
+
+
+    setMobileNavActive(
+        "cart"
+    );
+
+
+    /*
+     * بعد از باز شدن سبد، دوباره
+     * UI را تازه می‌کنیم.
+     */
+    updateCartUI();
+
+}
+
+
+function closeCart(
+    updateNav = true
+) {
+
+    const cartSection =
+        document.getElementById(
+            "cartSection"
+        );
+
+
+    if (!cartSection) {
+
+        return;
+
+    }
+
+
+    cartSection.hidden = true;
+
+
+    if (updateNav) {
+
+        setMobileNavActive(
+            "home"
+        );
+
+    }
+
+}
+
+
+/* =========================================================
+   CART SETUP
+========================================================= */
+
+function setupCart() {
+
+    /*
+     * Header Cart
+     */
+
+    const headerCart =
+        document.getElementById(
+            "headerCartBtn"
+        );
+
+
+    if (headerCart) {
+
+        headerCart.addEventListener(
+            "click",
+            event => {
+
+                event.preventDefault();
+
+                openCart();
+
+            }
+        );
+
+    }
+
+
+    /*
+     * Close Cart
+     */
+
+    const closeCartButton =
+        document.getElementById(
+            "closeCartBtn"
+        );
+
+
+    if (closeCartButton) {
+
+        closeCartButton.addEventListener(
+            "click",
+            event => {
+
+                event.preventDefault();
+
+                event.stopPropagation();
+
+                closeCart();
+
+                /*
+                 * بعد از بستن، کاربر را به
+                 * محصولات برنمی‌گردانیم.
+                 */
+
+            }
+        );
+
+    }
+
+
+    /*
+     * Continue Shopping
+     */
+
+    const continueShopping =
+        document.getElementById(
+            "continueShoppingBtn"
+        );
+
+
+    if (continueShopping) {
+
+        continueShopping.addEventListener(
+            "click",
+            () => {
+
+                closeCart();
+
+                scrollToProducts();
+
+            }
+        );
+
+    }
+
+
+    /*
+     * Empty Cart Button
+     */
+
+    const emptyCartProducts =
+        document.getElementById(
+            "emptyCartProductsBtn"
+        );
+
+
+    if (emptyCartProducts) {
+
+        emptyCartProducts.addEventListener(
+            "click",
+            () => {
+
+                closeCart();
+
+                scrollToProducts();
+
+            }
+        );
+
+    }
+
+
+    /*
+     * Checkout
+     */
+
+    const checkout =
+        document.getElementById(
+            "checkoutBtn"
+        );
+
+
+    if (checkout) {
+
+        checkout.addEventListener(
+            "click",
+            () => {
+
+                if (!cart.length) {
+
+                    showToast(
+                        "سبد خرید شما خالی است."
+                    );
+
+                    return;
+
+                }
+
+
+                showToast(
+                    "مرحله پرداخت در حال آماده‌سازی است."
+                );
+
+            }
+        );
+
+    }
+
+}
+
+
+/* =========================================================
+   NAVIGATION
+========================================================= */
+
+function setupNavigation() {
+
+    /*
+     * Desktop nav
+     */
+
+    document
+        .querySelectorAll(
+            ".desktop-nav .nav-link"
+        )
+        .forEach(link => {
+
+            link.addEventListener(
+                "click",
+                () => {
+
+                    document
+                        .querySelectorAll(
+                            ".desktop-nav .nav-link"
+                        )
+                        .forEach(
+                            item =>
+                                item.classList.remove(
+                                    "active"
+                                )
+                        );
+
+
+                    link.classList.add(
+                        "active"
+                    );
+
+                }
+            );
+
+        });
+
+
+    /*
+     * Mobile navigation
+     */
+
+    document
+        .querySelectorAll(
+            ".mobile-nav-item"
+        )
+        .forEach(button => {
+
+            button.addEventListener(
+                "click",
+                event => {
+
+                    event.preventDefault();
+
+                    const action =
+                        button.dataset.action;
+
+
+                    handleMobileNavigation(
+                        action
+                    );
+
+                }
+            );
+
+        });
+
+
+    /*
+     * Brand
+     */
+
+    const brandHome =
+        document.getElementById(
+            "brandHome"
+        );
+
+
+    if (brandHome) {
+
+        brandHome.addEventListener(
+            "click",
+            () => {
+
+                closeCart();
+
+                closeFavorites();
+
+                setMobileNavActive(
+                    "home"
+                );
+
+            }
+        );
+
+    }
+
+
+    /*
+     * Header Account
+     */
+
+    const account =
+        document.getElementById(
+            "headerAccountBtn"
+        );
+
+
+    if (account) {
+
+        account.addEventListener(
+            "click",
+            showAccountMessage
+        );
+
+    }
+
+}
+
+
+function handleMobileNavigation(
+    action
+) {
+
+    switch (action) {
+
+        case "home":
+
+            closeCart();
+
+            closeFavorites();
+
+            currentCategory = "";
+
+            currentSearch = "";
+
+            const searchInput =
+                document.getElementById(
+                    "searchInput"
+                );
+
+            if (searchInput) {
+
+                searchInput.value = "";
+
+            }
+
+            renderProducts(
+                allProducts
+            );
+
+            setMobileNavActive(
+                "home"
+            );
+
+            scrollToTop();
+
+            break;
+
+
+        case "categories":
+
+            closeCart();
+
+            closeFavorites();
+
+            setMobileNavActive(
+                "categories"
+            );
+
+            scrollToCategories();
+
+            break;
+
+
+        case "favorites":
+
+            openFavorites();
+
+            break;
+
+
+        case "cart":
+
+            openCart();
+
+            break;
+
+
+        case "account":
+
+            showAccountMessage();
+
+            break;
+
+    }
+
+}
+
+
+function setMobileNavActive(
+    action
+) {
+
+    document
+        .querySelectorAll(
+            ".mobile-nav-item"
+        )
+        .forEach(button => {
+
+            button.classList.toggle(
+                "active",
+                button.dataset.action === action
+            );
+
+        });
+
+}
+
+
+/* =========================================================
+   CATEGORIES
+========================================================= */
+
+function setupCategories() {
+
+    const container =
+        document.getElementById(
+            "categoriesGrid"
+        );
+
+
+    if (!container) {
+
+        return;
+
+    }
+
+
+    container.addEventListener(
+        "click",
+        event => {
+
+            const card =
+                event.target.closest(
+                    "[data-category]"
+                );
+
+
+            if (!card) {
+
+                return;
+
+            }
+
+
+            const category =
+                card.dataset.category || "";
+
+
+            selectCategory(
+                category
+            );
+
+        }
+    );
+
+}
+
+
+function selectCategory(
+    category
+) {
+
+    currentCategory =
+        category || "";
+
+
+    const searchInput =
+        document.getElementById(
+            "searchInput"
+        );
+
+
+    if (searchInput) {
+
+        searchInput.value =
+            currentSearch;
+
+    }
+
+
+    closeCart();
+
+    closeFavorites();
+
+    applyFilters();
+
+    setMobileNavActive(
+        "categories"
+    );
+
+
+    scrollToProducts();
+
+
+    if (currentCategory) {
+
+        showToast(
+            `دسته‌بندی «${currentCategory}»`
+        );
+
+    }
+
+}
+
+
+function clearFilters() {
+
+    currentCategory = "";
+
+    currentSearch = "";
+
+
+    const searchInput =
+        document.getElementById(
+            "searchInput"
+        );
+
+
+    if (searchInput) {
+
+        searchInput.value = "";
+
+    }
+
+
+    applyFilters();
+
+}
+
+
+/* =========================================================
+   SEARCH
+========================================================= */
+
+function setupSearch() {
+
+    const input =
+        document.getElementById(
+            "searchInput"
+        );
+
+
+    if (!input) {
+
+        return;
+
+    }
+
+
+    let searchTimeout = null;
+
+
+    input.addEventListener(
+        "input",
+        () => {
+
+            clearTimeout(
+                searchTimeout
+            );
+
+
+            searchTimeout =
+                setTimeout(
+                    () => {
+
+                        currentSearch =
+                            input.value || "";
+
+                        closeFavorites();
+
+                        closeCart();
+
+                        applyFilters();
+
+                    },
+                    180
+                );
+
+        }
+    );
+
+}
+
+
+/* =========================================================
+   HERO SLIDER
+========================================================= */
+
+function setupHeroSlider() {
+
+    const slider =
+        document.getElementById(
+            "heroSlider"
+        );
+
+
+    if (!slider) {
+
+        return;
+
+    }
+
+
+    const slides =
+        slider.querySelectorAll(
+            ".hero-slide"
+        );
+
+
+    const dots =
+        slider.querySelectorAll(
+            ".slider-dot"
+        );
+
+
+    const prev =
+        document.getElementById(
+            "prevSlide"
+        );
+
+
+    const next =
+        document.getElementById(
+            "nextSlide"
+        );
+
+
+    if (!slides.length) {
+
+        return;
+
+    }
+
+
+    function showSlide(index) {
+
+        currentSlide =
+            (
+                index + slides.length
+            ) % slides.length;
+
+
+        slides.forEach(
+            (slide, i) => {
+
+                slide.classList.toggle(
+                    "active",
+                    i === currentSlide
+                );
+
+            }
+        );
+
+
+        dots.forEach(
+            (dot, i) => {
+
+                dot.classList.toggle(
+                    "active",
+                    i === currentSlide
+                );
+
+            }
+        );
+
+    }
+
+
+    window.NovaSlider =
+        {
+            next: () => {
+
+                showSlide(
+                    currentSlide + 1
+                );
+
+            },
+
+            previous: () => {
+
+                showSlide(
+                    currentSlide - 1
+                );
+
+            },
+
+            goTo: index => {
+
+                showSlide(index);
+
+            }
+        };
+
+
+    if (prev) {
+
+        prev.addEventListener(
+            "click",
+            () => {
+
+                showSlide(
+                    currentSlide - 1
+                );
+
+                restartSlider();
+
+            }
+        );
+
+    }
+
+
+    if (next) {
+
+        next.addEventListener(
+            "click",
+            () => {
+
+                showSlide(
+                    currentSlide + 1
+                );
+
+                restartSlider();
+
+            }
+        );
+
+    }
+
+
+    dots.forEach(
+        dot => {
+
+            dot.addEventListener(
+                "click",
+                () => {
+
+                    const index =
+                        Number(
+                            dot.dataset.slideTo
+                        ) || 0;
+
+                    showSlide(index);
+
+                    restartSlider();
+
+                }
+            );
+
+        }
+    );
+
+
+    slider.addEventListener(
+        "mouseenter",
+        stopSlider
+    );
+
+
+    slider.addEventListener(
+        "mouseleave",
+        startSlider
+    );
+
+
+    slider.addEventListener(
+        "touchstart",
+        stopSlider,
+        {
+            passive: true
+        }
+    );
+
+
+    slider.addEventListener(
+        "touchend",
+        startSlider,
+        {
+            passive: true
+        }
+    );
+
+
+    showSlide(0);
+
+    startSlider();
+
+
+    function startSlider() {
+
+        stopSlider();
+
+        sliderTimer =
+            setInterval(
+                () => {
+
+                    showSlide(
+                        currentSlide + 1
+                    );
+
+                },
+                5000
+            );
+
+    }
+
+
+    function stopSlider() {
+
+        if (sliderTimer) {
+
+            clearInterval(
+                sliderTimer
+            );
+
+            sliderTimer = null;
+
+        }
+
+    }
+
+
+    function restartSlider() {
+
+        startSlider();
+
+    }
+
+}
+
+
+/* =========================================================
+   HERO / SCROLL BUTTONS
+========================================================= */
+
+function setupScrollButtons() {
+
+    document
+        .querySelectorAll(
+            "[data-scroll-products]"
+        )
+        .forEach(button => {
+
+            button.addEventListener(
+                "click",
+                () => {
+
+                    scrollToProducts();
+
+                }
+            );
+
+        });
+
+
+    const viewAll =
+        document.getElementById(
+            "viewAllBtn"
+        );
+
+
+    if (viewAll) {
+
+        viewAll.addEventListener(
+            "click",
+            () => {
+
+                clearFilters();
+
+                scrollToProducts();
+
+            }
+        );
+
+    }
+
+}
+
+
+function scrollToProducts() {
+
+    const products =
+        document.getElementById(
+            "products"
+        );
+
+
+    if (!products) {
+
+        return;
+
+    }
+
+
+    products.scrollIntoView({
+        behavior: "smooth",
+        block: "start"
+    });
+
+
+    setMobileNavActive(
+        "home"
+    );
+
+}
+
+
+function scrollToCategories() {
+
+    const categories =
+        document.getElementById(
+            "categories"
+        );
+
+
+    if (!categories) {
+
+        return;
+
+    }
+
+
+    categories.scrollIntoView({
+        behavior: "smooth",
+        block: "start"
+    });
+
+}
+
+
+function scrollToTop() {
+
+    window.scrollTo({
+        top: 0,
+        behavior: "smooth"
+    });
+
+}
+
+
+/* =========================================================
+   ACCOUNT
+========================================================= */
+
+function showAccountMessage() {
+
+    showToast(
+        "بخش حساب کاربری به‌زودی فعال می‌شود."
+    );
+
+}
+
+
+/* =========================================================
+   REALTIME SUPABASE
+========================================================= */
+
+function setupRealtime() {
+
+    if (!supabaseClient) {
+
+        return;
+
+    }
+
+
+    try {
+
+        supabaseClient
+            .channel(
+                "nova-products-realtime"
+            )
+            .on(
+                "postgres_changes",
+                {
+                    event: "*",
+                    schema: "public",
+                    table: "products"
+                },
+                () => {
+
+                    loadProducts();
+
+                }
+            )
+            .subscribe();
+
+    } catch (error) {
+
+        console.error(
+            "Realtime error:",
+            error
+        );
+
+    }
+
+}
+
+
+/* =========================================================
+   SEARCH / HEADER EXTRA BEHAVIOR
+========================================================= */
+
+function setupHeader() {
+
+    const searchInput =
+        document.getElementById(
+            "searchInput"
+        );
+
+
+    const headerFavorites =
+        document.getElementById(
+            "headerFavoritesBtn"
+        );
+
+
+    const headerAccount =
+        document.getElementById(
+            "headerAccountBtn"
+        );
+
+
+    /*
+     * On mobile, tapping search field
+     * keeps it usable.
+     */
+
+    if (searchInput) {
+
+        searchInput.addEventListener(
+            "focus",
+            () => {
+
+                searchInput
+                    .closest(".search-box")
+                    ?.classList.add("active");
+
+            }
+        );
+
+    }
+
+
+    /*
+     * Header favorite button is also
+     * connected here as a fallback.
+     */
+
+    if (
+        headerFavorites &&
+        !headerFavorites.dataset.ready
+    ) {
+
+        headerFavorites.dataset.ready =
+            "true";
+
+    }
+
+
+    if (
+        headerAccount &&
+        !headerAccount.dataset.ready
+    ) {
+
+        headerAccount.dataset.ready =
+            "true";
+
+    }
+
+}
+
+
+/* =========================================================
+   TOAST
+========================================================= */
+
+function showToast(message) {
+
+    const toast =
+        document.getElementById(
+            "toast"
+        );
+
+    const toastMessage =
+        document.getElementById(
+            "toastMessage"
+        );
+
+
+    if (!toast || !toastMessage) {
+
+        return;
+
+    }
+
+
+    toastMessage.textContent =
+        String(message);
+
+
+    toast.classList.add(
+        "show"
+    );
+
+
+    clearTimeout(
+        toastTimer
+    );
+
+
+    toastTimer =
+        setTimeout(
+            () => {
+
+                toast.classList.remove(
+                    "show"
+                );
+
+            },
+            2600
+        );
+
+}
+
+
+/* =========================================================
+   NUMBER / PRICE FORMAT
+========================================================= */
+
+function formatNumber(value) {
+
+    const number =
+        Number(value) || 0;
+
+
+    return number.toLocaleString(
+        "fa-IR"
+    );
+
+}
+
+
+function formatPrice(value) {
+
+    const number =
+        Number(value) || 0;
+
+
+    return (
+        number.toLocaleString("fa-IR") +
+        " تومان"
+    );
+
+}
+
+
+/* =========================================================
+   DOM HELPER
+========================================================= */
+
+function setText(
+    id,
+    value
+) {
+
+    const element =
+        document.getElementById(id);
+
+
+    if (element) {
+
+        element.textContent =
+            value;
+
+    }
+
+}
+
+
+/* =========================================================
+   HTML ESCAPING
+========================================================= */
+
+function escapeHtml(value) {
+
+    return String(value)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+
+}
+
+
+function escapeAttribute(value) {
+
+    return escapeHtml(value);
+
+}
+
+
+/* =========================================================
+   SUPABASE REALTIME START
+========================================================= */
+
+setTimeout(
+    setupRealtime,
+    1000
+);
+
+
+/* =========================================================
+   PUBLIC API
+========================================================= */
+
+window.NovaStore = {
+
+    loadProducts,
+
+    addToCart,
+
+    removeFromCart,
+
+    increaseCartQuantity,
+
+    decreaseCartQuantity,
+
+    toggleFavorite,
+
+    openCart,
+
+    closeCart,
+
+    openFavorites,
+
+    closeFavorites,
+
+    selectCategory,
+
+    clearFilters,
+
+    scrollToProducts
+
+};
