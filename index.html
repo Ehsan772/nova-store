@@ -1,1296 +1,1382 @@
 <!DOCTYPE html>
 <html lang="fa" dir="rtl">
+
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <title>نوا | Nova Store</title>
-  <meta name="description" content="فروشگاه نوا؛ انتخابی برای زندگی بهتر">
+    <meta
+        name="description"
+        content="نوا استور؛ فروشگاه اینترنتی مدرن با محصولات متنوع و تخفیف‌های ویژه"
+    >
 
-  <!-- Font -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link
-    href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700;800&display=swap"
-    rel="stylesheet"
-  >
+    <title>نوا | فروشگاه اینترنتی</title>
 
-  <!-- CSS -->
-  <link rel="stylesheet" href="style.css">
+    <!-- Font Awesome -->
+    <link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css"
+    >
 
-  <!-- Font Awesome -->
-  <link
-    rel="stylesheet"
-    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
-  >
+    <!-- Main CSS -->
+    <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
 
-  <!-- =====================================================
-       HEADER
-  ====================================================== -->
-  <header class="site-header">
+    <!-- =====================================================
+         HEADER
+    ====================================================== -->
 
-    <div class="container header-inner">
+    <header class="site-header">
 
-      <!-- Logo -->
-      <a class="brand" href="#home" aria-label="نوا">
-        <div class="brand-mark">
-          <i class="fa-solid fa-bag-shopping"></i>
-        </div>
+        <div class="container header-inner">
 
-        <div>
-          <strong>نوا</strong>
-          <span>Nova Store</span>
-        </div>
-      </a>
+            <!-- Logo -->
+            <a href="#home" class="brand" id="brandHome">
+                <span class="brand-icon">
+                    <i class="fa-solid fa-bag-shopping"></i>
+                </span>
 
-
-      <!-- Desktop Navigation -->
-      <nav class="main-nav" aria-label="منوی اصلی">
-
-        <a class="active" href="#home" data-page="home">
-          خانه
-        </a>
-
-        <a href="#products" data-page="products">
-          محصولات
-        </a>
-
-        <a href="#categories" data-page="categories">
-          دسته‌بندی‌ها
-        </a>
-
-        <a href="#about" data-page="about">
-          درباره ما
-        </a>
-
-      </nav>
-
-
-      <!-- Header Actions -->
-      <div class="header-actions">
-
-        <!-- Account -->
-        <button
-          class="account"
-          type="button"
-          id="accountBtn"
-          aria-label="ورود و ثبت نام"
-        >
-          <i class="fa-regular fa-user"></i>
-          <span>ورود / ثبت‌نام</span>
-        </button>
-
-
-        <!-- Cart -->
-        <button
-          class="cart"
-          type="button"
-          id="headerCartBtn"
-          aria-label="سبد خرید"
-        >
-          <i class="fa-solid fa-cart-shopping"></i>
-          <b id="cartCount">0</b>
-        </button>
-
-
-        <!-- Search -->
-        <div class="search">
-
-          <input
-            type="text"
-            id="searchInput"
-            placeholder="جستجوی محصول..."
-            autocomplete="off"
-          >
-
-          <i class="fa-solid fa-magnifying-glass"></i>
-
-        </div>
-
-      </div>
-
-    </div>
-
-  </header>
-
-
-
-  <!-- =====================================================
-       MAIN
-  ====================================================== -->
-  <main id="home">
-
-
-    <!-- =================================================
-         HERO SLIDER
-    ================================================== -->
-    <section class="hero-section container">
-
-      <div
-        class="hero-slider"
-        id="heroSlider"
-        aria-label="اسلایدر تبلیغاتی"
-      >
-
-
-        <!-- SLIDE 1 -->
-        <article class="hero-slide active">
-
-          <div class="hero-copy">
-
-            <p class="eyebrow">
-              کیفیت، قیمت و تنوع
-            </p>
-
-            <h1>
-              همه چیز در یک فروشگاه
-            </h1>
-
-            <p>
-              از جدیدترین محصولات تا بهترین پیشنهادها،
-              <br>
-              در نوا استور منتظر شما هستیم.
-            </p>
-
-            <a
-              href="#products"
-              class="primary-btn"
-            >
-              مشاهده محصولات
-              <i class="fa-solid fa-arrow-left"></i>
+                <span class="brand-text">
+                    <strong>نوا</strong>
+                    <small>فروشگاه آنلاین</small>
+                </span>
             </a>
 
-          </div>
+
+            <!-- Desktop Navigation -->
+            <nav class="desktop-nav" aria-label="منوی اصلی">
+
+                <a href="#home" class="nav-link active">
+                    خانه
+                </a>
+
+                <a href="#categories" class="nav-link">
+                    دسته‌بندی‌ها
+                </a>
+
+                <a href="#products" class="nav-link">
+                    محصولات
+                </a>
+
+                <a href="#about" class="nav-link">
+                    درباره ما
+                </a>
+
+            </nav>
 
 
-          <div class="hero-art">
+            <!-- Header Actions -->
+            <div class="header-actions">
 
-            <div class="hero-person">
-              <i class="fa-solid fa-user-tie"></i>
+                <!-- Search -->
+                <div class="search-box">
+
+                    <i class="fa-solid fa-magnifying-glass"></i>
+
+                    <input
+                        type="search"
+                        id="searchInput"
+                        placeholder="جستجوی محصول..."
+                        autocomplete="off"
+                    >
+
+                </div>
+
+
+                <!-- Favorites -->
+                <button
+                    id="headerFavoritesBtn"
+                    class="header-icon-btn"
+                    type="button"
+                    aria-label="علاقه‌مندی‌ها"
+                >
+
+                    <i class="fa-regular fa-heart"></i>
+
+                    <span
+                        id="headerFavoritesCount"
+                        class="header-count"
+                        hidden
+                    >
+                        0
+                    </span>
+
+                </button>
+
+
+                <!-- Account -->
+                <button
+                    id="headerAccountBtn"
+                    class="header-icon-btn"
+                    type="button"
+                    aria-label="حساب کاربری"
+                >
+
+                    <i class="fa-regular fa-user"></i>
+
+                </button>
+
+
+                <!-- Cart -->
+                <button
+                    id="headerCartBtn"
+                    class="header-icon-btn cart-header-btn"
+                    type="button"
+                    aria-label="سبد خرید"
+                >
+
+                    <i class="fa-solid fa-cart-shopping"></i>
+
+                    <span
+                        id="cartCount"
+                        class="header-count"
+                        hidden
+                    >
+                        0
+                    </span>
+
+                </button>
+
             </div>
 
-            <div class="bag">
-              <i class="fa-solid fa-bag-shopping"></i>
-              <strong>نوا</strong>
-              <span>Nova Store</span>
+        </div>
+
+    </header>
+
+
+    <!-- =====================================================
+         MAIN
+    ====================================================== -->
+
+    <main id="home">
+
+
+        <!-- =================================================
+             HERO
+        ================================================== -->
+
+        <section class="hero-section">
+
+            <div class="container">
+
+                <div
+                    class="hero-slider"
+                    id="heroSlider"
+                >
+
+
+                    <!-- Slide 1 -->
+                    <article
+                        class="hero-slide active"
+                        data-slide="0"
+                    >
+
+                        <div class="hero-content">
+
+                            <span class="hero-badge">
+                                تخفیف ویژه
+                            </span>
+
+                            <h1>
+                                خریدی متفاوت
+                                <br>
+                                با نوا
+                            </h1>
+
+                            <p>
+                                بهترین محصولات را با بهترین قیمت
+                                <br>
+                                در فروشگاه اینترنتی نوا پیدا کنید.
+                            </p>
+
+                            <button
+                                class="hero-btn"
+                                type="button"
+                                data-scroll-products
+                            >
+                                مشاهده محصولات
+
+                                <i class="fa-solid fa-arrow-left"></i>
+                            </button>
+
+                        </div>
+
+
+                        <!-- AI Human -->
+                        <div class="hero-person">
+
+                            <img
+                                src="assets/hero-person.png"
+                                alt="مدل زن واقعی‌نما ساخته‌شده با هوش مصنوعی"
+                                loading="eager"
+                            >
+
+                        </div>
+
+
+                        <!-- Decorative Shopping Bag -->
+                        <div class="hero-product hero-bag">
+
+                            <i class="fa-solid fa-bag-shopping"></i>
+
+                        </div>
+
+
+                        <!-- Floating Card -->
+                        <div class="floating-card floating-card-one">
+
+                            <i class="fa-solid fa-percent"></i>
+
+                            <div>
+                                <strong>تا ۵۰٪</strong>
+                                <span>تخفیف ویژه</span>
+                            </div>
+
+                        </div>
+
+
+                        <div class="floating-card floating-card-two">
+
+                            <i class="fa-solid fa-star"></i>
+
+                            <div>
+                                <strong>محبوب‌ترین‌ها</strong>
+                                <span>محصولات منتخب</span>
+                            </div>
+
+                        </div>
+
+                    </article>
+
+
+                    <!-- Slide 2 -->
+                    <article
+                        class="hero-slide"
+                        data-slide="1"
+                    >
+
+                        <div class="hero-content">
+
+                            <span class="hero-badge">
+                                محصولات جدید
+                            </span>
+
+                            <h2>
+                                تازه‌ترین محصولات
+                                <br>
+                                برای شما
+                            </h2>
+
+                            <p>
+                                جدیدترین کالاها را با قیمت مناسب
+                                <br>
+                                در نوا ببینید.
+                            </p>
+
+                            <button
+                                class="hero-btn"
+                                type="button"
+                                data-scroll-products
+                            >
+                                خرید کنید
+
+                                <i class="fa-solid fa-arrow-left"></i>
+                            </button>
+
+                        </div>
+
+
+                        <div class="hero-product hero-device">
+
+                            <i class="fa-solid fa-mobile-screen-button"></i>
+
+                        </div>
+
+
+                        <div class="floating-card floating-card-one">
+
+                            <i class="fa-solid fa-bolt"></i>
+
+                            <div>
+                                <strong>جدید</strong>
+                                <span>محصولات تازه</span>
+                            </div>
+
+                        </div>
+
+                    </article>
+
+
+                    <!-- Slide 3 -->
+                    <article
+                        class="hero-slide"
+                        data-slide="2"
+                    >
+
+                        <div class="hero-content">
+
+                            <span class="hero-badge">
+                                پیشنهاد نوا
+                            </span>
+
+                            <h2>
+                                کیفیت خوب،
+                                <br>
+                                قیمت مناسب
+                            </h2>
+
+                            <p>
+                                انتخاب هوشمندانه برای خرید روزانه
+                                <br>
+                                با نوا ساده‌تر است.
+                            </p>
+
+                            <button
+                                class="hero-btn"
+                                type="button"
+                                data-scroll-products
+                            >
+                                شروع خرید
+
+                                <i class="fa-solid fa-arrow-left"></i>
+                            </button>
+
+                        </div>
+
+
+                        <div class="hero-product hero-gift">
+
+                            <i class="fa-solid fa-gift"></i>
+
+                        </div>
+
+
+                        <div class="floating-card floating-card-one">
+
+                            <i class="fa-solid fa-truck-fast"></i>
+
+                            <div>
+                                <strong>ارسال سریع</strong>
+                                <span>تحویل آسان</span>
+                            </div>
+
+                        </div>
+
+                    </article>
+
+
+                    <!-- Slider Arrows -->
+
+                    <button
+                        id="prevSlide"
+                        class="slider-arrow slider-prev"
+                        type="button"
+                        aria-label="اسلاید قبلی"
+                    >
+                        <i class="fa-solid fa-chevron-right"></i>
+                    </button>
+
+
+                    <button
+                        id="nextSlide"
+                        class="slider-arrow slider-next"
+                        type="button"
+                        aria-label="اسلاید بعدی"
+                    >
+                        <i class="fa-solid fa-chevron-left"></i>
+                    </button>
+
+
+                    <!-- Slider Dots -->
+
+                    <div
+                        id="sliderDots"
+                        class="slider-dots"
+                    >
+
+                        <button
+                            type="button"
+                            class="slider-dot active"
+                            data-slide-to="0"
+                            aria-label="اسلاید اول"
+                        ></button>
+
+                        <button
+                            type="button"
+                            class="slider-dot"
+                            data-slide-to="1"
+                            aria-label="اسلاید دوم"
+                        ></button>
+
+                        <button
+                            type="button"
+                            class="slider-dot"
+                            data-slide-to="2"
+                            aria-label="اسلاید سوم"
+                        ></button>
+
+                    </div>
+
+                </div>
+
             </div>
 
-            <div class="hero-product headphone">
-              <i class="fa-solid fa-headphones"></i>
-            </div>
-
-            <div class="hero-product phone">
-              <i class="fa-solid fa-mobile-screen-button"></i>
-            </div>
-
-            <div class="hero-product watch">
-              <i class="fa-regular fa-clock"></i>
-            </div>
-
-          </div>
+        </section>
 
 
-          <div class="hero-slogan">
+        <!-- =================================================
+             CATEGORIES
+        ================================================== -->
 
-            <span>
-              انتخاب بهتر
-            </span>
-
-            <b>
-              زندگی بهتر
-            </b>
-
-            <em>
-              نوا
-            </em>
-
-          </div>
-
-        </article>
-
-
-
-        <!-- SLIDE 2 -->
-        <article class="hero-slide">
-
-          <div class="hero-copy">
-
-            <p class="eyebrow">
-              پیشنهادهای ویژه نوا
-            </p>
-
-            <h1>
-              تخفیف‌های جذاب برای شما
-            </h1>
-
-            <p>
-              محصولات منتخب را با قیمت مناسب
-              <br>
-              و ارسال سریع از نوا تهیه کنید.
-            </p>
-
-            <a
-              href="#products"
-              class="primary-btn"
-            >
-              مشاهده تخفیف‌ها
-              <i class="fa-solid fa-arrow-left"></i>
-            </a>
-
-          </div>
-
-
-          <div class="hero-art second">
-
-            <div class="hero-person person-2">
-              <i class="fa-solid fa-user"></i>
-            </div>
-
-            <div class="big-circle">
-              <i class="fa-solid fa-gift"></i>
-            </div>
-
-            <div class="floating-card c1">
-              <i class="fa-solid fa-mobile-screen"></i>
-            </div>
-
-            <div class="floating-card c2">
-              <i class="fa-solid fa-clock"></i>
-            </div>
-
-            <div class="floating-card c3">
-              <i class="fa-solid fa-headphones"></i>
-            </div>
-
-          </div>
-
-
-          <div class="hero-slogan">
-
-            <span>
-              پیشنهاد ویژه
-            </span>
-
-            <b>
-              برای تو
-            </b>
-
-            <em>
-              همین امروز
-            </em>
-
-          </div>
-
-        </article>
-
-
-
-        <!-- SLIDE 3 -->
-        <article class="hero-slide">
-
-          <div class="hero-copy">
-
-            <p class="eyebrow">
-              جدیدترین‌های نوا
-            </p>
-
-            <h1>
-              انتخابی برای هر سلیقه
-            </h1>
-
-            <p>
-              از تکنولوژی و پوشاک تا لوازم خانه
-              <br>
-              هر چیزی که لازم دارید، یکجا.
-            </p>
-
-            <a
-              href="#categories"
-              class="primary-btn"
-            >
-              دسته‌بندی‌ها
-              <i class="fa-solid fa-arrow-left"></i>
-            </a>
-
-          </div>
-
-
-          <div class="hero-art third">
-
-            <div class="hero-person person-3">
-              <i class="fa-solid fa-user"></i>
-            </div>
-
-            <div class="showcase-box">
-              <i class="fa-solid fa-box-open"></i>
-            </div>
-
-            <div class="mini-card m1">
-              <i class="fa-solid fa-shirt"></i>
-            </div>
-
-            <div class="mini-card m2">
-              <i class="fa-solid fa-dumbbell"></i>
-            </div>
-
-            <div class="mini-card m3">
-              <i class="fa-solid fa-book"></i>
-            </div>
-
-          </div>
-
-
-          <div class="hero-slogan">
-
-            <span>
-              نوا استور
-            </span>
-
-            <b>
-              خاص انتخاب کن
-            </b>
-
-            <em>
-              خاص زندگی کن
-            </em>
-
-          </div>
-
-        </article>
-
-
-
-        <!-- Slider Buttons -->
-        <button
-          class="slider-arrow prev"
-          id="prevSlide"
-          type="button"
-          aria-label="اسلاید قبلی"
+        <section
+            id="categories"
+            class="section categories-section"
         >
-          <i class="fa-solid fa-chevron-right"></i>
-        </button>
 
-        <button
-          class="slider-arrow next"
-          id="nextSlide"
-          type="button"
-          aria-label="اسلاید بعدی"
+            <div class="container">
+
+                <div class="section-heading">
+
+                    <div>
+                        <span class="section-eyebrow">
+                            انتخاب آسان
+                        </span>
+
+                        <h2>
+                            دسته‌بندی محصولات
+                        </h2>
+                    </div>
+
+                </div>
+
+
+                <div
+                    id="categoriesGrid"
+                    class="categories-grid"
+                >
+
+                    <button
+                        class="category-card"
+                        type="button"
+                        data-category=""
+                    >
+
+                        <span class="category-icon">
+                            <i class="fa-solid fa-border-all"></i>
+                        </span>
+
+                        <strong>همه محصولات</strong>
+
+                        <small>مشاهده همه</small>
+
+                    </button>
+
+
+                    <button
+                        class="category-card"
+                        type="button"
+                        data-category="موبایل"
+                    >
+
+                        <span class="category-icon">
+                            <i class="fa-solid fa-mobile-screen-button"></i>
+                        </span>
+
+                        <strong>موبایل</strong>
+
+                        <small>گوشی و لوازم جانبی</small>
+
+                    </button>
+
+
+                    <button
+                        class="category-card"
+                        type="button"
+                        data-category="لپ تاپ"
+                    >
+
+                        <span class="category-icon">
+                            <i class="fa-solid fa-laptop"></i>
+                        </span>
+
+                        <strong>لپ تاپ</strong>
+
+                        <small>کامپیوتر و لپ‌تاپ</small>
+
+                    </button>
+
+
+                    <button
+                        class="category-card"
+                        type="button"
+                        data-category="پوشاک"
+                    >
+
+                        <span class="category-icon">
+                            <i class="fa-solid fa-shirt"></i>
+                        </span>
+
+                        <strong>پوشاک</strong>
+
+                        <small>لباس و پوشیدنی</small>
+
+                    </button>
+
+
+                    <button
+                        class="category-card"
+                        type="button"
+                        data-category="لوازم جانبی"
+                    >
+
+                        <span class="category-icon">
+                            <i class="fa-solid fa-headphones"></i>
+                        </span>
+
+                        <strong>لوازم جانبی</strong>
+
+                        <small>هدفون و اکسسوری</small>
+
+                    </button>
+
+
+                    <button
+                        class="category-card"
+                        type="button"
+                        data-category="زیبایی"
+                    >
+
+                        <span class="category-icon">
+                            <i class="fa-solid fa-wand-magic-sparkles"></i>
+                        </span>
+
+                        <strong>زیبایی</strong>
+
+                        <small>زیبایی و سلامت</small>
+
+                    </button>
+
+
+                    <button
+                        class="category-card"
+                        type="button"
+                        data-category="خانه"
+                    >
+
+                        <span class="category-icon">
+                            <i class="fa-solid fa-house"></i>
+                        </span>
+
+                        <strong>خانه</strong>
+
+                        <small>لوازم خانه</small>
+
+                    </button>
+
+
+                    <button
+                        class="category-card"
+                        type="button"
+                        data-category="ورزش"
+                    >
+
+                        <span class="category-icon">
+                            <i class="fa-solid fa-dumbbell"></i>
+                        </span>
+
+                        <strong>ورزش</strong>
+
+                        <small>ورزش و سفر</small>
+
+                    </button>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- =================================================
+             PRODUCTS
+        ================================================== -->
+
+        <section
+            id="products"
+            class="section products-section"
         >
-          <i class="fa-solid fa-chevron-left"></i>
-        </button>
 
-      </div>
+            <div class="container">
 
+                <div class="section-heading products-heading">
 
-      <!-- Slider Dots -->
-      <div
-        class="slider-dots"
-        id="sliderDots"
-      >
+                    <div>
 
-        <button
-          class="dot active"
-          data-slide="0"
-          type="button"
-          aria-label="اسلاید اول"
-        ></button>
+                        <span class="section-eyebrow">
+                            فروشگاه نوا
+                        </span>
 
-        <button
-          class="dot"
-          data-slide="1"
-          type="button"
-          aria-label="اسلاید دوم"
-        ></button>
+                        <h2>
+                            محصولات
+                        </h2>
 
-        <button
-          class="dot"
-          data-slide="2"
-          type="button"
-          aria-label="اسلاید سوم"
-        ></button>
-
-      </div>
-
-    </section>
+                    </div>
 
 
+                    <button
+                        id="viewAllBtn"
+                        class="view-all-btn"
+                        type="button"
+                    >
+                        مشاهده همه
 
-    <!-- =================================================
-         CATEGORIES
-    ================================================== -->
-    <section
-      class="container section"
-      id="categories"
+                        <i class="fa-solid fa-arrow-left"></i>
+                    </button>
+
+                </div>
+
+
+                <div
+                    id="productsGrid"
+                    class="products-grid"
+                >
+
+                    <div class="products-loading">
+
+                        <i class="fa-solid fa-spinner fa-spin"></i>
+
+                        <span>
+                            در حال دریافت محصولات...
+                        </span>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- =================================================
+             FAVORITES
+        ================================================== -->
+
+        <section
+            id="favoritesSection"
+            class="section favorites-section"
+            hidden
+        >
+
+            <div class="container">
+
+                <div class="section-heading">
+
+                    <div>
+
+                        <span class="section-eyebrow">
+                            انتخاب‌های شما
+                        </span>
+
+                        <h2>
+                            علاقه‌مندی‌ها
+                        </h2>
+
+                    </div>
+
+
+                    <button
+                        id="closeFavoritesBtn"
+                        class="section-close-btn"
+                        type="button"
+                        aria-label="بستن علاقه‌مندی‌ها"
+                    >
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+
+                </div>
+
+
+                <div
+                    id="favoritesGrid"
+                    class="products-grid"
+                ></div>
+
+
+                <div
+                    id="emptyFavorites"
+                    class="empty-state"
+                    hidden
+                >
+
+                    <div class="empty-icon">
+
+                        <i class="fa-regular fa-heart"></i>
+
+                    </div>
+
+                    <h3>
+                        هنوز محصولی به علاقه‌مندی‌ها اضافه نکرده‌اید
+                    </h3>
+
+                    <p>
+                        روی قلب محصولات بزنید تا اینجا ذخیره شوند.
+                    </p>
+
+                    <button
+                        id="backToProductsBtn"
+                        class="primary-btn"
+                        type="button"
+                    >
+                        مشاهده محصولات
+                    </button>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- =================================================
+             CART
+        ================================================== -->
+
+        <section
+            id="cartSection"
+            class="cart-section"
+            hidden
+        >
+
+            <div class="container">
+
+                <div class="cart-header">
+
+                    <div>
+
+                        <span class="section-eyebrow">
+                            سفارش شما
+                        </span>
+
+                        <h2>
+                            سبد خرید
+                        </h2>
+
+                    </div>
+
+
+                    <!-- IMPORTANT CLOSE BUTTON -->
+
+                    <button
+                        id="closeCartBtn"
+                        class="cart-close"
+                        type="button"
+                        aria-label="بستن سبد خرید"
+                    >
+
+                        <i class="fa-solid fa-xmark"></i>
+
+                    </button>
+
+                </div>
+
+
+                <div class="cart-layout">
+
+
+                    <!-- Cart Items -->
+
+                    <div class="cart-items-wrapper">
+
+                        <div
+                            id="cartItems"
+                            class="cart-items"
+                        ></div>
+
+
+                        <!-- Empty Cart -->
+
+                        <div
+                            id="emptyCart"
+                            class="empty-state"
+                            hidden
+                        >
+
+                            <div class="empty-icon">
+
+                                <i class="fa-solid fa-cart-shopping"></i>
+
+                            </div>
+
+                            <h3>
+                                سبد خرید شما خالی است
+                            </h3>
+
+                            <p>
+                                هنوز محصولی به سبد خرید اضافه نکرده‌اید.
+                            </p>
+
+                            <button
+                                id="emptyCartProductsBtn"
+                                class="primary-btn"
+                                type="button"
+                            >
+                                مشاهده محصولات
+                            </button>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- Cart Summary -->
+
+                    <aside class="cart-summary">
+
+                        <h3>
+                            خلاصه سفارش
+                        </h3>
+
+
+                        <div class="summary-row">
+
+                            <span>
+                                تعداد کالاها
+                            </span>
+
+                            <strong id="cartTotalItems">
+                                0
+                            </strong>
+
+                        </div>
+
+
+                        <div class="summary-row">
+
+                            <span>
+                                مبلغ کالاها
+                            </span>
+
+                            <strong id="cartSubtotal">
+                                ۰ تومان
+                            </strong>
+
+                        </div>
+
+
+                        <div class="summary-row discount-row">
+
+                            <span>
+                                تخفیف
+                            </span>
+
+                            <strong id="cartDiscount">
+                                ۰ تومان
+                            </strong>
+
+                        </div>
+
+
+                        <div class="summary-row">
+
+                            <span>
+                                هزینه ارسال
+                            </span>
+
+                            <strong id="cartShipping">
+                                ۰ تومان
+                            </strong>
+
+                        </div>
+
+
+                        <div class="summary-divider"></div>
+
+
+                        <div class="summary-total">
+
+                            <span>
+                                مبلغ نهایی
+                            </span>
+
+                            <strong id="cartTotal">
+                                ۰ تومان
+                            </strong>
+
+                        </div>
+
+
+                        <button
+                            id="checkoutBtn"
+                            class="checkout-btn"
+                            type="button"
+                        >
+
+                            <span>
+                                ادامه و پرداخت
+                            </span>
+
+                            <i class="fa-solid fa-arrow-left"></i>
+
+                        </button>
+
+
+                        <button
+                            id="continueShoppingBtn"
+                            class="continue-shopping-btn"
+                            type="button"
+                        >
+
+                            ادامه خرید
+
+                        </button>
+
+                    </aside>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- =================================================
+             SERVICES
+        ================================================== -->
+
+        <section
+            id="about"
+            class="section services-section"
+        >
+
+            <div class="container">
+
+                <div class="services-grid">
+
+
+                    <div class="service-card">
+
+                        <span class="service-icon">
+                            <i class="fa-solid fa-truck-fast"></i>
+                        </span>
+
+                        <div>
+
+                            <h3>
+                                ارسال سریع
+                            </h3>
+
+                            <p>
+                                ارسال سفارش‌ها با سرعت و دقت
+                            </p>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="service-card">
+
+                        <span class="service-icon">
+                            <i class="fa-solid fa-shield-halved"></i>
+                        </span>
+
+                        <div>
+
+                            <h3>
+                                خرید امن
+                            </h3>
+
+                            <p>
+                                امنیت اطلاعات و سفارش شما
+                            </p>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="service-card">
+
+                        <span class="service-icon">
+                            <i class="fa-solid fa-headset"></i>
+                        </span>
+
+                        <div>
+
+                            <h3>
+                                پشتیبانی
+                            </h3>
+
+                            <p>
+                                پاسخ‌گویی به سوالات شما
+                            </p>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="service-card">
+
+                        <span class="service-icon">
+                            <i class="fa-solid fa-rotate-left"></i>
+                        </span>
+
+                        <div>
+
+                            <h3>
+                                ضمانت بازگشت
+                            </h3>
+
+                            <p>
+                                تجربه خرید مطمئن و راحت
+                            </p>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+    </main>
+
+
+    <!-- =====================================================
+         FOOTER
+    ====================================================== -->
+
+    <footer class="site-footer">
+
+        <div class="container footer-grid">
+
+
+            <!-- Brand -->
+
+            <div class="footer-column footer-brand">
+
+                <a href="#home" class="brand">
+
+                    <span class="brand-icon">
+                        <i class="fa-solid fa-bag-shopping"></i>
+                    </span>
+
+                    <span class="brand-text">
+
+                        <strong>نوا</strong>
+
+                        <small>
+                            فروشگاه آنلاین
+                        </small>
+
+                    </span>
+
+                </a>
+
+
+                <p>
+                    تجربه‌ای ساده، سریع و لذت‌بخش
+                    برای خرید اینترنتی.
+                </p>
+
+
+                <div class="social-links">
+
+                    <a
+                        href="https://t.me/"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        aria-label="تلگرام"
+                    >
+                        <i class="fa-brands fa-telegram"></i>
+                    </a>
+
+                    <a
+                        href="https://instagram.com/"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        aria-label="اینستاگرام"
+                    >
+                        <i class="fa-brands fa-instagram"></i>
+                    </a>
+
+                    <a
+                        href="https://youtube.com/"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        aria-label="یوتیوب"
+                    >
+                        <i class="fa-brands fa-youtube"></i>
+                    </a>
+
+                </div>
+
+            </div>
+
+
+            <!-- Quick Links -->
+
+            <div class="footer-column">
+
+                <h3>
+                    لینک‌های سریع
+                </h3>
+
+                <a href="#home">
+                    خانه
+                </a>
+
+                <a href="#categories">
+                    دسته‌بندی‌ها
+                </a>
+
+                <a href="#products">
+                    محصولات
+                </a>
+
+                <a href="#about">
+                    درباره ما
+                </a>
+
+            </div>
+
+
+            <!-- Customer Service -->
+
+            <div class="footer-column">
+
+                <h3>
+                    خدمات مشتریان
+                </h3>
+
+                <a href="#">
+                    راهنمای خرید
+                </a>
+
+                <a href="#">
+                    قوانین و مقررات
+                </a>
+
+                <a href="#">
+                    پیگیری سفارش
+                </a>
+
+                <a href="#">
+                    تماس با ما
+                </a>
+
+            </div>
+
+
+            <!-- Contact -->
+
+            <div class="footer-column">
+
+                <h3>
+                    درباره نوا
+                </h3>
+
+                <p>
+                    نوا برای یک خرید ساده،
+                    امن و سریع ساخته شده است.
+                </p>
+
+                <p class="footer-contact">
+                    <i class="fa-solid fa-phone"></i>
+                    پشتیبانی آنلاین
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <div class="footer-bottom">
+
+            <div class="container">
+
+                <p>
+                    © ۲۰۲۶ نوا استور — تمامی حقوق محفوظ است.
+                </p>
+
+            </div>
+
+        </div>
+
+    </footer>
+
+
+    <!-- =====================================================
+         MOBILE BOTTOM NAVIGATION
+    ====================================================== -->
+
+    <nav
+        class="mobile-bottom-nav"
+        aria-label="منوی پایین موبایل"
     >
 
-      <div class="section-heading">
 
-        <div>
-
-          <span>
-            دسته‌بندی‌ها
-          </span>
-
-          <h2>
-            چی می‌خوای بخری؟
-          </h2>
-
-        </div>
+        <!-- HOME -->
 
         <button
-          type="button"
-          class="view-all-btn"
-          id="viewAllCategories"
-        >
-          مشاهده همه
-          <i class="fa-solid fa-arrow-left"></i>
-        </button>
-
-      </div>
-
-
-      <!--
-        script.js این قسمت را در صورت وجود
-        دسته‌بندی‌های Supabase می‌تواند مدیریت کند.
-      -->
-      <div
-        class="category-grid"
-        id="categoriesGrid"
-      >
-
-        <button
-          class="category-card"
-          type="button"
-          data-category="لوازم جانبی"
-        >
-          <span class="cat-icon purple">
-            <i class="fa-solid fa-headphones"></i>
-          </span>
-
-          <b>لوازم جانبی</b>
-          <small>هدفون، ساعت و...</small>
-        </button>
-
-
-        <button
-          class="category-card"
-          type="button"
-          data-category="پوشاک"
-        >
-          <span class="cat-icon pink">
-            <i class="fa-solid fa-shirt"></i>
-          </span>
-
-          <b>پوشاک</b>
-          <small>لباس و اکسسوری</small>
-        </button>
-
-
-        <button
-          class="category-card"
-          type="button"
-          data-category="لوازم خانگی"
-        >
-          <span class="cat-icon green">
-            <i class="fa-solid fa-house"></i>
-          </span>
-
-          <b>لوازم خانگی</b>
-          <small>خانه‌ای بهتر</small>
-        </button>
-
-
-        <button
-          class="category-card"
-          type="button"
-          data-category="دیجیتال"
-        >
-          <span class="cat-icon blue">
-            <i class="fa-solid fa-mobile-screen-button"></i>
-          </span>
-
-          <b>دیجیتال</b>
-          <small>موبایل و گجت</small>
-        </button>
-
-
-        <button
-          class="category-card"
-          type="button"
-          data-category="زیبایی و سلامت"
-        >
-          <span class="cat-icon orange">
-            <i class="fa-solid fa-person"></i>
-          </span>
-
-          <b>زیبایی و سلامت</b>
-          <small>مراقبت و سلامت</small>
-        </button>
-
-
-        <button
-          class="category-card"
-          type="button"
-          data-category="ورزشی"
-        >
-          <span class="cat-icon yellow">
-            <i class="fa-solid fa-dumbbell"></i>
-          </span>
-
-          <b>ورزشی</b>
-          <small>تجهیزات ورزشی</small>
-        </button>
-
-
-        <button
-          class="category-card"
-          type="button"
-          data-category="کتاب و لوازم تحریر"
-        >
-          <span class="cat-icon violet">
-            <i class="fa-solid fa-book-open"></i>
-          </span>
-
-          <b>کتاب و لوازم تحریر</b>
-          <small>برای یادگیری بیشتر</small>
-        </button>
-
-
-        <button
-          class="category-card"
-          type="button"
-          data-category="تخفیف ویژه"
-        >
-          <span class="cat-icon red">
-            <i class="fa-solid fa-tag"></i>
-          </span>
-
-          <b>تخفیف ویژه</b>
-          <small>پیشنهادهای محدود</small>
-        </button>
-
-      </div>
-
-    </section>
-
-
-
-    <!-- =================================================
-         PRODUCTS
-    ================================================== -->
-    <section
-      class="container section products-section"
-      id="products"
-    >
-
-      <div class="section-heading">
-
-        <div>
-
-          <span>
-            پیشنهاد نوا
-          </span>
-
-          <h2 id="productsTitle">
-            محصولات ویژه
-          </h2>
-
-        </div>
-
-        <button
-          type="button"
-          class="view-all-btn"
-          id="viewAllProducts"
-        >
-          مشاهده همه
-          <i class="fa-solid fa-arrow-left"></i>
-        </button>
-
-      </div>
-
-
-      <!--
-        محصولات واقعی Supabase توسط script.js
-        داخل این قسمت قرار می‌گیرند.
-      -->
-      <div
-        class="products-grid"
-        id="productsGrid"
-      >
-
-        <div class="products-loading">
-          <i class="fa-solid fa-spinner fa-spin"></i>
-          <span>در حال دریافت محصولات...</span>
-        </div>
-
-      </div>
-
-    </section>
-
-
-
-    <!-- =================================================
-         FAVORITES PANEL
-    ================================================== -->
-    <section
-      class="container section favorites-section"
-      id="favoritesSection"
-      hidden
-    >
-
-      <div class="section-heading">
-
-        <div>
-
-          <span>
-            محصولات مورد علاقه شما
-          </span>
-
-          <h2>
-            علاقه‌مندی‌ها
-          </h2>
-
-        </div>
-
-        <button
-          type="button"
-          class="close-section-btn"
-          id="closeFavoritesBtn"
-          aria-label="بستن علاقه‌مندی‌ها"
-        >
-          <i class="fa-solid fa-xmark"></i>
-        </button>
-
-      </div>
-
-
-      <div
-        class="products-grid favorites-grid"
-        id="favoritesGrid"
-      ></div>
-
-
-      <div
-        class="empty-state"
-        id="emptyFavorites"
-        hidden
-      >
-
-        <i class="fa-regular fa-heart"></i>
-
-        <h3>
-          هنوز محصولی را به علاقه‌مندی‌ها اضافه نکرده‌اید
-        </h3>
-
-        <p>
-          با زدن روی قلب محصولات، آن‌ها را اینجا ذخیره کنید.
-        </p>
-
-        <button
-          type="button"
-          class="primary-btn"
-          id="backToProductsBtn"
-        >
-          مشاهده محصولات
-        </button>
-
-      </div>
-
-    </section>
-
-
-
-    <!-- =================================================
-         CART PANEL
-    ================================================== -->
-    <section
-      class="container section cart-section"
-      id="cartSection"
-      hidden
-    >
-
-      <div class="section-heading">
-
-        <div>
-
-          <span>
-            خرید شما
-          </span>
-
-          <h2>
-            سبد خرید
-          </h2>
-
-        </div>
-
-        <button
-          type="button"
-          class="close-section-btn"
-          id="closeCartBtn"
-          aria-label="بستن سبد خرید"
-        >
-          <i class="fa-solid fa-xmark"></i>
-        </button>
-
-      </div>
-
-
-      <div class="cart-layout">
-
-
-        <!-- Cart Items -->
-        <div
-          class="cart-items"
-          id="cartItems"
-        ></div>
-
-
-        <!-- Cart Summary -->
-        <aside class="cart-summary">
-
-          <h3>
-            خلاصه سفارش
-          </h3>
-
-
-          <div class="summary-row">
-
-            <span>
-              تعداد کالا
-            </span>
-
-            <strong id="cartTotalItems">
-              ۰
-            </strong>
-
-          </div>
-
-
-          <div class="summary-row">
-
-            <span>
-              جمع کالاها
-            </span>
-
-            <strong>
-              <span id="cartSubtotal">
-                ۰
-              </span>
-              تومان
-            </strong>
-
-          </div>
-
-
-          <div class="summary-row">
-
-            <span>
-              تخفیف
-            </span>
-
-            <strong id="cartDiscount">
-              ۰ تومان
-            </strong>
-
-          </div>
-
-
-          <div class="summary-row shipping-row">
-
-            <span>
-              ارسال
-            </span>
-
-            <strong id="cartShipping">
-              محاسبه می‌شود
-            </strong>
-
-          </div>
-
-
-          <div class="summary-divider"></div>
-
-
-          <div class="summary-total">
-
-            <span>
-              مبلغ نهایی
-            </span>
-
-            <strong>
-
-              <span id="cartTotal">
-                ۰
-              </span>
-
-              تومان
-
-            </strong>
-
-          </div>
-
-
-          <button
+            class="mobile-nav-item active"
             type="button"
-            class="checkout-btn"
-            id="checkoutBtn"
-          >
-            ادامه و ثبت سفارش
-            <i class="fa-solid fa-arrow-left"></i>
-          </button>
-
-
-          <button
-            type="button"
-            class="continue-shopping-btn"
-            id="continueShoppingBtn"
-          >
-            ادامه خرید
-          </button>
-
-        </aside>
-
-      </div>
-
-
-      <!-- Empty Cart -->
-      <div
-        class="empty-state"
-        id="emptyCart"
-        hidden
-      >
-
-        <i class="fa-solid fa-cart-shopping"></i>
-
-        <h3>
-          سبد خرید شما خالی است
-        </h3>
-
-        <p>
-          هنوز محصولی به سبد خرید اضافه نکرده‌اید.
-        </p>
-
-        <button
-          type="button"
-          class="primary-btn"
-          id="emptyCartProductsBtn"
+            data-action="home"
+            aria-label="خانه"
         >
-          مشاهده محصولات
-        </button>
 
-      </div>
+            <span class="mobile-icon-wrap">
 
-    </section>
+                <i class="fa-solid fa-house"></i>
 
-
-
-    <!-- =================================================
-         SERVICES
-    ================================================== -->
-    <section
-      class="services container"
-      id="about"
-    >
-
-      <div class="service">
-
-        <i class="fa-solid fa-medal"></i>
-
-        <div>
-
-          <h3>
-            ضمانت اصالت کالا
-          </h3>
-
-          <p>
-            خرید مطمئن و تضمین شده
-          </p>
-
-        </div>
-
-      </div>
-
-
-      <div class="service">
-
-        <i class="fa-solid fa-truck-fast"></i>
-
-        <div>
-
-          <h3>
-            ارسال سریع
-          </h3>
-
-          <p>
-            به سراسر کشور
-          </p>
-
-        </div>
-
-      </div>
-
-
-      <div class="service">
-
-        <i class="fa-solid fa-shield-halved"></i>
-
-        <div>
-
-          <h3>
-            پرداخت امن
-          </h3>
-
-          <p>
-            با درگاه‌های معتبر بانکی
-          </p>
-
-        </div>
-
-      </div>
-
-
-      <div class="service">
-
-        <i class="fa-solid fa-headset"></i>
-
-        <div>
-
-          <h3>
-            پشتیبانی ۲۴/۷
-          </h3>
-
-          <p>
-            همیشه در کنار شما هستیم
-          </p>
-
-        </div>
-
-      </div>
-
-    </section>
-
-  </main>
-
-
-
-  <!-- =====================================================
-       FOOTER
-  ====================================================== -->
-  <footer
-    class="site-footer"
-    id="footer"
-  >
-
-    <div class="container footer-top">
-
-
-      <!-- Footer Brand -->
-      <div class="footer-brand">
-
-        <div class="brand footer-logo">
-
-          <div class="brand-mark">
-            <i class="fa-solid fa-bag-shopping"></i>
-          </div>
-
-          <div>
-
-            <strong>
-              نوا
-            </strong>
-
-            <span>
-              Nova Store
             </span>
 
-          </div>
+            <span>
+                خانه
+            </span>
 
-        </div>
-
-
-        <p>
-          نوا، انتخابی برای خریدی بهتر،
-          سریع‌تر و مطمئن‌تر.
-        </p>
-
-      </div>
+        </button>
 
 
+        <!-- CATEGORIES -->
 
-      <!-- Footer Links -->
-      <div class="footer-column">
-
-        <h3>
-          دسترسی سریع
-        </h3>
-
-        <a href="#home">
-          خانه
-        </a>
-
-        <a href="#products">
-          محصولات
-        </a>
-
-        <a href="#categories">
-          دسته‌بندی‌ها
-        </a>
-
-        <a href="#about">
-          درباره ما
-        </a>
-
-      </div>
-
-
-
-      <!-- Customer -->
-      <div class="footer-column">
-
-        <h3>
-          خدمات مشتریان
-        </h3>
-
-        <a href="#">
-          تماس با ما
-        </a>
-
-        <a href="#">
-          قوانین و مقررات
-        </a>
-
-        <a href="#">
-          حریم خصوصی
-        </a>
-
-        <a href="#">
-          پیگیری سفارش
-        </a>
-
-      </div>
-
-
-
-      <!-- Social -->
-      <div class="footer-social">
-
-        <h3>
-          ما را دنبال کنید
-        </h3>
-
-        <p>
-          برای اطلاع از محصولات و تخفیف‌های جدید
-          همراه نوا باشید.
-        </p>
-
-
-        <div
-          class="socials"
-          aria-label="شبکه‌های اجتماعی"
+        <button
+            class="mobile-nav-item"
+            type="button"
+            data-action="categories"
+            aria-label="دسته‌بندی‌ها"
         >
 
-          <a
-            href="https://t.me/"
-            target="_blank"
-            rel="noopener noreferrer"
-            aria-label="تلگرام"
-          >
-            <i class="fa-brands fa-telegram"></i>
-          </a>
+            <span class="mobile-icon-wrap">
+
+                <i class="fa-solid fa-layer-group"></i>
+
+            </span>
+
+            <span>
+                دسته‌بندی
+            </span>
+
+        </button>
 
 
-          <a
-            href="https://instagram.com/"
-            target="_blank"
-            rel="noopener noreferrer"
-            aria-label="اینستاگرام"
-          >
-            <i class="fa-brands fa-instagram"></i>
-          </a>
+        <!-- FAVORITES -->
+
+        <button
+            class="mobile-nav-item"
+            type="button"
+            data-action="favorites"
+            aria-label="علاقه‌مندی‌ها"
+        >
+
+            <span class="mobile-icon-wrap">
+
+                <i class="fa-regular fa-heart"></i>
+
+                <b
+                    id="favoritesCount"
+                    class="mobile-badge"
+                    hidden
+                >
+                    0
+                </b>
+
+            </span>
+
+            <span>
+                علاقه‌مندی
+            </span>
+
+        </button>
 
 
-          <a
-            href="https://youtube.com/"
-            target="_blank"
-            rel="noopener noreferrer"
-            aria-label="یوتیوب"
-          >
-            <i class="fa-brands fa-youtube"></i>
-          </a>
+        <!-- CART -->
 
-        </div>
+        <button
+            class="mobile-nav-item"
+            type="button"
+            data-action="cart"
+            aria-label="سبد خرید"
+        >
 
-      </div>
+            <span class="mobile-icon-wrap">
+
+                <i class="fa-solid fa-cart-shopping"></i>
+
+                <b
+                    id="mobileCartCount"
+                    class="mobile-badge"
+                    hidden
+                >
+                    0
+                </b>
+
+            </span>
+
+            <span>
+                سبد خرید
+            </span>
+
+        </button>
+
+
+        <!-- ACCOUNT -->
+
+        <button
+            class="mobile-nav-item"
+            type="button"
+            data-action="account"
+            aria-label="حساب کاربری"
+        >
+
+            <span class="mobile-icon-wrap">
+
+                <i class="fa-regular fa-user"></i>
+
+            </span>
+
+            <span>
+                حساب من
+            </span>
+
+        </button>
+
+    </nav>
+
+
+    <!-- =====================================================
+         TOAST
+    ====================================================== -->
+
+    <div
+        id="toast"
+        class="toast"
+        role="status"
+        aria-live="polite"
+    >
+
+        <i class="fa-solid fa-circle-check"></i>
+
+        <span id="toastMessage"></span>
 
     </div>
 
 
+    <!-- =====================================================
+         SUPABASE
+    ====================================================== -->
 
-    <!-- Footer Bottom -->
-    <div class="footer-bottom container">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-      <span>
-        © 2026 Nova Store. تمامی حقوق محفوظ است.
-      </span>
-
-      <strong>
-        نوا، انتخابی برای آرامش و خریدی بهتر
-        <i class="fa-solid fa-heart"></i>
-      </strong>
-
-    </div>
-
-  </footer>
-
-
-
-  <!-- =====================================================
-       MOBILE BOTTOM NAV
-  ====================================================== -->
-  <nav
-    class="mobile-bottom-nav"
-    aria-label="منوی موبایل"
-  >
-
-    <!-- Home -->
-    <button
-      class="mobile-nav-item active"
-      type="button"
-      data-mobile-page="home"
-      id="mobileHomeBtn"
-    >
-
-      <i class="fa-solid fa-house"></i>
-
-      <span>
-        خانه
-      </span>
-
-    </button>
-
-
-    <!-- Categories -->
-    <button
-      class="mobile-nav-item"
-      type="button"
-      data-mobile-page="categories"
-      id="mobileCategoriesBtn"
-    >
-
-      <i class="fa-solid fa-layer-group"></i>
-
-      <span>
-        دسته‌ها
-      </span>
-
-    </button>
-
-
-    <!-- Favorites -->
-    <button
-      class="mobile-nav-item"
-      type="button"
-      data-mobile-page="favorites"
-      id="mobileFavoritesBtn"
-    >
-
-      <span class="mobile-icon-wrap">
-
-        <i class="fa-regular fa-heart"></i>
-
-        <b
-          class="mobile-badge"
-          id="favoritesCount"
-        >
-          0
-        </b>
-
-      </span>
-
-      <span>
-        علاقه‌مندی
-      </span>
-
-    </button>
-
-
-    <!-- Cart -->
-    <button
-      class="mobile-nav-item"
-      type="button"
-      data-mobile-page="cart"
-      id="mobileCartBtn"
-    >
-
-      <span class="mobile-icon-wrap">
-
-        <i class="fa-solid fa-cart-shopping"></i>
-
-        <b
-          class="mobile-badge"
-          id="mobileCartCount"
-        >
-          0
-        </b>
-
-      </span>
-
-      <span>
-        سبد خرید
-      </span>
-
-    </button>
-
-
-    <!-- Account -->
-    <button
-      class="mobile-nav-item"
-      type="button"
-      data-mobile-page="account"
-      id="mobileAccountBtn"
-    >
-
-      <i class="fa-regular fa-user"></i>
-
-      <span>
-        حساب
-      </span>
-
-    </button>
-
-  </nav>
-
-
-
-  <!-- =====================================================
-       TOAST
-  ====================================================== -->
-  <div
-    class="toast"
-    id="toast"
-    role="status"
-    aria-live="polite"
-  >
-    <i class="fa-solid fa-circle-check"></i>
-    <span id="toastMessage">
-      انجام شد
-    </span>
-  </div>
-
-
-
-  <!-- =====================================================
-       SUPABASE
-       کلید عمومی فعلی پروژه را در script.js نگه می‌داریم.
-       هیچ رمز یا service_role اینجا قرار نمی‌گیرد.
-  ====================================================== -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
-  <!-- Main JavaScript -->
-  <script src="script.js"></script>
+    <!-- Main JS -->
+    <script src="script.js"></script>
 
 </body>
-                  </html>
+
+                                                           </html>
