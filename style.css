@@ -2364,3 +2364,89 @@ body,
         color 0.25s ease,
         border-color 0.25s ease;
 }
+
+/* =========================================
+   NOVA STORE — DARK MODE PRODUCT FIX
+   فقط اصلاح محصولات و بخش‌های مربوط به آن
+========================================= */
+
+/* پس‌زمینه بخش محصولات و علاقه‌مندی‌ها */
+body.dark-mode .products-section,
+body.dark-mode .favorites-section {
+    background-color: #12111b;
+    color: #f3efff;
+}
+
+/* کارت محصولات */
+body.dark-mode .product-card {
+    background: #211e30;
+    border: 1px solid #373047;
+    color: #f3efff;
+    overflow: hidden;
+}
+
+/* بخش اطلاعات محصول */
+body.dark-mode .product-info {
+    background: #211e30;
+    color: #f3efff;
+}
+
+/* عنوان و دسته‌بندی محصول */
+body.dark-mode .product-info h3,
+body.dark-mode .product-info h3 a,
+body.dark-mode .product-category,
+body.dark-mode .product-info .product-category {
+    color: #f3efff;
+}
+
+/* توضیحات محصول */
+body.dark-mode .product-description,
+body.dark-mode .product-info p {
+    color: #bdb6d0;
+}
+
+/* قیمت محصول؛ جلوگیری از سیاه ماندن قیمت */
+body.dark-mode .product-price,
+body.dark-mode .product-price strong,
+body.dark-mode .price,
+body.dark-mode .price strong,
+body.dark-mode .current-price {
+    color: #f5f0ff;
+}
+
+/* قیمت قبلی */
+body.dark-mode .product-price del,
+body.dark-mode .product-price s,
+body.dark-mode .old-price,
+body.dark-mode .price del,
+body.dark-mode .price s {
+    color: #a7a0b8;
+}
+
+/* پس‌زمینه تصویر محصول */
+body.dark-mode .product-image {
+    background: #282438;
+}
+
+/* فضای خالی و بارگذاری محصولات */
+body.dark-mode .products-loading,
+body.dark-mode .products-error,
+body.dark-mode .empty-products,
+body.dark-mode .empty-state {
+    background: #211e30;
+    color: #e9e2ff;
+    border-color: #373047;
+}
+
+/* عنوان بخش محصولات */
+body.dark-mode .products-heading h2,
+body.dark-mode .products-heading .section-eyebrow {
+    color: #f3efff;
+}
+
+/* فضای بین محصولات و خدمات */
+body.dark-mode .products-section,
+body.dark-mode .favorites-section {
+    border-color: #12111b;
+}
+
