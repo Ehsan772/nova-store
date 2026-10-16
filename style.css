@@ -332,6 +332,12 @@ HERO — NOVA STORE
 سه بنر تصویری با انیمیشن نرم
 ========================================================= */
 
+
+/* =========================================================
+HERO — NOVA STORE
+سه بنر متناسب با باکس + آیکون‌های متحرک
+========================================================= */
+
 .hero-section {
     padding: 30px 0 15px;
 }
@@ -358,63 +364,51 @@ HERO — NOVA STORE
     opacity: 0;
     visibility: hidden;
     pointer-events: none;
-    transform: scale(1.025);
+    transform: none;
     transition:
-        opacity .7s ease,
-        transform 1s ease,
-        visibility .7s ease;
+        opacity .65s ease,
+        visibility .65s ease;
 }
+
+/* فقط اسلاید فعال نمایش داده شود */
 
 .hero-slide.active {
     position: relative;
     opacity: 1;
     visibility: visible;
     pointer-events: auto;
-    transform: scale(1);
+    transform: none;
 }
 
-/* تصویر کامل هر بنر */
+/* تصاویر سه بنر */
 
-.hero-slide > img,
-.hero-slide > picture,
-.hero-slide .hero-banner-image {
-    position: absolute;
-    inset: 0;
-    z-index: 0;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    object-position: center;
-    border-radius: inherit;
+.hero-slide[data-slide="0"],
+.hero-slide[data-slide="1"],
+.hero-slide[data-slide="2"] {
+    background-repeat: no-repeat;
+    background-size: 100% 100%;
+    background-position: center center;
 }
 
-/* اگر اسلاید از تصویر پس‌زمینه استفاده کند */
+/* بنر اول */
 
 .hero-slide[data-slide="0"] {
-    background-image:
-        url("https://zwtbrgsphgjyczdibldj.supabase.co/storage/v1/object/public/products/hero-banner.png");
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
+    background-image: url("https://zwtbrgsphgjyczdibldj.supabase.co/storage/v1/object/public/products/hero-banner.png");
 }
+
+/* بنر دوم */
 
 .hero-slide[data-slide="1"] {
-    background-image:
-        url("https://zwtbrgsphgjyczdibldj.supabase.co/storage/v1/object/public/products/Kale.png");
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
+    background-image: url("https://zwtbrgsphgjyczdibldj.supabase.co/storage/v1/object/public/products/Kale.png");
 }
+
+/* بنر سوم */
 
 .hero-slide[data-slide="2"] {
-    background-image:
-        url("https://zwtbrgsphgjyczdibldj.supabase.co/storage/v1/object/public/products/Hope.png");
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
+    background-image: url("https://zwtbrgsphgjyczdibldj.supabase.co/storage/v1/object/public/products/Hope.png");
 }
 
-/* حذف متن‌ها و عناصر تزئینی قبلی روی بنرها */
+/* عناصر قبلی روی بنر پنهان شوند تا با نوشته‌های عکس تداخل نداشته باشند */
 
 .hero-slide .hero-content,
 .hero-slide .hero-person,
@@ -423,13 +417,18 @@ HERO — NOVA STORE
     display: none !important;
 }
 
-/* جلوگیری از نمایش دایره‌های تزئینی روی تصاویر */
+/* حذف تزئینات قبلی */
 
 .hero-slide::before,
 .hero-slide::after {
     content: none !important;
     display: none !important;
 }
+
+/* آیکون‌های دیجیتال شناور
+   این بخش به‌تنهایی آیکون تولید نمی‌کند؛
+   برای نمایش آیکون‌ها باید عناصرشان داخل HTML باشند.
+*/
 
 /* فلش‌های اسلایدر */
 
@@ -442,7 +441,7 @@ HERO — NOVA STORE
     display: grid;
     place-items: center;
     border-radius: 50%;
-    background: rgba(255, 255, 255, .82);
+    background: rgba(255, 255, 255, .88);
     color: var(--primary-dark);
     border: 1px solid rgba(255, 255, 255, .7);
     box-shadow: 0 5px 18px rgba(20, 10, 40, .18);
@@ -479,7 +478,7 @@ HERO — NOVA STORE
     gap: 8px;
     padding: 8px 12px;
     border-radius: 30px;
-    background: rgba(25, 12, 45, .28);
+    background: rgba(25, 12, 45, .35);
     backdrop-filter: blur(8px);
     transform: translateX(-50%);
 }
@@ -489,42 +488,13 @@ HERO — NOVA STORE
     height: 8px;
     padding: 0;
     border-radius: 20px;
-    background: rgba(255, 255, 255, .65);
+    background: rgba(255, 255, 255, .7);
     transition: width .3s ease, background .3s ease;
 }
 
 .slider-dot.active {
     width: 24px;
     background: #fff;
-}
-
-/* حرکت آرام تصویر بنر فعال */
-
-@keyframes novaBannerFloat {
-    0%, 100% {
-        background-position: center center;
-    }
-
-    50% {
-        background-position: center 46%;
-    }
-}
-
-.hero-slide.active[data-slide="0"],
-.hero-slide.active[data-slide="1"],
-.hero-slide.active[data-slide="2"] {
-    animation: novaBannerFloat 8s ease-in-out infinite;
-}
-
-/* احترام به تنظیم کاهش حرکت دستگاه */
-
-@media (prefers-reduced-motion: reduce) {
-    .hero-slide,
-    .slider-arrow,
-    .slider-dot {
-        transition: none !important;
-        animation: none !important;
-    }
 }
 
 /* تبلت */
@@ -557,6 +527,7 @@ HERO — NOVA STORE
     .hero-slide[data-slide="1"],
     .hero-slide[data-slide="2"] {
         background-position: center center;
+        background-size: 100% 100%;
     }
 
     .slider-arrow {
@@ -597,6 +568,7 @@ HERO — NOVA STORE
 @media (max-width: 420px) {
     .hero-slider {
         height: clamp(190px, 57vw, 250px);
+        min-height: 0;
         border-radius: 17px;
     }
 
@@ -606,6 +578,16 @@ HERO — NOVA STORE
     }
 }
 
+/* کاهش انیمیشن در صورت تنظیم دستگاه کاربر */
+
+@media (prefers-reduced-motion: reduce) {
+    .hero-slide,
+    .slider-arrow,
+    .slider-dot {
+        transition: none !important;
+        animation: none !important;
+    }
+}
 
 /* =========================================================
 CATEGORIES
