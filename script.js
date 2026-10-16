@@ -3151,3 +3151,31 @@ window.NovaStore = {
         }
     });
 })();
+
+
+
+/* =========================================
+   NOVA STORE — INTRO CONTROLLER
+========================================= */
+
+(() => {
+    const intro = document.getElementById("novaIntro");
+
+    if (!intro) return;
+
+    // اگر دستگاه کاهش حرکت را ترجیح می‌دهد،
+    // صفحه شروع را بدون تأخیر رد کن.
+    const reduceMotion = window.matchMedia(
+        "(prefers-reduced-motion: reduce)"
+    ).matches;
+
+    const showDuration = reduceMotion ? 0 : 2000;
+
+    window.setTimeout(() => {
+        intro.classList.add("intro-hidden");
+
+        window.setTimeout(() => {
+            intro.remove();
+        }, reduceMotion ? 0 : 500);
+    }, showDuration);
+})();
