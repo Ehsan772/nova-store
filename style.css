@@ -2450,3 +2450,101 @@ body.dark-mode .favorites-section {
     border-color: #12111b;
 }
 
+
+/* =========================================
+   NOVA STORE — DARK MODE CART FIX
+   فقط پنل سبد خرید و خدمات پایین آن
+========================================= */
+
+/* پس‌زمینه بخش سبد خرید */
+body.dark-mode .cart-section {
+    background: #12111b;
+    color: #f3efff;
+}
+
+/* عنوان پنل */
+body.dark-mode .cart-header h2,
+body.dark-mode .cart-header .section-eyebrow {
+    color: #f3efff;
+}
+
+/* پنل اصلی و خلاصه سفارش */
+body.dark-mode .cart-items-wrapper,
+body.dark-mode .cart-summary {
+    background: #211e30;
+    color: #f3efff;
+    border-color: #373047;
+}
+
+/* متن‌های خلاصه سفارش */
+body.dark-mode .cart-summary h3,
+body.dark-mode .cart-summary .summary-row,
+body.dark-mode .cart-summary .summary-row span,
+body.dark-mode .cart-summary .summary-row strong,
+body.dark-mode .cart-summary .summary-total,
+body.dark-mode .cart-summary .summary-total span,
+body.dark-mode .cart-summary .summary-total strong {
+    color: #f3efff;
+}
+
+/* مبلغ کالاها، ارسال و مبلغ نهایی */
+body.dark-mode #cartSubtotal,
+body.dark-mode #cartShipping,
+body.dark-mode #cartTotalItems,
+body.dark-mode #cartTotal {
+    color: #f3efff;
+}
+
+/* تخفیف */
+body.dark-mode .cart-summary .discount-row strong,
+body.dark-mode #cartDiscount {
+    color: #4ade80;
+}
+
+/* خط جداکننده خلاصه سفارش */
+body.dark-mode .cart-summary .summary-divider {
+    border-color: #484057;
+    background-color: #484057;
+}
+
+/* دکمه ادامه خرید */
+body.dark-mode .continue-shopping-btn {
+    background: #302b40;
+    color: #f3efff;
+    border-color: #403951;
+}
+
+/* دکمه بستن سبد خرید */
+body.dark-mode .cart-close {
+    background: #302b40;
+    color: #f3efff;
+    border-color: #403951;
+}
+
+/* پس‌زمینه بخش خدمات پایین صفحه */
+body.dark-mode .services-section {
+    background: #12111b;
+    color: #f3efff;
+}
+
+/* کارت‌های خدمات */
+body.dark-mode .services-grid .service-card {
+    background: #211e30;
+    color: #f3efff;
+    border-color: #373047;
+}
+
+/* عنوان و توضیحات خدمات */
+body.dark-mode .service-card h3 {
+    color: #f3efff;
+}
+
+body.dark-mode .service-card p {
+    color: #aaa3bd;
+}
+
+/* آیکون‌های خدمات */
+body.dark-mode .service-card .service-icon {
+    background: #eee5ff;
+    color: #7c3aed;
+}
