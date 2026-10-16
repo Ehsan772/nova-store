@@ -3154,8 +3154,7 @@ window.NovaStore = {
 
 
 
-
-/* NOVA — Sequential Intro Controller */
+/* NOVA — Smooth Sequential Intro */
 
 (() => {
     const intro = document.getElementById("novaIntro");
@@ -3170,45 +3169,39 @@ window.NovaStore = {
         return;
     }
 
-    const icons = [
-        ...intro.querySelectorAll(".intro-float")
-    ];
+    const icons = [...intro.querySelectorAll(".intro-float")];
 
-    const iconPopStart = 1200;
-    const iconPopInterval = 300;
-    const iconPopDuration = 400;
-    const logoExplosionDuration = 550;
+    // آیکون‌ها آرام‌تر و با فاصله منظم می‌ترکند
+    const firstPop = 1500;
+    const interval = 500;
+    const popDuration = 650;
+    const logoDuration = 750;
 
-    // آیکون‌ها یکی‌یکی می‌ترکند
     icons.forEach((icon, index) => {
         window.setTimeout(() => {
-            icon.style.animation = "none";
-            icon.style.opacity = "1";
-
-            // فعال کردن انیمیشن ترکیدن
-            void icon.offsetWidth;
-
-            icon.style.animation =
-                `novaIconPop ${iconPopDuration}ms ease-in forwards`;
-        }, iconPopStart + index * iconPopInterval);
+            icon.classList.add("pop-active");
+        }, firstPop + index * interval);
     });
 
-    // لوگوی نوا آخر از همه منفجر می‌شود
+    // لوگوی اصلی بعد از پایان انفجار آخرین آیکون
     const logoTime =
-        iconPopStart +
-        icons.length * iconPopInterval +
-        iconPopDuration;
+        firstPop +
+        (icons.length - 1) * interval +
+        popDuration +
+        150;
 
     window.setTimeout(() => {
         intro.classList.add("logo-exploding");
     }, logoTime);
 
-    // سپس فروشگاه نمایش داده می‌شود
+    // باز شدن فروشگاه پس از انفجار لوگو
     window.setTimeout(() => {
         intro.classList.add("intro-hidden");
+    }, logoTime + logoDuration);
 
-        window.setTimeout(() => {
-            intro.remove();
-        }, 450);
-    }, logoTime + logoExplosionDuration);
+    window.setTimeout(() => {
+        intro.remove();
+    }, logoTime + logoDuration + 500);
 })();
+
+
