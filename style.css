@@ -2815,3 +2815,110 @@ body.dark-mode .service-card .service-icon {
         animation: none !important;
     }
 }
+
+
+/* NOVA — Sequential Pop Animation */
+
+.intro-float {
+    opacity: 0;
+    animation: novaFloatAppear 0.25s ease-out forwards,
+               novaIconPop 0.4s ease-in forwards;
+    animation-delay: var(--appear-delay, 0s),
+                   var(--pop-delay, 1.2s);
+}
+
+.float-one {
+    --appear-delay: 0.1s;
+    --pop-delay: 0.9s;
+}
+
+.float-two {
+    --appear-delay: 0.3s;
+    --pop-delay: 1.2s;
+}
+
+.float-three {
+    --appear-delay: 0.5s;
+    --pop-delay: 1.5s;
+}
+
+.float-four {
+    --appear-delay: 0.7s;
+    --pop-delay: 1.8s;
+}
+
+.float-five {
+    --appear-delay: 0.9s;
+    --pop-delay: 2.1s;
+}
+
+@keyframes novaFloatAppear {
+    from {
+        opacity: 0;
+        scale: 0.2;
+    }
+    to {
+        opacity: 1;
+        scale: 1;
+    }
+}
+
+@keyframes novaIconPop {
+    0% {
+        opacity: 1;
+        scale: 1;
+        filter: brightness(1);
+    }
+    55% {
+        opacity: 1;
+        scale: 1.65;
+        filter: brightness(2.5);
+    }
+    100% {
+        opacity: 0;
+        scale: 0;
+        filter: brightness(3);
+    }
+}
+
+/* انفجار لوگوی اصلی در پایان */
+.nova-intro.logo-exploding .intro-logo {
+    animation: novaLogoExplosion 0.55s ease-in forwards;
+}
+
+.nova-intro.logo-exploding .intro-title,
+.nova-intro.logo-exploding .intro-subtitle,
+.nova-intro.logo-exploding .intro-loader,
+.nova-intro.logo-exploding .intro-glow {
+    animation: novaFinalFade 0.4s ease-in forwards;
+}
+
+@keyframes novaLogoExplosion {
+    0% {
+        transform: scale(1);
+        opacity: 1;
+        filter: brightness(1);
+    }
+    35% {
+        transform: scale(1.25);
+        opacity: 1;
+        filter: brightness(3);
+    }
+    70% {
+        transform: scale(1.8);
+        opacity: 0.8;
+        filter: brightness(4);
+    }
+    100% {
+        transform: scale(2.5);
+        opacity: 0;
+        filter: brightness(5);
+    }
+}
+
+@keyframes novaFinalFade {
+    to {
+        opacity: 0;
+        transform: scale(1.15);
+    }
+}
