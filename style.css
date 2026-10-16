@@ -2922,3 +2922,105 @@ body.dark-mode .service-card .service-icon {
         transform: scale(1.15);
     }
 }
+
+
+/* NOVA — PREMIUM POP EFFECT */
+
+.intro-float {
+    transform-origin: center;
+    will-change: transform, opacity, filter;
+}
+
+/* افکت مخصوص لحظه انفجار آیکون‌ها */
+.intro-float.pop-active {
+    animation: novaPopBurst 650ms cubic-bezier(.2,.75,.25,1) forwards !important;
+}
+
+.intro-float.pop-active::after {
+    content: "";
+    position: absolute;
+    inset: -5px;
+    border: 2px solid rgba(216, 180, 254, .95);
+    border-radius: inherit;
+    pointer-events: none;
+    animation: novaBurstRing 550ms ease-out forwards;
+}
+
+/* حلقه نورانی */
+@keyframes novaBurstRing {
+    0% {
+        opacity: 0;
+        transform: scale(.45);
+    }
+    20% {
+        opacity: 1;
+    }
+    100% {
+        opacity: 0;
+        transform: scale(2.1);
+    }
+}
+
+/* بزرگ شدن، فلش نور و ترکیدن */
+@keyframes novaPopBurst {
+    0% {
+        opacity: 1;
+        transform: scale(1) rotate(0);
+        filter: brightness(1);
+    }
+    22% {
+        opacity: 1;
+        transform: scale(1.18) rotate(-5deg);
+        filter: brightness(2.8);
+    }
+    42% {
+        opacity: 1;
+        transform: scale(1.42) rotate(5deg);
+        filter: brightness(3.5);
+    }
+    65% {
+        opacity: .8;
+        transform: scale(1.75) rotate(-8deg);
+        filter: brightness(2.5);
+    }
+    100% {
+        opacity: 0;
+        transform: scale(.15) rotate(18deg);
+        filter: brightness(3);
+    }
+}
+
+/* انفجار نهایی لوگوی نوا */
+.nova-intro.logo-exploding .intro-logo {
+    animation: novaMainBurst 750ms cubic-bezier(.16,.8,.3,1) forwards !important;
+    box-shadow: 0 0 55px rgba(167, 139, 250, .9);
+}
+
+@keyframes novaMainBurst {
+    0% {
+        opacity: 1;
+        transform: scale(1);
+        filter: brightness(1);
+    }
+    20% {
+        opacity: 1;
+        transform: scale(1.12);
+        filter: brightness(2);
+    }
+    38% {
+        opacity: 1;
+        transform: scale(1.3);
+        filter: brightness(3.5);
+        box-shadow: 0 0 85px rgba(196, 181, 253, 1);
+    }
+    65% {
+        opacity: .8;
+        transform: scale(1.9);
+        filter: brightness(3);
+    }
+    100% {
+        opacity: 0;
+        transform: scale(2.6);
+        filter: brightness(4);
+    }
+}
