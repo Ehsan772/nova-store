@@ -2172,3 +2172,195 @@ VERY SMALL MOBILE
 }
 
 }
+
+/* =========================================
+   NOVA STORE — DARK MODE
+========================================= */
+
+body.dark-mode {
+    --ink: #f0eff8;
+    --muted: #aaa8bd;
+    --surface: #1d1b2b;
+    --page: #12111b;
+    --line: #343144;
+    --primary-light: #30254a;
+
+    color: var(--ink);
+    background: var(--page);
+    color-scheme: dark;
+}
+
+/* Header */
+body.dark-mode .site-header {
+    background: rgba(24, 22, 36, 0.97);
+    border-color: #343144;
+}
+
+body.dark-mode .search-box,
+body.dark-mode .header-icon-btn {
+    color: #e6e1f5;
+    background: #211f30;
+    border-color: #3b374f;
+}
+
+body.dark-mode .search-box input {
+    color: #f0eff8;
+}
+
+body.dark-mode .search-box input::placeholder {
+    color: #aaa8bd;
+}
+
+/* Main page */
+body.dark-mode {
+    background-color: #12111b;
+}
+
+body.dark-mode .section {
+    color: #f0eff8;
+}
+
+body.dark-mode .section-heading h2,
+body.dark-mode .section-eyebrow {
+    color: #f0eff8;
+}
+
+/* Categories */
+body.dark-mode .category-card {
+    color: #f0eff8;
+    background: #1d1b2b;
+    border-color: #343144;
+}
+
+body.dark-mode .category-card strong {
+    color: #f0eff8;
+}
+
+body.dark-mode .category-card small {
+    color: #aaa8bd;
+}
+
+body.dark-mode .category-icon {
+    background: #30254a;
+}
+
+/* Products */
+body.dark-mode .product-card {
+    color: #f0eff8;
+    background: #1d1b2b;
+    border-color: #343144;
+}
+
+body.dark-mode .product-info h3,
+body.dark-mode .product-price,
+body.dark-mode .price {
+    color: #f0eff8;
+}
+
+body.dark-mode .product-description,
+body.dark-mode .product-rating,
+body.dark-mode .rating {
+    color: #aaa8bd;
+}
+
+body.dark-mode .product-image {
+    background: #252235;
+}
+
+/* Favorites and cart */
+body.dark-mode .empty-state,
+body.dark-mode .cart-items-wrapper,
+body.dark-mode .cart-summary,
+body.dark-mode .cart-item {
+    color: #f0eff8;
+    background: #1d1b2b;
+    border-color: #343144;
+}
+
+body.dark-mode .cart-header h2,
+body.dark-mode .cart-summary h3,
+body.dark-mode .cart-item h3,
+body.dark-mode .summary-row,
+body.dark-mode .summary-total {
+    color: #f0eff8;
+}
+
+body.dark-mode .cart-item p {
+    color: #aaa8bd;
+}
+
+/* Service cards */
+body.dark-mode .service-card {
+    color: #f0eff8;
+    background: #1d1b2b;
+    border-color: #343144;
+}
+
+body.dark-mode .service-card h3 {
+    color: #f0eff8;
+}
+
+body.dark-mode .service-card p {
+    color: #aaa8bd;
+}
+
+/* Footer */
+body.dark-mode .site-footer {
+    color: #e6e1f5;
+    background: #0d0c14;
+}
+
+body.dark-mode .site-footer h3,
+body.dark-mode .site-footer p,
+body.dark-mode .site-footer a {
+    color: #c3bfd5;
+}
+
+body.dark-mode .footer-bottom {
+    border-color: #343144;
+}
+
+/* Mobile navigation */
+body.dark-mode .mobile-bottom-nav {
+    background: rgba(24, 22, 36, 0.98);
+    border-color: #343144;
+}
+
+body.dark-mode .mobile-nav-item {
+    color: #aaa8bd;
+}
+
+body.dark-mode .mobile-nav-item.active {
+    color: #c2aaff;
+}
+
+body.dark-mode .mobile-nav-item.active .mobile-icon-wrap {
+    background: #30254a;
+}
+
+/* Theme toggle button */
+.theme-toggle {
+    flex-shrink: 0;
+    transition:
+        transform 0.2s ease,
+        background 0.2s ease,
+        color 0.2s ease;
+}
+
+.theme-toggle:hover {
+    color: #a78bfa;
+    transform: rotate(-12deg);
+}
+
+/* Smooth color transition */
+body,
+.site-header,
+.category-card,
+.product-card,
+.service-card,
+.mobile-bottom-nav {
+    transition:
+        background-color 0.25s ease,
+        color 0.25s ease,
+        border-color 0.25s ease;
+}
