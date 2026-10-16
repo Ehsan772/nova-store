@@ -3094,3 +3094,60 @@ window.NovaStore = {
     scrollToProducts
 
 };
+
+
+/* =========================================
+   NOVA STORE — DARK MODE
+========================================= */
+
+(() => {
+    const themeButton = document.getElementById("themeToggle");
+
+    if (!themeButton) return;
+
+    const themeIcon = themeButton.querySelector("i");
+
+    function applyTheme(isDark) {
+        document.body.classList.toggle("dark-mode", isDark);
+
+        if (themeIcon) {
+            themeIcon.className = isDark
+                ? "fa-solid fa-sun"
+                : "fa-solid fa-moon";
+        }
+
+        themeButton.title = isDark ? "حالت روشن" : "حالت تاریک";
+
+        themeButton.setAttribute(
+            "aria-label",
+            isDark ? "فعال کردن حالت روشن" : "فعال کردن حالت تاریک"
+        );
+    }
+
+    // بازیابی حالت انتخاب‌شده
+    let savedTheme = "light";
+
+    try {
+        savedTheme = localStorage.getItem("nova-theme") || "light";
+    } catch (error) {
+        // اگر ذخیره‌سازی در دسترس نبود، سایت همچنان کار می‌کند.
+    }
+
+    applyTheme(savedTheme === "dark");
+
+    // تغییر حالت با کلیک روی دکمه
+    themeButton.addEventListener("click", () => {
+        const isDark = !document.body.classList.contains("dark-mode");
+
+        applyTheme(isDark);
+
+        try {
+            localStorage.setItem(
+                "nova-theme",
+                isDark ? "dark" : "light"
+            );
+        } catch (error) {
+            // تغییر حالت حتی بدون ذخیره‌سازی انجام می‌شود.
+        }
+    });
+})();
