@@ -3154,28 +3154,61 @@ window.NovaStore = {
 
 
 
-/* =========================================
-   NOVA STORE — INTRO CONTROLLER
-========================================= */
+
+/* NOVA — Sequential Intro Controller */
 
 (() => {
     const intro = document.getElementById("novaIntro");
-
     if (!intro) return;
 
-    // اگر دستگاه کاهش حرکت را ترجیح می‌دهد،
-    // صفحه شروع را بدون تأخیر رد کن.
     const reduceMotion = window.matchMedia(
         "(prefers-reduced-motion: reduce)"
     ).matches;
 
-    const showDuration = reduceMotion ? 0 : 2000;
+    if (reduceMotion) {
+        intro.remove();
+        return;
+    }
 
+    const icons = [
+        ...intro.querySelectorAll(".intro-float")
+    ];
+
+    const iconPopStart = 1200;
+    const iconPopInterval = 300;
+    const iconPopDuration = 400;
+    const logoExplosionDuration = 550;
+
+    // آیکون‌ها یکی‌یکی می‌ترکند
+    icons.forEach((icon, index) => {
+        window.setTimeout(() => {
+            icon.style.animation = "none";
+            icon.style.opacity = "1";
+
+            // فعال کردن انیمیشن ترکیدن
+            void icon.offsetWidth;
+
+            icon.style.animation =
+                `novaIconPop ${iconPopDuration}ms ease-in forwards`;
+        }, iconPopStart + index * iconPopInterval);
+    });
+
+    // لوگوی نوا آخر از همه منفجر می‌شود
+    const logoTime =
+        iconPopStart +
+        icons.length * iconPopInterval +
+        iconPopDuration;
+
+    window.setTimeout(() => {
+        intro.classList.add("logo-exploding");
+    }, logoTime);
+
+    // سپس فروشگاه نمایش داده می‌شود
     window.setTimeout(() => {
         intro.classList.add("intro-hidden");
 
         window.setTimeout(() => {
             intro.remove();
-        }, reduceMotion ? 0 : 500);
-    }, showDuration);
+        }, 450);
+    }, logoTime + logoExplosionDuration);
 })();
