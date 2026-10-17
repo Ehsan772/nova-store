@@ -1,0 +1,23 @@
+
+{
+  "id": "./",
+  "name": "نوا استور | فروشگاه آنلاین",
+  "short_name": "نوا استور",
+  "description": "فروشگاه اینترنتی نوا؛ خرید محصولات دیجیتال و لوازم جانبی",
+  "lang": "fa",
+  "dir": "rtl",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#F8F7FB",
+  "theme_color": "#B5A0DC",
+  "icons": [
+    {
+      "src": "icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}
