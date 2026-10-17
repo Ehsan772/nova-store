@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://ehsan772.github.io/nova-store/sitemap.xml
