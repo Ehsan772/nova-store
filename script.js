@@ -3205,3 +3205,167 @@ window.NovaStore = {
 })();
 
 
+
+/* =========================================
+   NOVA STORE - ACCOUNT PANEL
+========================================= */
+
+(() => {
+    "use strict";
+
+    const accountPanel = document.getElementById("accountPanel");
+    const accountBackBtn = document.getElementById("accountBackBtn");
+    const accountBtn = document.getElementById("headerAccountBtn");
+    const authForm = document.getElementById("accountAuthForm");
+    const emailInput = document.getElementById("accountEmail");
+    const phoneInput = document.getElementById("accountPhone");
+    const passwordInput = document.getElementById("accountPassword");
+    const submitBtn = document.getElementById("accountSubmitBtn");
+    const message = document.getElementById("accountAuthMessage");
+    const authTabs = document.querySelectorAll("[data-account-tab]");
+    const accountMenuButtons = document.querySelectorAll("[data-account-section]");
+
+    if (!accountPanel || !accountBtn || !authForm) return;
+
+    let authMode = "login";
+
+    // Keep the existing store on the same page.
+    const storeElements = [
+        ...document.querySelectorAll(
+            "body > header, body > main, body > footer, body > .mobile-bottom-nav"
+        )
+    ].filter(element => element !== accountPanel);
+
+    function showAccount() {
+        storeElements.forEach(element => {
+            element.hidden = true;
+        });
+
+        accountPanel.hidden = false;
+        window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    function showStore() {
+        accountPanel.hidden = true;
+
+        storeElements.forEach(element => {
+            element.hidden = false;
+        });
+
+        window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    accountBtn.addEventListener("click", showAccount);
+
+    if (accountBackBtn) {
+        accountBackBtn.addEventListener("click", showStore);
+    }
+
+    // Login / registration tabs
+    authTabs.forEach(tab => {
+        tab.addEventListener("click", () => {
+            authMode = tab.dataset.accountTab;
+
+            authTabs.forEach(item => {
+                item.classList.toggle("active", item === tab);
+            });
+
+            submitBtn.innerHTML = authMode === "login"
+                ? 'ورود به حساب <i class="fa-solid fa-arrow-left"></i>'
+                : 'ساخت حساب کاربری <i class="fa-solid fa-arrow-left"></i>';
+
+            passwordInput.autocomplete = authMode === "login"
+                ? "current-password"
+                : "new-password";
+
+            phoneInput.required = authMode === "register";
+
+            message.textContent = "";
+        });
+    });
+
+    // Supabase client: reuse an existing client if available.
+    function getSupabaseClient() {
+        if (window.novaSupabase) return window.novaSupabase;
+        if (window.supabaseClient) return window.supabaseClient;
+
+        // If your existing script uses another client variable,
+        // connect it here rather than creating a duplicate client.
+        return null;
+    }
+
+    authForm.addEventListener("submit", async event => {
+        event.preventDefault();
+
+        const client = getSupabaseClient();
+
+        if (!client) {
+            message.textContent =
+                "اتصال حساب کاربری هنوز تنظیم نشده؛ باید نام متغیر اتصال Supabase در کد مشخص شود.";
+            return;
+        }
+
+        const email = emailInput.value.trim();
+        const password = passwordInput.value;
+        const phone = phoneInput.value.trim();
+
+        submitBtn.disabled = true;
+        message.textContent = "لطفاً صبر کنید...";
+
+        try {
+            if (authMode === "register") {
+                const { data, error } = await client.auth.signUp({
+                    email,
+                    password,
+                    options: {
+                        data: { phone }
+                    }
+                });
+
+                if (error) throw error;
+
+                message.textContent = data.session
+                    ? "حساب کاربری ساخته شد."
+                    : "ثبت‌نام انجام شد؛ ایمیل خود را برای تأیید بررسی کنید.";
+
+            } else {
+                const { error } = await client.auth.signInWithPassword({
+                    email,
+                    password
+                });
+
+                if (error) throw error;
+
+                message.textContent = "با موفقیت وارد حساب شدید.";
+            }
+        } catch (error) {
+            message.textContent = error.message ||
+                "مشکلی پیش آمد. دوباره تلاش کنید.";
+        } finally {
+            submitBtn.disabled = false;
+        }
+    });
+
+    // Account menu placeholders until their features are connected.
+    accountMenuButtons.forEach(button => {
+        button.addEventListener("click", () => {
+            const section = button.dataset.accountSection;
+
+            if (section === "favorites") {
+                showStore();
+
+                const favoritesButton =
+                    document.getElementById("headerFavoritesBtn");
+
+                if (favoritesButton) favoritesButton.click();
+                return;
+            }
+
+            message.textContent =
+                "این بخش هنوز به اطلاعات حساب شما متصل نشده است.";
+        });
+    });
+
+    // Initial state: show the store, not the account panel.
+    accountPanel.hidden = true;
+})();
