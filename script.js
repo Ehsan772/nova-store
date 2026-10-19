@@ -3230,11 +3230,19 @@ window.NovaStore = {
     let authMode = "login";
 
     // Keep the existing store on the same page.
-    const storeElements = [
-        ...document.querySelectorAll(
-            "body > header, body > main, body > footer, body > .mobile-bottom-nav"
+    
+const mainElement = document.querySelector("body > main");
+
+const storeElements = [
+    ...document.querySelectorAll(
+        "body > header, body > footer, body > .mobile-bottom-nav"
+    ),
+    ...(mainElement
+        ? [...mainElement.children].filter(
+            element => element !== accountPanel
         )
-    ].filter(element => element !== accountPanel);
+        : [])
+];
 
     function showAccount() {
         storeElements.forEach(element => {
