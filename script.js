@@ -3292,14 +3292,11 @@ const storeElements = [
         });
     });
 
-    // Supabase client: reuse an existing client if available.
-    function getSupabaseClient() {
     
-function getSupabaseClient() {
-    return typeof supabaseClient !== "undefined"
-        ? supabaseClient
-        : null;
-}
+    // Supabase client: reuse the existing client.
+    function getSupabaseClient() {
+        return supabaseClient;
+    }
 
 
     authForm.addEventListener("submit", async event => {
