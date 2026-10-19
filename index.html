@@ -1118,7 +1118,163 @@
         </section>
 
     </main>
+<!-- NOVA ACCOUNT PANEL -->
+<section id="accountPanel" class="account-panel" hidden>
 
+    <div class="account-container">
+
+        <header class="account-header">
+            <button
+                id="accountBackBtn"
+                class="account-back-btn"
+                type="button"
+            >
+                <i class="fa-solid fa-arrow-right"></i>
+                بازگشت به فروشگاه
+            </button>
+
+            <div class="account-brand">
+                <span class="account-brand-icon">
+                    <i class="fa-solid fa-bag-shopping"></i>
+                </span>
+                <div>
+                    <h1>حساب کاربری نوا</h1>
+                    <p>مدیریت حساب و سفارش‌های شما</p>
+                </div>
+            </div>
+        </header>
+
+        <div class="account-welcome">
+            <span class="account-welcome-icon">
+                <i class="fa-regular fa-user"></i>
+            </span>
+
+            <div>
+                <h2>به حساب کاربری نوا خوش آمدید</h2>
+                <p>برای مدیریت حساب خود وارد شوید یا ثبت‌نام کنید.</p>
+            </div>
+        </div>
+
+        <div class="account-auth-card">
+
+            <div class="account-tabs">
+                <button
+                    type="button"
+                    class="account-tab active"
+                    data-account-tab="login"
+                >
+                    ورود
+                </button>
+
+                <button
+                    type="button"
+                    class="account-tab"
+                    data-account-tab="register"
+                >
+                    ثبت‌نام
+                </button>
+            </div>
+
+            <form id="accountAuthForm">
+
+                <div class="account-field">
+                    <label for="accountEmail">ایمیل</label>
+                    <input
+                        id="accountEmail"
+                        name="email"
+                        type="email"
+                        placeholder="example@email.com"
+                        autocomplete="email"
+                        required
+                    >
+                </div>
+
+                <div class="account-field">
+                    <label for="accountPhone">شماره موبایل</label>
+                    <input
+                        id="accountPhone"
+                        name="phone"
+                        type="tel"
+                        placeholder="شماره موبایل"
+                        autocomplete="tel"
+                    >
+                </div>
+
+                <div class="account-field">
+                    <label for="accountPassword">رمز عبور</label>
+                    <input
+                        id="accountPassword"
+                        name="password"
+                        type="password"
+                        placeholder="رمز عبور"
+                        autocomplete="current-password"
+                        minlength="8"
+                        required
+                    >
+                </div>
+
+                <button
+                    id="accountSubmitBtn"
+                    class="account-submit-btn"
+                    type="submit"
+                >
+                    ورود به حساب
+                    <i class="fa-solid fa-arrow-left"></i>
+                </button>
+
+                <p
+                    id="accountAuthMessage"
+                    class="account-auth-message"
+                    role="status"
+                    aria-live="polite"
+                ></p>
+
+            </form>
+
+        </div>
+
+        <div class="account-menu">
+
+            <button type="button" data-account-section="profile">
+                <i class="fa-regular fa-id-card"></i>
+                <span>اطلاعات حساب و پروفایل</span>
+                <i class="fa-solid fa-chevron-left"></i>
+            </button>
+
+            <button type="button" data-account-section="orders">
+                <i class="fa-solid fa-box"></i>
+                <span>سفارش‌های من</span>
+                <i class="fa-solid fa-chevron-left"></i>
+            </button>
+
+            <button type="button" data-account-section="favorites">
+                <i class="fa-regular fa-heart"></i>
+                <span>علاقه‌مندی‌ها</span>
+                <i class="fa-solid fa-chevron-left"></i>
+            </button>
+
+            <button type="button" data-account-section="addresses">
+                <i class="fa-solid fa-location-dot"></i>
+                <span>آدرس‌های من</span>
+                <i class="fa-solid fa-chevron-left"></i>
+            </button>
+
+            <button type="button" data-account-section="security">
+                <i class="fa-solid fa-shield-halved"></i>
+                <span>امنیت و خروج از حساب</span>
+                <i class="fa-solid fa-chevron-left"></i>
+            </button>
+
+        </div>
+
+        <p class="account-footer">
+            نوا استور · حساب کاربری شما
+        </p>
+
+    </div>
+
+</section>
+<!-- END NOVA ACCOUNT PANEL -->
 
     <!-- =====================================================
          FOOTER
