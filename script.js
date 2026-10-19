@@ -3294,13 +3294,13 @@ const storeElements = [
 
     // Supabase client: reuse an existing client if available.
     function getSupabaseClient() {
-        if (window.novaSupabase) return window.novaSupabase;
-        if (window.supabaseClient) return window.supabaseClient;
+    
+function getSupabaseClient() {
+    return typeof supabaseClient !== "undefined"
+        ? supabaseClient
+        : null;
+}
 
-        // If your existing script uses another client variable,
-        // connect it here rather than creating a duplicate client.
-        return null;
-    }
 
     authForm.addEventListener("submit", async event => {
         event.preventDefault();
