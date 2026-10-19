@@ -2792,13 +2792,19 @@ function scrollToTop() {
    ACCOUNT
 ========================================================= */
 
+
 function showAccountMessage() {
+    const accountPanel = document.getElementById("accountPanel");
 
-    showToast(
-        "بخش حساب کاربری به‌زودی فعال می‌شود."
-    );
-
+    if (accountPanel) {
+        accountPanel.hidden = false;
+        accountPanel.scrollIntoView({
+            behavior: "smooth",
+            block: "start"
+        });
+    }
 }
+
 
 
 /* =========================================================
