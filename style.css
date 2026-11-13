@@ -356,6 +356,8 @@ HERO — NOVA STORE
 .hero-slide {
     position: absolute;
     inset: 0;
+    width: 100%;
+    height: 100%;
     display: flex;
     align-items: center;
     overflow: hidden;
@@ -363,20 +365,15 @@ HERO — NOVA STORE
     opacity: 0;
     visibility: hidden;
     pointer-events: none;
-    transform: none;
-    transition:
-        opacity .65s ease,
-        visibility .65s ease;
+    transition: opacity .65s ease, visibility .65s ease;
 }
 
-/* فقط اسلاید فعال نمایش داده شود */
-
 .hero-slide.active {
-    position: relative;
+    position: absolute;
+    inset: 0;
     opacity: 1;
     visibility: visible;
     pointer-events: auto;
-    transform: none;
 }
 
 /* تصاویر سه بنر */
