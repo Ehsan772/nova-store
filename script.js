@@ -2227,9 +2227,16 @@ function handleMobileNavigation(
 
         case "account":
 
-            showAccountMessage();
+    const accountButton =
+        document.getElementById("headerAccountBtn");
 
-            break;
+    if (accountButton) {
+        accountButton.click();
+    } else {
+        showAccountMessage();
+    }
+
+    break;
 
     }
 
