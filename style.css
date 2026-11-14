@@ -3025,398 +3025,837 @@ body.dark-mode .service-card .service-icon {
 
 
 
-/* =========================================
-   NOVA STORE - NEW ACCOUNT PANEL
-========================================= */
+/* =====================================================
+   NOVA STORE - ACCOUNT PANEL
+   DARK PURPLE RESPONSIVE DESIGN
+===================================================== */
 
-(() => {
-    "use strict";
+.account-panel,
+.account-panel * {
+    box-sizing: border-box;
+}
 
-    const panel = document.getElementById("accountPanel");
-    const backBtn = document.getElementById("accountBackBtn");
-    const accountBtn = document.getElementById("headerAccountBtn");
+.account-panel {
+    --acc-bg: #100e19;
+    --acc-card: #1b1828;
+    --acc-card-2: #211d30;
+    --acc-border: #332d46;
+    --acc-text: #f4f0ff;
+    --acc-muted: #aaa2bb;
+    --acc-purple: #9b72f5;
+    --acc-purple-dark: #7045cf;
+    --acc-danger: #ef647d;
 
-    const authView = document.getElementById("accountAuthView");
-    const dashboard = document.getElementById("accountDashboard");
+    display: block;
+    width: 100%;
+    min-height: 100vh;
+    padding: 24px 16px 45px;
+    margin: 0;
+    direction: rtl;
+    text-align: right;
+    color: var(--acc-text);
+    background: var(--acc-bg);
+    font-family: inherit;
+    overflow-x: hidden;
+}
 
-    const authForm = document.getElementById("accountAuthForm");
-    const emailInput = document.getElementById("accountEmail");
-    const phoneInput = document.getElementById("accountPhone");
-    const passwordInput = document.getElementById("accountPassword");
-    const submitBtn = document.getElementById("accountSubmitBtn");
-    const message = document.getElementById("accountAuthMessage");
+.account-panel[hidden],
+.account-panel [hidden] {
+    display: none !important;
+}
 
-    const authTabs = document.querySelectorAll("[data-account-tab]");
-    const menuButtons = document.querySelectorAll("[data-account-section]");
-    const accountViews = document.querySelectorAll("[data-account-view]");
+.account-container {
+    width: 100%;
+    max-width: 1180px;
+    margin: 0 auto;
+}
 
-    if (!panel || !accountBtn || !authForm) return;
+/* HEADER */
 
-    let authMode = "login";
+.account-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 15px;
+    width: 100%;
+    padding-bottom: 22px;
+    margin-bottom: 35px;
+    border-bottom: 1px solid var(--acc-border);
+}
 
-    const main = document.querySelector("body > main");
+.account-back-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 11px 16px;
+    border: 1px solid var(--acc-border);
+    border-radius: 12px;
+    color: var(--acc-text);
+    background: var(--acc-card);
+    font: inherit;
+    font-size: 13px;
+    cursor: pointer;
+}
 
-    const storeElements = [
-        ...document.querySelectorAll(
-            "body > header, body > footer, body > .mobile-bottom-nav"
-        ),
-        ...(main
-            ? [...main.children].filter(element => element !== panel)
-            : [])
-    ];
+.account-back-btn:hover {
+    border-color: var(--acc-purple);
+    color: var(--acc-purple);
+}
 
-    /* ---------------------------------
-       MESSAGES
-    --------------------------------- */
+.account-brand {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+    color: var(--acc-text);
+    text-decoration: none;
+    min-width: 0;
+}
 
-    function showMessage(text, type = "info") {
-        if (!message) return;
+.account-brand-icon {
+    width: 43px;
+    height: 43px;
+    display: grid;
+    place-items: center;
+    flex-shrink: 0;
+    border-radius: 13px;
+    background: linear-gradient(135deg, #a77aff, #7045cf);
+    color: white;
+    font-size: 20px;
+}
 
-        message.textContent = text;
-        message.dataset.type = type;
+.account-brand strong,
+.account-brand small {
+    display: block;
+}
+
+.account-brand strong {
+    font-size: 17px;
+}
+
+.account-brand small {
+    margin-top: 3px;
+    color: var(--acc-muted);
+    font-size: 11px;
+}
+
+/* WELCOME */
+
+.account-welcome {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    width: 100%;
+    max-width: 850px;
+    margin: 0 auto 30px;
+}
+
+.account-welcome-icon {
+    width: 65px;
+    height: 65px;
+    display: grid;
+    place-items: center;
+    flex-shrink: 0;
+    border-radius: 20px;
+    color: var(--acc-purple);
+    background: var(--acc-card-2);
+    font-size: 28px;
+}
+
+.account-eyebrow {
+    display: block;
+    margin-bottom: 8px;
+    color: var(--acc-purple);
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: .5px;
+}
+
+.account-welcome h1 {
+    margin: 0 0 10px;
+    color: var(--acc-text);
+    font-size: clamp(21px, 3vw, 30px);
+    line-height: 1.8;
+    overflow-wrap: anywhere;
+}
+
+.account-welcome p {
+    margin: 0;
+    color: var(--acc-muted);
+    font-size: 14px;
+    line-height: 2;
+}
+
+/* AUTH CARD */
+
+.account-auth-card {
+    width: 100%;
+    max-width: 510px;
+    margin: 0 auto;
+    padding: 28px;
+    border: 1px solid var(--acc-border);
+    border-radius: 20px;
+    background: var(--acc-card);
+    box-shadow: 0 15px 45px rgba(0, 0, 0, .22);
+}
+
+.account-card-heading {
+    margin-bottom: 22px;
+}
+
+.account-card-heading h2 {
+    margin: 0 0 7px;
+    color: var(--acc-text);
+    font-size: 21px;
+}
+
+.account-card-heading p {
+    margin: 0;
+    color: var(--acc-muted);
+    font-size: 13px;
+}
+
+/* TABS */
+
+.account-tabs {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 7px;
+    padding: 5px;
+    margin-bottom: 25px;
+    border-radius: 12px;
+    background: var(--acc-bg);
+}
+
+.account-tab {
+    min-width: 0;
+    padding: 11px;
+    border: 0;
+    border-radius: 9px;
+    color: var(--acc-muted);
+    background: transparent;
+    font-family: inherit;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+.account-tab.active {
+    color: white;
+    background: var(--acc-purple-dark);
+}
+
+/* INPUTS */
+
+.account-field {
+    width: 100%;
+    min-width: 0;
+    margin-bottom: 19px;
+}
+
+.account-field label {
+    display: block;
+    margin-bottom: 9px;
+    color: var(--acc-text);
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.account-input-wrap {
+    position: relative;
+    width: 100%;
+}
+
+.account-input-wrap > i {
+    position: absolute;
+    top: 50%;
+    right: 15px;
+    transform: translateY(-50%);
+    color: var(--acc-purple);
+    font-size: 16px;
+    pointer-events: none;
+}
+
+.account-input-wrap input,
+.account-field > input {
+    display: block;
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    height: 49px;
+    padding: 0 44px 0 13px;
+    border: 1px solid var(--acc-border);
+    border-radius: 11px;
+    outline: none;
+    color: var(--acc-text);
+    background: var(--acc-bg);
+    font-family: inherit;
+    font-size: 14px;
+    text-align: right;
+    direction: rtl;
+}
+
+.account-field > input {
+    padding-right: 13px;
+}
+
+.account-input-wrap input:focus,
+.account-field > input:focus {
+    border-color: var(--acc-purple);
+    box-shadow: 0 0 0 3px rgba(155, 114, 245, .12);
+}
+
+.account-input-wrap input::placeholder,
+.account-field > input::placeholder {
+    color: #827a91;
+}
+
+.account-field input:disabled {
+    opacity: .65;
+}
+
+/* SUBMIT */
+
+.account-submit-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    width: 100%;
+    min-height: 50px;
+    margin-top: 10px;
+    border: 0;
+    border-radius: 12px;
+    color: white;
+    background: linear-gradient(135deg, #a47af7, #7045cf);
+    font-family: inherit;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.account-submit-btn:hover {
+    filter: brightness(1.1);
+}
+
+.account-submit-btn:disabled {
+    opacity: .6;
+    cursor: wait;
+}
+
+.account-auth-message {
+    min-height: 22px;
+    margin: 13px 0 0;
+    color: var(--acc-muted);
+    font-size: 12px;
+    line-height: 1.8;
+}
+
+.account-auth-message[data-type="error"] {
+    color: var(--acc-danger);
+}
+
+.account-auth-message[data-type="success"] {
+    color: #55d6a0;
+}
+
+/* DASHBOARD */
+
+.account-dashboard {
+    width: 100%;
+}
+
+.account-dashboard-welcome {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 20px;
+    padding: 23px;
+    margin-bottom: 22px;
+    border: 1px solid var(--acc-border);
+    border-radius: 18px;
+    background: var(--acc-card);
+}
+
+.account-dashboard-user {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    min-width: 0;
+}
+
+.account-dashboard-user h2 {
+    margin: 0 0 5px;
+    font-size: 19px;
+    overflow-wrap: anywhere;
+}
+
+.account-dashboard-user p {
+    margin: 0;
+    color: var(--acc-muted);
+    font-size: 13px;
+    overflow-wrap: anywhere;
+}
+
+.account-avatar {
+    display: grid;
+    place-items: center;
+    width: 60px;
+    height: 60px;
+    flex-shrink: 0;
+    overflow: hidden;
+    border: 2px solid var(--acc-purple);
+    border-radius: 50%;
+    color: var(--acc-purple);
+    background: var(--acc-card-2);
+    font-size: 25px;
+}
+
+.account-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.account-avatar.large {
+    width: 85px;
+    height: 85px;
+    font-size: 32px;
+}
+
+.account-status {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 9px 13px;
+    border-radius: 20px;
+    color: #61dba5;
+    background: rgba(55, 190, 130, .1);
+    font-size: 12px;
+}
+
+/* DASHBOARD LAYOUT */
+
+.account-dashboard-layout {
+    display: grid;
+    grid-template-columns: 260px minmax(0, 1fr);
+    gap: 20px;
+    align-items: start;
+}
+
+.account-sidebar,
+.account-main-content {
+    min-width: 0;
+    border: 1px solid var(--acc-border);
+    border-radius: 17px;
+    background: var(--acc-card);
+}
+
+.account-sidebar {
+    padding: 18px;
+}
+
+.account-sidebar-heading {
+    padding: 4px 5px 17px;
+    border-bottom: 1px solid var(--acc-border);
+}
+
+.account-sidebar-heading h3 {
+    margin: 0 0 6px;
+    font-size: 15px;
+}
+
+.account-sidebar-heading p {
+    margin: 0;
+    color: var(--acc-muted);
+    font-size: 12px;
+}
+
+.account-menu {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+    margin-top: 17px;
+}
+
+.account-menu-item {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+    width: 100%;
+    min-height: 47px;
+    padding: 10px 12px;
+    border: 1px solid transparent;
+    border-radius: 10px;
+    color: var(--acc-muted);
+    background: transparent;
+    font-family: inherit;
+    font-size: 13px;
+    text-align: right;
+    cursor: pointer;
+}
+
+.account-menu-item > i:first-child {
+    width: 19px;
+    color: var(--acc-purple);
+    font-size: 16px;
+}
+
+.account-menu-item > span {
+    flex: 1;
+}
+
+.account-menu-item > i:last-child {
+    font-size: 10px;
+}
+
+.account-menu-item:hover,
+.account-menu-item.active {
+    border-color: rgba(155, 114, 245, .25);
+    color: white;
+    background: rgba(155, 114, 245, .12);
+}
+
+.account-logout-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 9px;
+    width: 100%;
+    min-height: 45px;
+    margin-top: 20px;
+    border: 1px solid rgba(239, 100, 125, .25);
+    border-radius: 10px;
+    color: var(--acc-danger);
+    background: rgba(239, 100, 125, .07);
+    font-family: inherit;
+    font-size: 13px;
+    cursor: pointer;
+}
+
+/* MAIN CONTENT */
+
+.account-main-content {
+    padding: 25px;
+}
+
+.account-content-section[hidden] {
+    display: none !important;
+}
+
+.account-section-heading {
+    margin-bottom: 23px;
+}
+
+.account-section-heading > span {
+    color: var(--acc-purple);
+    font-size: 12px;
+}
+
+.account-section-heading h2 {
+    margin: 7px 0;
+    font-size: 21px;
+    color: var(--acc-text);
+}
+
+.account-section-heading p {
+    margin: 0;
+    color: var(--acc-muted);
+    font-size: 13px;
+    line-height: 1.9;
+}
+
+/* PROFILE */
+
+.account-profile-card {
+    padding: 22px;
+    border: 1px solid var(--acc-border);
+    border-radius: 14px;
+    background: var(--acc-bg);
+}
+
+.account-profile-avatar {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding-bottom: 22px;
+    margin-bottom: 22px;
+    border-bottom: 1px solid var(--acc-border);
+}
+
+.account-profile-avatar h3 {
+    margin: 0 0 6px;
+    font-size: 15px;
+}
+
+.account-profile-avatar p {
+    margin: 0;
+    color: var(--acc-muted);
+    font-size: 12px;
+}
+
+.account-profile-fields {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0 17px;
+}
+
+.account-save-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-height: 43px;
+    padding: 0 20px;
+    border: 0;
+    border-radius: 10px;
+    color: white;
+    background: var(--acc-purple-dark);
+    font-family: inherit;
+    font-size: 13px;
+    cursor: pointer;
+}
+
+/* EMPTY STATES */
+
+.account-empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 230px;
+    padding: 25px;
+    border: 1px dashed var(--acc-border);
+    border-radius: 14px;
+    text-align: center;
+    background: var(--acc-bg);
+}
+
+.account-empty-state > i {
+    margin-bottom: 15px;
+    color: var(--acc-purple);
+    font-size: 35px;
+}
+
+.account-empty-state h3 {
+    margin: 0 0 9px;
+    font-size: 16px;
+}
+
+.account-empty-state p {
+    max-width: 420px;
+    margin: 0;
+    color: var(--acc-muted);
+    font-size: 13px;
+    line-height: 2;
+}
+
+/* SECURITY */
+
+.account-security-card {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 15px;
+    padding: 19px;
+    margin-bottom: 14px;
+    border: 1px solid var(--acc-border);
+    border-radius: 13px;
+    background: var(--acc-bg);
+}
+
+.account-security-item {
+    display: flex;
+    align-items: center;
+    gap: 13px;
+}
+
+.account-security-item > i {
+    color: var(--acc-purple);
+    font-size: 21px;
+}
+
+.account-security-item h3 {
+    margin: 0 0 5px;
+    font-size: 14px;
+}
+
+.account-security-item p {
+    margin: 0;
+    color: var(--acc-muted);
+    font-size: 12px;
+}
+
+.account-security-card button {
+    padding: 10px 15px;
+    border: 1px solid var(--acc-border);
+    border-radius: 9px;
+    color: var(--acc-text);
+    background: var(--acc-card-2);
+    font-family: inherit;
+    font-size: 12px;
+    cursor: pointer;
+}
+
+/* FOOTER */
+
+.account-footer {
+    padding-top: 25px;
+    margin-top: 30px;
+    border-top: 1px solid var(--acc-border);
+    color: var(--acc-muted);
+    font-size: 12px;
+    text-align: center;
+}
+
+/* MOBILE */
+
+@media (max-width: 850px) {
+    .account-dashboard-layout {
+        grid-template-columns: 1fr;
     }
 
-    /* ---------------------------------
-       STORE / ACCOUNT VISIBILITY
-    --------------------------------- */
-
-    function showAccount() {
-        storeElements.forEach(element => {
-            element.hidden = true;
-        });
-
-        panel.hidden = false;
-
-        window.scrollTo({
-            top: 0,
-            behavior: "smooth"
-        });
+    .account-menu {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 
-    function showStore() {
-        panel.hidden = true;
-
-        storeElements.forEach(element => {
-            element.hidden = false;
-        });
-
-        window.scrollTo({
-            top: 0,
-            behavior: "smooth"
-        });
+    .account-menu-item {
+        font-size: 12px;
     }
 
-    accountBtn.addEventListener("click", showAccount);
+    .account-main-content {
+        padding: 20px;
+    }
+}
 
-    if (backBtn) {
-        backBtn.addEventListener("click", showStore);
+@media (max-width: 560px) {
+    .account-panel {
+        padding: 15px 12px 30px;
     }
 
-    /* ---------------------------------
-       AUTH VIEW / DASHBOARD
-    --------------------------------- */
-
-    function showAuthView() {
-        if (authView) authView.hidden = false;
-        if (dashboard) dashboard.hidden = true;
+    .account-header {
+        gap: 8px;
+        margin-bottom: 25px;
+        padding-bottom: 15px;
     }
 
-    function showDashboard(user) {
-        if (authView) authView.hidden = true;
-        if (dashboard) dashboard.hidden = false;
-
-        if (!user) return;
-
-        const metadata = user.user_metadata || {};
-
-        const name =
-            metadata.full_name ||
-            metadata.name ||
-            metadata.phone ||
-            "کاربر نوا استور";
-
-        const nameElements = document.querySelectorAll(
-            "#accountUserName, [data-account-user-name]"
-        );
-
-        const emailElements = document.querySelectorAll(
-            "#accountUserEmail, [data-account-user-email]"
-        );
-
-        nameElements.forEach(element => {
-            element.textContent = name;
-        });
-
-        emailElements.forEach(element => {
-            element.textContent = user.email || "";
-        });
+    .account-back-btn {
+        padding: 9px 10px;
+        font-size: 11px;
+        white-space: nowrap;
     }
 
-    /* ---------------------------------
-       AUTH TABS
-    --------------------------------- */
-
-    function setAuthMode(mode) {
-        authMode = mode;
-
-        authTabs.forEach(tab => {
-            tab.classList.toggle(
-                "active",
-                tab.dataset.accountTab === mode
-            );
-        });
-
-        if (submitBtn) {
-            submitBtn.innerHTML = mode === "login"
-                ? '<span>ورود به حساب</span><i class="fa-solid fa-arrow-left"></i>'
-                : '<span>ساخت حساب کاربری</span><i class="fa-solid fa-arrow-left"></i>';
-        }
-
-        if (passwordInput) {
-            passwordInput.autocomplete =
-                mode === "login"
-                    ? "current-password"
-                    : "new-password";
-        }
-
-        if (phoneInput) {
-            phoneInput.required = mode === "register";
-        }
-
-        showMessage("");
+    .account-brand {
+        gap: 7px;
     }
 
-    authTabs.forEach(tab => {
-        tab.addEventListener("click", () => {
-            setAuthMode(tab.dataset.accountTab);
-        });
-    });
-
-    /* ---------------------------------
-       SUPABASE CLIENT
-    --------------------------------- */
-
-    function getClient() {
-        return typeof supabaseClient !== "undefined"
-            ? supabaseClient
-            : null;
+    .account-brand-icon {
+        width: 36px;
+        height: 36px;
+        font-size: 16px;
     }
 
-    /* ---------------------------------
-       LOGIN / REGISTER
-    --------------------------------- */
-
-    authForm.addEventListener("submit", async event => {
-        event.preventDefault();
-
-        const client = getClient();
-
-        if (!client) {
-            showMessage(
-                "اتصال به سرویس حساب کاربری برقرار نیست.",
-                "error"
-            );
-            return;
-        }
-
-        const email = emailInput.value.trim();
-        const password = passwordInput.value;
-        const phone = phoneInput ? phoneInput.value.trim() : "";
-
-        if (submitBtn) submitBtn.disabled = true;
-
-        showMessage("در حال بررسی اطلاعات...", "info");
-
-        try {
-            if (authMode === "register") {
-                const { data, error } = await client.auth.signUp({
-                    email,
-                    password,
-                    options: {
-                        data: { phone }
-                    }
-                });
-
-                if (error) throw error;
-
-                if (data.session && data.user) {
-                    showDashboard(data.user);
-                    showMessage("حساب شما با موفقیت ساخته شد.", "success");
-                } else {
-                    showMessage(
-                        "ثبت‌نام انجام شد. برای تأیید حساب، ایمیل خود را بررسی کنید.",
-                        "success"
-                    );
-                }
-
-            } else {
-                const { data, error } =
-                    await client.auth.signInWithPassword({
-                        email,
-                        password
-                    });
-
-                if (error) throw error;
-
-                showDashboard(data.user);
-                showMessage("ورود با موفقیت انجام شد.", "success");
-            }
-
-        } catch (error) {
-            showMessage(
-                error.message || "خطایی رخ داد. دوباره تلاش کنید.",
-                "error"
-            );
-
-        } finally {
-            if (submitBtn) submitBtn.disabled = false;
-        }
-    });
-
-    /* ---------------------------------
-       ACCOUNT SECTIONS
-    --------------------------------- */
-
-    function openSection(section) {
-        accountViews.forEach(view => {
-            view.hidden = view.dataset.accountView !== section;
-        });
-
-        menuButtons.forEach(button => {
-            const active =
-                button.dataset.accountSection === section;
-
-            button.classList.toggle("active", active);
-
-            button.setAttribute(
-                "aria-current",
-                active ? "page" : "false"
-            );
-        });
+    .account-brand strong {
+        font-size: 14px;
     }
 
-    menuButtons.forEach(button => {
-        button.addEventListener("click", () => {
-            const section = button.dataset.accountSection;
-
-            if (!section) return;
-
-            openSection(section);
-        });
-    });
-
-    /* ---------------------------------
-       LOGOUT
-    --------------------------------- */
-
-    async function logout() {
-        const client = getClient();
-
-        if (!client) {
-            showMessage("اتصال به سرویس برقرار نیست.", "error");
-            return;
-        }
-
-        try {
-            const { error } = await client.auth.signOut();
-
-            if (error) throw error;
-
-            showAuthView();
-            setAuthMode("login");
-            showMessage("با موفقیت از حساب خارج شدید.", "success");
-
-        } catch (error) {
-            showMessage(
-                error.message || "خروج از حساب انجام نشد.",
-                "error"
-            );
-        }
+    .account-brand small {
+        font-size: 9px;
     }
 
-    document.querySelectorAll(
-        "#accountLogoutBtn, [data-account-logout]"
-    ).forEach(button => {
-        button.addEventListener("click", logout);
-    });
-
-    /* ---------------------------------
-       PASSWORD UPDATE
-    --------------------------------- */
-
-    const passwordForm = document.getElementById(
-        "accountPasswordForm"
-    );
-
-    if (passwordForm) {
-        passwordForm.addEventListener("submit", async event => {
-            event.preventDefault();
-
-            const client = getClient();
-
-            const newPassword = document.getElementById(
-                "accountNewPassword"
-            );
-
-            if (!client || !newPassword || !newPassword.value) return;
-
-            try {
-                const { error } = await client.auth.updateUser({
-                    password: newPassword.value
-                });
-
-                if (error) throw error;
-
-                newPassword.value = "";
-                alert("رمز عبور با موفقیت تغییر کرد.");
-
-            } catch (error) {
-                alert(error.message || "تغییر رمز عبور انجام نشد.");
-            }
-        });
+    .account-welcome {
+        align-items: flex-start;
+        gap: 12px;
+        margin-bottom: 20px;
     }
 
-    /* ---------------------------------
-       RESTORE LOGIN SESSION
-    --------------------------------- */
-
-    async function restoreSession() {
-        const client = getClient();
-
-        if (!client) {
-            showAuthView();
-            return;
-        }
-
-        try {
-            const { data, error } = await client.auth.getSession();
-
-            if (error) throw error;
-
-            if (data.session && data.session.user) {
-                showDashboard(data.session.user);
-            } else {
-                showAuthView();
-            }
-
-        } catch (error) {
-            console.error("Account session error:", error);
-            showAuthView();
-        }
+    .account-welcome-icon {
+        width: 45px;
+        height: 45px;
+        border-radius: 13px;
+        font-size: 20px;
     }
 
-    /* ---------------------------------
-       INITIAL STATE
-    --------------------------------- */
-
-    panel.hidden = true;
-    showAuthView();
-    setAuthMode("login");
-    restoreSession();
-
-    if (accountViews.length) {
-        openSection("profile");
+    .account-welcome h1 {
+        font-size: 19px;
+        line-height: 1.8;
     }
 
-})();
-            
+    .account-welcome p {
+        font-size: 12px;
+    }
+
+    .account-auth-card {
+        padding: 20px 15px;
+        border-radius: 15px;
+    }
+
+    .account-card-heading h2 {
+        font-size: 18px;
+    }
+
+    .account-dashboard-welcome {
+        padding: 16px;
+    }
+
+    .account-dashboard-user h2 {
+        font-size: 15px;
+    }
+
+    .account-dashboard-user p {
+        font-size: 11px;
+    }
+
+    .account-avatar {
+        width: 48px;
+        height: 48px;
+    }
+
+    .account-menu {
+        grid-template-columns: 1fr 1fr;
+        gap: 6px;
+    }
+
+    .account-menu-item {
+        gap: 7px;
+        padding: 9px 7px;
+        font-size: 11px;
+    }
+
+    .account-menu-item > i:last-child {
+        display: none;
+    }
+
+    .account-main-content {
+        padding: 15px 12px;
+    }
+
+    .account-section-heading h2 {
+        font-size: 18px;
+    }
+
+    .account-profile-card {
+        padding: 15px 12px;
+    }
+
+    .account-profile-fields {
+        grid-template-columns: 1fr;
+    }
+
+    .account-security-card {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .account-security-card button {
+        width: 100%;
+    }
+}
+
+/* DARK MODE COMPATIBILITY */
+
+body.dark-mode .account-panel {
+    background: #100e19;
+}
