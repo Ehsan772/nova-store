@@ -3859,3 +3859,97 @@ body.dark-mode .service-card .service-icon {
 body.dark-mode .account-panel {
     background: #100e19;
 }
+
+
+/* =========================================
+   ACCOUNT THEME - FOLLOW STORE THEME
+========================================= */
+
+body:not(.dark-mode) .account-panel {
+    --acc-bg: #f7f7fb;
+    --acc-card: #ffffff;
+    --acc-card-2: #f0edf8;
+    --acc-border: #e5e0ef;
+    --acc-text: #272334;
+    --acc-muted: #777184;
+    --acc-purple: #8052d6;
+    --acc-purple-dark: #7045cf;
+    --acc-danger: #d94d68;
+
+    color: var(--acc-text);
+    background: var(--acc-bg);
+}
+
+body:not(.dark-mode) .account-panel .account-input-wrap input,
+body:not(.dark-mode) .account-panel .account-field > input {
+    color: var(--acc-text);
+    background: #ffffff;
+    border-color: var(--acc-border);
+}
+
+body:not(.dark-mode) .account-panel .account-tabs {
+    background: #eeeaf5;
+}
+
+body:not(.dark-mode) .account-panel .account-empty-state,
+body:not(.dark-mode) .account-panel .account-profile-card,
+body:not(.dark-mode) .account-panel .account-security-card {
+    background: #ffffff;
+}
+
+body:not(.dark-mode) .account-panel .account-menu-item {
+    color: #696276;
+}
+
+body:not(.dark-mode) .account-panel .account-menu-item:hover,
+body:not(.dark-mode) .account-panel .account-menu-item.active {
+    color: #7045cf;
+    background: #f1ebff;
+    border-color: #e1d5ff;
+}
+
+body:not(.dark-mode) .account-panel .account-back-btn,
+body:not(.dark-mode) .account-panel .account-security-card button {
+    color: var(--acc-text);
+    background: #ffffff;
+    border-color: var(--acc-border);
+}
+
+body:not(.dark-mode) .account-panel .account-brand {
+    color: var(--acc-text);
+}
+
+body:not(.dark-mode) .account-panel .account-input-wrap input::placeholder,
+body:not(.dark-mode) .account-panel .account-field > input::placeholder {
+    color: #9992a5;
+}
+
+/* FAVORITES INSIDE ACCOUNT */
+
+.account-favorites-content {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+    width: 100%;
+}
+
+.account-favorites-content .product-card {
+    min-width: 0;
+}
+
+.account-favorites-empty {
+    grid-column: 1 / -1;
+    padding: 35px 15px;
+    border: 1px dashed var(--acc-border);
+    border-radius: 14px;
+    color: var(--acc-muted);
+    text-align: center;
+    line-height: 2;
+}
+
+@media (max-width: 560px) {
+    .account-favorites-content {
+        grid-template-columns: 1fr;
+        gap: 12px;
+    }
+}
