@@ -3331,3 +3331,77 @@ body.dark-mode .service-card .service-icon {
         padding: 13px;
     }
 }
+
+
+/* =====================================
+   NOVA STORE - ACCOUNT DARK MODE
+===================================== */
+
+body.dark-mode .account-panel {
+    background: #15131c;
+    color: #f1edf8;
+}
+
+body.dark-mode .account-brand p,
+body.dark-mode .account-welcome p,
+body.dark-mode .account-auth-message,
+body.dark-mode .account-footer {
+    color: #aaa2b8;
+}
+
+body.dark-mode .account-back-btn,
+body.dark-mode .account-auth-card,
+body.dark-mode .account-menu button {
+    background: #211e2b;
+    border-color: #383144;
+    color: #eee8f8;
+}
+
+body.dark-mode .account-back-btn:hover,
+body.dark-mode .account-menu button:hover {
+    background: #2b2638;
+}
+
+body.dark-mode .account-welcome {
+    background: linear-gradient(135deg, #29213a, #201c29);
+    border-color: #403353;
+}
+
+body.dark-mode .account-brand-icon,
+body.dark-mode .account-welcome-icon,
+body.dark-mode .account-menu button > i:first-child {
+    background: #352849;
+    color: #bd9aef;
+}
+
+body.dark-mode .account-tabs {
+    background: #191621;
+}
+
+body.dark-mode .account-tab {
+    color: #b5adc2;
+}
+
+body.dark-mode .account-tab.active {
+    background: #7548bd;
+    color: #fff;
+}
+
+body.dark-mode .account-field input {
+    background: #191621;
+    border-color: #40394b;
+    color: #f1edf8;
+}
+
+body.dark-mode .account-field input::placeholder {
+    color: #82798f;
+}
+
+body.dark-mode .account-field label {
+    color: #e5deef;
+}
+
+body.dark-mode .account-menu button > i:last-child {
+    color: #958ba5;
+}
+
