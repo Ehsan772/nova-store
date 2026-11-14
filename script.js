@@ -3218,8 +3218,10 @@ window.NovaStore = {
 })();
 
 
+
 /* =========================================
    NOVA STORE - ACCOUNT PANEL
+   PROFILE / FAVORITES / SECURITY
 ========================================= */
 
 (() => {
@@ -3243,9 +3245,23 @@ window.NovaStore = {
     const menuButtons = document.querySelectorAll("[data-account-section]");
     const views = document.querySelectorAll("[data-account-view]");
 
+    const profileName = document.getElementById("accountProfileName");
+    const profilePhone = document.getElementById("accountProfilePhone");
+    const profileEmail = document.getElementById("accountProfileEmail");
+    const saveProfileBtn = document.getElementById("accountSaveProfileBtn");
+
+    const favoritesContent = document.getElementById(
+        "accountFavoritesContent"
+    );
+
+    const changePasswordBtn = document.getElementById(
+        "accountChangePasswordBtn"
+    );
+
     if (!panel || !accountBtn || !form) return;
 
     let authMode = "login";
+    let currentUser = null;
 
     const main = document.querySelector("body > main");
 
@@ -3258,26 +3274,51 @@ window.NovaStore = {
             : [])
     ];
 
-    function client() {
-        return supabaseClient || null;
+    function getClient() {
+        return typeof supabaseClient !== "undefined"
+            ? supabaseClient
+            : null;
     }
+
+    /* ---------------------------------
+       MESSAGES
+    --------------------------------- */
 
     function showMessage(text, type = "info") {
         if (!message) return;
+
         message.textContent = text;
         message.dataset.type = type;
     }
 
+    /* ---------------------------------
+       OPEN / CLOSE ACCOUNT
+    --------------------------------- */
+
     function showAccount() {
-        storeElements.forEach(el => el.hidden = true);
+        storeElements.forEach(el => {
+            el.hidden = true;
+        });
+
         panel.hidden = false;
-        window.scrollTo({ top: 0, behavior: "smooth" });
+
+        window.scrollTo({
+            top: 0,
+            behavior: "smooth"
+        });
     }
 
     function showStore() {
         panel.hidden = true;
-        storeElements.forEach(el => el.hidden = false);
-        window.scrollTo({ top: 0, behavior: "smooth" });
+
+        storeElements.forEach(el => {
+            el.hidden = false;
+        });
+
+        window.scrollTo({
+            top: 0,
+            behavior: "smooth"
+        });
     }
 
     accountBtn.addEventListener("click", showAccount);
@@ -3286,37 +3327,76 @@ window.NovaStore = {
         backBtn.addEventListener("click", showStore);
     }
 
+    /* ---------------------------------
+       AUTH VIEW
+    --------------------------------- */
+
     function showAuth() {
+        currentUser = null;
+
         authView.hidden = false;
         dashboard.hidden = true;
     }
 
     function showDashboard(user) {
+        if (!user) return;
+
+        currentUser = user;
+
         authView.hidden = true;
         dashboard.hidden = false;
 
+        fillProfile(user);
+        openSection("profile");
+    }
+
+    /* ---------------------------------
+       LOAD PROFILE DATA
+    --------------------------------- */
+
+    function fillProfile(user) {
         const metadata = user.user_metadata || {};
 
         const name =
             metadata.full_name ||
             metadata.name ||
-            metadata.phone ||
             "کاربر نوا";
 
-        const nameEl = document.getElementById("accountDisplayName");
-        const emailEl = document.getElementById("accountDisplayEmail");
-        const profileName = document.getElementById("accountProfileName");
-        const profilePhone = document.getElementById("accountProfilePhone");
-        const profileEmail = document.getElementById("accountProfileEmail");
+        const displayName = document.getElementById(
+            "accountDisplayName"
+        );
 
-        if (nameEl) nameEl.textContent = name;
-        if (emailEl) emailEl.textContent = user.email || "";
-        if (profileName) profileName.value = metadata.full_name || metadata.name || "";
-        if (profilePhone) profilePhone.value = metadata.phone || "";
-        if (profileEmail) profileEmail.value = user.email || "";
+        const displayEmail = document.getElementById(
+            "accountDisplayEmail"
+        );
 
-        openSection("profile");
+        if (displayName) {
+            displayName.textContent = name;
+        }
+
+        if (displayEmail) {
+            displayEmail.textContent = user.email || "";
+        }
+
+        if (profileName) {
+            profileName.value =
+                metadata.full_name ||
+                metadata.name ||
+                "";
+        }
+
+        if (profilePhone) {
+            profilePhone.value = metadata.phone || "";
+        }
+
+        if (profileEmail) {
+            profileEmail.value = user.email || "";
+        }
     }
+
+    /* ---------------------------------
+       LOGIN / REGISTER TABS
+    --------------------------------- */
 
     function setAuthMode(mode) {
         authMode = mode;
@@ -3335,7 +3415,9 @@ window.NovaStore = {
         phone.required = mode === "register";
 
         password.autocomplete =
-            mode === "login" ? "current-password" : "new-password";
+            mode === "login"
+                ? "current-password"
+                : "new-password";
 
         showMessage("");
     }
@@ -3346,13 +3428,17 @@ window.NovaStore = {
         });
     });
 
+    /* ---------------------------------
+       LOGIN / REGISTER
+    --------------------------------- */
+
     form.addEventListener("submit", async event => {
         event.preventDefault();
 
-        const supabase = client();
+        const client = getClient();
 
-        if (!supabase) {
-            showMessage("اتصال به سرویس حساب کاربری برقرار نیست.", "error");
+        if (!client) {
+            showMessage("اتصال به Supabase برقرار نیست.", "error");
             return;
         }
 
@@ -3365,11 +3451,13 @@ window.NovaStore = {
 
         try {
             if (authMode === "register") {
-                const { data, error } = await supabase.auth.signUp({
+                const { data, error } = await client.auth.signUp({
                     email: userEmail,
                     password: userPassword,
                     options: {
-                        data: { phone: userPhone }
+                        data: {
+                            phone: userPhone
+                        }
                     }
                 });
 
@@ -3387,7 +3475,7 @@ window.NovaStore = {
 
             } else {
                 const { data, error } =
-                    await supabase.auth.signInWithPassword({
+                    await client.auth.signInWithPassword({
                         email: userEmail,
                         password: userPassword
                     });
@@ -3400,7 +3488,7 @@ window.NovaStore = {
 
         } catch (error) {
             showMessage(
-                error.message || "خطایی رخ داد. دوباره تلاش کنید.",
+                error.message || "خطایی رخ داد.",
                 "error"
             );
 
@@ -3409,15 +3497,26 @@ window.NovaStore = {
         }
     });
 
+    /* ---------------------------------
+       ACCOUNT MENU
+    --------------------------------- */
+
     function openSection(section) {
         views.forEach(view => {
-            view.hidden = view.dataset.accountView !== section;
+            view.hidden =
+                view.dataset.accountView !== section;
         });
 
         menuButtons.forEach(button => {
-            const active = button.dataset.accountSection === section;
-            button.classList.toggle("active", active);
+            button.classList.toggle(
+                "active",
+                button.dataset.accountSection === section
+            );
         });
+
+        if (section === "favorites") {
+            renderAccountFavorites();
+        }
     }
 
     menuButtons.forEach(button => {
@@ -3426,12 +3525,269 @@ window.NovaStore = {
         });
     });
 
+    /* ---------------------------------
+       FAVORITES
+       USE MAIN STORE FAVORITES DATA
+    --------------------------------- */
+
+    function renderAccountFavorites() {
+        if (!favoritesContent) return;
+
+        if (
+            typeof favorites === "undefined" ||
+            typeof allProducts === "undefined"
+        ) {
+            favoritesContent.innerHTML =
+                '<div class="account-favorites-empty">امکان بارگذاری علاقه‌مندی‌ها وجود ندارد.</div>';
+            return;
+        }
+
+        const favoriteProducts = allProducts.filter(product => {
+            return favorites.includes(
+                String(getProductId(product))
+            );
+        });
+
+        if (!favoriteProducts.length) {
+            favoritesContent.innerHTML = `
+                <div class="account-favorites-empty">
+                    <i class="fa-regular fa-heart"></i>
+                    <p>هنوز محصولی به علاقه‌مندی‌ها اضافه نکرده‌اید.</p>
+                </div>
+            `;
+            return;
+        }
+
+        favoritesContent.innerHTML = favoriteProducts
+            .map(product => createProductCard(product))
+            .join("");
+
+        if (typeof bindProductCardEvents === "function") {
+            bindProductCardEvents();
+        }
+    }
+
+    /* ---------------------------------
+       SAVE PROFILE TO SUPABASE
+    --------------------------------- */
+
+    if (saveProfileBtn) {
+        saveProfileBtn.addEventListener("click", async () => {
+            const client = getClient();
+
+            if (!client || !currentUser) {
+                alert("ابتدا وارد حساب کاربری شوید.");
+                return;
+            }
+
+            const fullName = profileName.value.trim();
+            const mobile = profilePhone.value.trim();
+
+            if (!fullName) {
+                alert("لطفاً نام و نام خانوادگی را وارد کنید.");
+                profileName.focus();
+                return;
+            }
+
+            saveProfileBtn.disabled = true;
+            saveProfileBtn.textContent = "در حال ذخیره...";
+
+            try {
+                const { data, error } =
+                    await client.auth.updateUser({
+                        data: {
+                            full_name: fullName,
+                            phone: mobile
+                        }
+                    });
+
+                if (error) throw error;
+
+                currentUser = data.user || currentUser;
+
+                fillProfile(currentUser);
+
+                alert("اطلاعات حساب با موفقیت ذخیره شد.");
+
+            } catch (error) {
+                console.error("Profile update error:", error);
+
+                alert(
+                    error.message ||
+                    "ذخیره اطلاعات انجام نشد."
+                );
+
+            } finally {
+                saveProfileBtn.disabled = false;
+                saveProfileBtn.innerHTML =
+                    '<i class="fa-solid fa-check"></i> ذخیره تغییرات';
+            }
+        });
+    }
+
+    /* ---------------------------------
+       CHANGE PASSWORD FORM
+    --------------------------------- */
+
+    if (changePasswordBtn) {
+        changePasswordBtn.addEventListener("click", () => {
+            let passwordForm = document.getElementById(
+                "accountNewPasswordForm"
+            );
+
+            if (passwordForm) {
+                passwordForm.hidden = !passwordForm.hidden;
+                return;
+            }
+
+            const securitySection = document.querySelector(
+                '[data-account-view="security"]'
+            );
+
+            if (!securitySection) return;
+
+            passwordForm = document.createElement("form");
+
+            passwordForm.id = "accountNewPasswordForm";
+            passwordForm.className = "account-profile-card";
+
+            passwordForm.style.marginTop = "15px";
+
+            passwordForm.innerHTML = `
+                <div class="account-section-heading">
+                    <h2>تغییر رمز عبور</h2>
+                    <p>رمز عبور جدید خود را وارد کنید.</p>
+                </div>
+
+                <div class="account-field">
+                    <label for="accountNewPassword">
+                        رمز عبور جدید
+                    </label>
+
+                    <input
+                        id="accountNewPassword"
+                        type="password"
+                        minlength="8"
+                        autocomplete="new-password"
+                        placeholder="حداقل ۸ کاراکتر"
+                        required
+                    >
+                </div>
+
+                <div class="account-field">
+                    <label for="accountConfirmPassword">
+                        تکرار رمز عبور جدید
+                    </label>
+
+                    <input
+                        id="accountConfirmPassword"
+                        type="password"
+                        minlength="8"
+                        autocomplete="new-password"
+                        placeholder="رمز عبور را دوباره وارد کنید"
+                        required
+                    >
+                </div>
+
+                <button
+                    type="submit"
+                    class="account-save-btn"
+                    id="accountUpdatePasswordSubmit"
+                >
+                    ذخیره رمز جدید
+                </button>
+
+                <p
+                    id="accountPasswordMessage"
+                    class="account-auth-message"
+                    role="status"
+                ></p>
+            `;
+
+            securitySection.appendChild(passwordForm);
+
+            passwordForm.addEventListener("submit", async event => {
+                event.preventDefault();
+
+                const client = getClient();
+
+                const newPassword = document.getElementById(
+                    "accountNewPassword"
+                ).value;
+
+                const confirmPassword = document.getElementById(
+                    "accountConfirmPassword"
+                ).value;
+
+                const passwordMessage = document.getElementById(
+                    "accountPasswordMessage"
+                );
+
+                const updateButton = document.getElementById(
+                    "accountUpdatePasswordSubmit"
+                );
+
+                if (newPassword.length < 8) {
+                    passwordMessage.textContent =
+                        "رمز عبور باید حداقل ۸ کاراکتر باشد.";
+                    return;
+                }
+
+                if (newPassword !== confirmPassword) {
+                    passwordMessage.textContent =
+                        "رمزهای عبور با هم مطابقت ندارند.";
+                    return;
+                }
+
+                if (!client || !currentUser) {
+                    passwordMessage.textContent =
+                        "ابتدا وارد حساب کاربری شوید.";
+                    return;
+                }
+
+                updateButton.disabled = true;
+                updateButton.textContent = "در حال تغییر رمز...";
+
+                try {
+                    const { error } = await client.auth.updateUser({
+                        password: newPassword
+                    });
+
+                    if (error) throw error;
+
+                    passwordForm.reset();
+
+                    passwordMessage.textContent =
+                        "رمز عبور با موفقیت تغییر کرد.";
+
+                    passwordMessage.dataset.type = "success";
+
+                } catch (error) {
+                    passwordMessage.textContent =
+                        error.message || "تغییر رمز عبور انجام نشد.";
+
+                    passwordMessage.dataset.type = "error";
+
+                } finally {
+                    updateButton.disabled = false;
+                    updateButton.textContent = "ذخیره رمز جدید";
+                }
+            });
+        });
+    }
+
+    /* ---------------------------------
+       LOGOUT
+    --------------------------------- */
+
     async function logout() {
-        const supabase = client();
-        if (!supabase) return;
+        const client = getClient();
+
+        if (!client) return;
 
         try {
-            const { error } = await supabase.auth.signOut();
+            const { error } = await client.auth.signOut();
+
             if (error) throw error;
 
             showAuth();
@@ -3439,7 +3795,7 @@ window.NovaStore = {
             showMessage("از حساب خود خارج شدید.", "success");
 
         } catch (error) {
-            showMessage(error.message || "خروج انجام نشد.", "error");
+            alert(error.message || "خروج از حساب انجام نشد.");
         }
     }
 
@@ -3448,22 +3804,30 @@ window.NovaStore = {
         "accountSecurityLogoutBtn"
     ].forEach(id => {
         const button = document.getElementById(id);
-        if (button) button.addEventListener("click", logout);
+
+        if (button) {
+            button.addEventListener("click", logout);
+        }
     });
 
-    async function restoreSession() {
-        const supabase = client();
+    /* ---------------------------------
+       RESTORE SESSION
+    --------------------------------- */
 
-        if (!supabase) {
+    async function restoreSession() {
+        const client = getClient();
+
+        if (!client) {
             showAuth();
             return;
         }
 
         try {
-            const { data, error } = await supabase.auth.getSession();
+            const { data, error } = await client.auth.getSession();
+
             if (error) throw error;
 
-            if (data.session?.user) {
+            if (data.session && data.session.user) {
                 showDashboard(data.session.user);
             } else {
                 showAuth();
@@ -3474,6 +3838,10 @@ window.NovaStore = {
             showAuth();
         }
     }
+
+    /* ---------------------------------
+       INITIALIZE
+    --------------------------------- */
 
     panel.hidden = true;
     showAuth();
