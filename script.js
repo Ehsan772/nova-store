@@ -3217,8 +3217,6 @@ window.NovaStore = {
     }, logoTime + logoDuration + 500);
 })();
 
-
-
 /* =========================================
    NOVA STORE - ACCOUNT PANEL
 ========================================= */
@@ -3242,20 +3240,23 @@ window.NovaStore = {
 
     let authMode = "login";
 
-    // Keep the existing store on the same page.
-    
-const mainElement = document.querySelector("body > main");
+    const mainElement = document.querySelector("body > main");
 
-const storeElements = [
-    ...document.querySelectorAll(
-        "body > header, body > footer, body > .mobile-bottom-nav"
-    ),
-    ...(mainElement
-        ? [...mainElement.children].filter(
-            element => element !== accountPanel
-        )
-        : [])
-];
+    const storeElements = [
+        ...document.querySelectorAll(
+            "body > header, body > footer, body > .mobile-bottom-nav"
+        ),
+        ...(mainElement
+            ? [...mainElement.children].filter(
+                element => element !== accountPanel
+            )
+            : [])
+    ];
+
+    function showMessage(text, type = "info") {
+        message.textContent = text;
+        message.dataset.type = type;
+    }
 
     function showAccount() {
         storeElements.forEach(element => {
@@ -3282,35 +3283,39 @@ const storeElements = [
         accountBackBtn.addEventListener("click", showStore);
     }
 
-    // Login / registration tabs
+    function setAuthMode(mode) {
+        authMode = mode;
+
+        authTabs.forEach(tab => {
+            tab.classList.toggle(
+                "active",
+                tab.dataset.accountTab === mode
+            );
+        });
+
+        submitBtn.innerHTML = mode === "login"
+            ? '<span>ورود به حساب</span><i class="fa-solid fa-arrow-left"></i>'
+            : '<span>ساخت حساب کاربری</span><i class="fa-solid fa-arrow-left"></i>';
+
+        passwordInput.autocomplete =
+            mode === "login" ? "current-password" : "new-password";
+
+        phoneInput.required = mode === "register";
+
+        showMessage("");
+    }
+
     authTabs.forEach(tab => {
         tab.addEventListener("click", () => {
-            authMode = tab.dataset.accountTab;
-
-            authTabs.forEach(item => {
-                item.classList.toggle("active", item === tab);
-            });
-
-            submitBtn.innerHTML = authMode === "login"
-                ? 'ورود به حساب <i class="fa-solid fa-arrow-left"></i>'
-                : 'ساخت حساب کاربری <i class="fa-solid fa-arrow-left"></i>';
-
-            passwordInput.autocomplete = authMode === "login"
-                ? "current-password"
-                : "new-password";
-
-            phoneInput.required = authMode === "register";
-
-            message.textContent = "";
+            setAuthMode(tab.dataset.accountTab);
         });
     });
 
-    
-    // Supabase client: reuse the existing client.
     function getSupabaseClient() {
-        return supabaseClient;
+        return typeof supabaseClient !== "undefined"
+            ? supabaseClient
+            : null;
     }
-
 
     authForm.addEventListener("submit", async event => {
         event.preventDefault();
@@ -3318,8 +3323,7 @@ const storeElements = [
         const client = getSupabaseClient();
 
         if (!client) {
-            message.textContent =
-                "اتصال حساب کاربری هنوز تنظیم نشده؛ باید نام متغیر اتصال Supabase در کد مشخص شود.";
+            showMessage("اتصال به سرویس حساب کاربری برقرار نیست.", "error");
             return;
         }
 
@@ -3328,7 +3332,7 @@ const storeElements = [
         const phone = phoneInput.value.trim();
 
         submitBtn.disabled = true;
-        message.textContent = "لطفاً صبر کنید...";
+        showMessage("در حال بررسی اطلاعات...", "info");
 
         try {
             if (authMode === "register") {
@@ -3342,29 +3346,44 @@ const storeElements = [
 
                 if (error) throw error;
 
-                message.textContent = data.session
-                    ? "حساب کاربری ساخته شد."
-                    : "ثبت‌نام انجام شد؛ ایمیل خود را برای تأیید بررسی کنید.";
+                if (data.session) {
+                    showMessage("حساب شما با موفقیت ساخته شد.", "success");
+                } else {
+                    showMessage(
+                        "ثبت‌نام انجام شد. برای تأیید حساب، ایمیل خود را بررسی کنید.",
+                        "success"
+                    );
+                }
 
             } else {
-                const { error } = await client.auth.signInWithPassword({
-                    email,
-                    password
-                });
+                const { data, error } =
+                    await client.auth.signInWithPassword({
+                        email,
+                        password
+                    });
 
                 if (error) throw error;
 
-                message.textContent = "با موفقیت وارد حساب شدید.";
+                showMessage("ورود با موفقیت انجام شد.", "success");
+
+                if (data.user) {
+                    setTimeout(() => {
+                        showAccount();
+                    }, 500);
+                }
             }
+
         } catch (error) {
-            message.textContent = error.message ||
-                "مشکلی پیش آمد. دوباره تلاش کنید.";
+            showMessage(
+                error.message || "خطایی رخ داد. دوباره تلاش کنید.",
+                "error"
+            );
+
         } finally {
             submitBtn.disabled = false;
         }
     });
 
-    // Account menu placeholders until their features are connected.
     accountMenuButtons.forEach(button => {
         button.addEventListener("click", () => {
             const section = button.dataset.accountSection;
@@ -3379,11 +3398,13 @@ const storeElements = [
                 return;
             }
 
-            message.textContent =
-                "این بخش هنوز به اطلاعات حساب شما متصل نشده است.";
+            showMessage(
+                "این بخش هنوز به اطلاعات حساب شما متصل نشده است.",
+                "info"
+            );
         });
     });
 
-    // Initial state: show the store, not the account panel.
+    // Initial state
     accountPanel.hidden = true;
 })();
