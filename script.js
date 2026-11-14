@@ -3217,6 +3217,7 @@ window.NovaStore = {
     }, logoTime + logoDuration + 500);
 })();
 
+
 /* =========================================
    NOVA STORE - ACCOUNT PANEL
 ========================================= */
@@ -3224,153 +3225,177 @@ window.NovaStore = {
 (() => {
     "use strict";
 
-    const accountPanel = document.getElementById("accountPanel");
-    const accountBackBtn = document.getElementById("accountBackBtn");
+    const panel = document.getElementById("accountPanel");
+    const backBtn = document.getElementById("accountBackBtn");
     const accountBtn = document.getElementById("headerAccountBtn");
-    const authForm = document.getElementById("accountAuthForm");
-    const emailInput = document.getElementById("accountEmail");
-    const phoneInput = document.getElementById("accountPhone");
-    const passwordInput = document.getElementById("accountPassword");
-    const submitBtn = document.getElementById("accountSubmitBtn");
-    const message = document.getElementById("accountAuthMessage");
-    const authTabs = document.querySelectorAll("[data-account-tab]");
-    const accountMenuButtons = document.querySelectorAll("[data-account-section]");
 
-    if (!accountPanel || !accountBtn || !authForm) return;
+    const authView = document.getElementById("accountAuthView");
+    const dashboard = document.getElementById("accountDashboard");
+
+    const form = document.getElementById("accountAuthForm");
+    const email = document.getElementById("accountEmail");
+    const phone = document.getElementById("accountPhone");
+    const password = document.getElementById("accountPassword");
+    const submit = document.getElementById("accountSubmitBtn");
+    const message = document.getElementById("accountAuthMessage");
+
+    const tabs = document.querySelectorAll("[data-account-tab]");
+    const menuButtons = document.querySelectorAll("[data-account-section]");
+    const views = document.querySelectorAll("[data-account-view]");
+
+    if (!panel || !accountBtn || !form) return;
 
     let authMode = "login";
 
-    const mainElement = document.querySelector("body > main");
+    const main = document.querySelector("body > main");
 
     const storeElements = [
         ...document.querySelectorAll(
             "body > header, body > footer, body > .mobile-bottom-nav"
         ),
-        ...(mainElement
-            ? [...mainElement.children].filter(
-                element => element !== accountPanel
-            )
+        ...(main
+            ? [...main.children].filter(el => el !== panel)
             : [])
     ];
 
+    function client() {
+        return supabaseClient || null;
+    }
+
     function showMessage(text, type = "info") {
+        if (!message) return;
         message.textContent = text;
         message.dataset.type = type;
     }
 
     function showAccount() {
-        storeElements.forEach(element => {
-            element.hidden = true;
-        });
-
-        accountPanel.hidden = false;
+        storeElements.forEach(el => el.hidden = true);
+        panel.hidden = false;
         window.scrollTo({ top: 0, behavior: "smooth" });
     }
 
     function showStore() {
-        accountPanel.hidden = true;
-
-        storeElements.forEach(element => {
-            element.hidden = false;
-        });
-
+        panel.hidden = true;
+        storeElements.forEach(el => el.hidden = false);
         window.scrollTo({ top: 0, behavior: "smooth" });
     }
 
     accountBtn.addEventListener("click", showAccount);
 
-    if (accountBackBtn) {
-        accountBackBtn.addEventListener("click", showStore);
+    if (backBtn) {
+        backBtn.addEventListener("click", showStore);
+    }
+
+    function showAuth() {
+        authView.hidden = false;
+        dashboard.hidden = true;
+    }
+
+    function showDashboard(user) {
+        authView.hidden = true;
+        dashboard.hidden = false;
+
+        const metadata = user.user_metadata || {};
+
+        const name =
+            metadata.full_name ||
+            metadata.name ||
+            metadata.phone ||
+            "کاربر نوا";
+
+        const nameEl = document.getElementById("accountDisplayName");
+        const emailEl = document.getElementById("accountDisplayEmail");
+        const profileName = document.getElementById("accountProfileName");
+        const profilePhone = document.getElementById("accountProfilePhone");
+        const profileEmail = document.getElementById("accountProfileEmail");
+
+        if (nameEl) nameEl.textContent = name;
+        if (emailEl) emailEl.textContent = user.email || "";
+        if (profileName) profileName.value = metadata.full_name || metadata.name || "";
+        if (profilePhone) profilePhone.value = metadata.phone || "";
+        if (profileEmail) profileEmail.value = user.email || "";
+
+        openSection("profile");
     }
 
     function setAuthMode(mode) {
         authMode = mode;
 
-        authTabs.forEach(tab => {
+        tabs.forEach(tab => {
             tab.classList.toggle(
                 "active",
                 tab.dataset.accountTab === mode
             );
         });
 
-        submitBtn.innerHTML = mode === "login"
+        submit.innerHTML = mode === "login"
             ? '<span>ورود به حساب</span><i class="fa-solid fa-arrow-left"></i>'
             : '<span>ساخت حساب کاربری</span><i class="fa-solid fa-arrow-left"></i>';
 
-        passwordInput.autocomplete =
-            mode === "login" ? "current-password" : "new-password";
+        phone.required = mode === "register";
 
-        phoneInput.required = mode === "register";
+        password.autocomplete =
+            mode === "login" ? "current-password" : "new-password";
 
         showMessage("");
     }
 
-    authTabs.forEach(tab => {
+    tabs.forEach(tab => {
         tab.addEventListener("click", () => {
             setAuthMode(tab.dataset.accountTab);
         });
     });
 
-    function getSupabaseClient() {
-        return typeof supabaseClient !== "undefined"
-            ? supabaseClient
-            : null;
-    }
-
-    authForm.addEventListener("submit", async event => {
+    form.addEventListener("submit", async event => {
         event.preventDefault();
 
-        const client = getSupabaseClient();
+        const supabase = client();
 
-        if (!client) {
+        if (!supabase) {
             showMessage("اتصال به سرویس حساب کاربری برقرار نیست.", "error");
             return;
         }
 
-        const email = emailInput.value.trim();
-        const password = passwordInput.value;
-        const phone = phoneInput.value.trim();
+        const userEmail = email.value.trim();
+        const userPassword = password.value;
+        const userPhone = phone.value.trim();
 
-        submitBtn.disabled = true;
+        submit.disabled = true;
         showMessage("در حال بررسی اطلاعات...", "info");
 
         try {
             if (authMode === "register") {
-                const { data, error } = await client.auth.signUp({
-                    email,
-                    password,
+                const { data, error } = await supabase.auth.signUp({
+                    email: userEmail,
+                    password: userPassword,
                     options: {
-                        data: { phone }
+                        data: { phone: userPhone }
                     }
                 });
 
                 if (error) throw error;
 
-                if (data.session) {
-                    showMessage("حساب شما با موفقیت ساخته شد.", "success");
+                if (data.session && data.user) {
+                    showDashboard(data.user);
+                    showMessage("حساب شما ساخته شد.", "success");
                 } else {
                     showMessage(
-                        "ثبت‌نام انجام شد. برای تأیید حساب، ایمیل خود را بررسی کنید.",
+                        "ثبت‌نام انجام شد. ایمیل خود را برای تأیید بررسی کنید.",
                         "success"
                     );
                 }
 
             } else {
                 const { data, error } =
-                    await client.auth.signInWithPassword({
-                        email,
-                        password
+                    await supabase.auth.signInWithPassword({
+                        email: userEmail,
+                        password: userPassword
                     });
 
                 if (error) throw error;
 
-                showMessage("ورود با موفقیت انجام شد.", "success");
-
-                if (data.user) {
-                    setTimeout(() => {
-                        showAccount();
-                    }, 500);
-                }
+                showDashboard(data.user);
+                showMessage("با موفقیت وارد حساب شدید.", "success");
             }
 
         } catch (error) {
@@ -3380,31 +3405,79 @@ window.NovaStore = {
             );
 
         } finally {
-            submitBtn.disabled = false;
+            submit.disabled = false;
         }
     });
 
-    accountMenuButtons.forEach(button => {
+    function openSection(section) {
+        views.forEach(view => {
+            view.hidden = view.dataset.accountView !== section;
+        });
+
+        menuButtons.forEach(button => {
+            const active = button.dataset.accountSection === section;
+            button.classList.toggle("active", active);
+        });
+    }
+
+    menuButtons.forEach(button => {
         button.addEventListener("click", () => {
-            const section = button.dataset.accountSection;
-
-            if (section === "favorites") {
-                showStore();
-
-                const favoritesButton =
-                    document.getElementById("headerFavoritesBtn");
-
-                if (favoritesButton) favoritesButton.click();
-                return;
-            }
-
-            showMessage(
-                "این بخش هنوز به اطلاعات حساب شما متصل نشده است.",
-                "info"
-            );
+            openSection(button.dataset.accountSection);
         });
     });
 
-    // Initial state
-    accountPanel.hidden = true;
+    async function logout() {
+        const supabase = client();
+        if (!supabase) return;
+
+        try {
+            const { error } = await supabase.auth.signOut();
+            if (error) throw error;
+
+            showAuth();
+            setAuthMode("login");
+            showMessage("از حساب خود خارج شدید.", "success");
+
+        } catch (error) {
+            showMessage(error.message || "خروج انجام نشد.", "error");
+        }
+    }
+
+    [
+        "accountLogoutBtn",
+        "accountSecurityLogoutBtn"
+    ].forEach(id => {
+        const button = document.getElementById(id);
+        if (button) button.addEventListener("click", logout);
+    });
+
+    async function restoreSession() {
+        const supabase = client();
+
+        if (!supabase) {
+            showAuth();
+            return;
+        }
+
+        try {
+            const { data, error } = await supabase.auth.getSession();
+            if (error) throw error;
+
+            if (data.session?.user) {
+                showDashboard(data.session.user);
+            } else {
+                showAuth();
+            }
+
+        } catch (error) {
+            console.error("Account session error:", error);
+            showAuth();
+        }
+    }
+
+    panel.hidden = true;
+    showAuth();
+    setAuthMode("login");
+    restoreSession();
+
 })();
