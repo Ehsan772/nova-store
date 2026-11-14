@@ -1118,136 +1118,545 @@
         </section>
 
     </main>
-<!-- NOVA ACCOUNT PANEL -->
+
+ 
+<!-- =====================================================
+     NOVA STORE - ACCOUNT PANEL
+====================================================== -->
+
 <section id="accountPanel" class="account-panel" hidden>
+
     <div class="account-container">
 
+        <!-- Account Header -->
         <header class="account-header">
+
             <button id="accountBackBtn" class="account-back-btn" type="button">
                 <i class="fa-solid fa-arrow-right"></i>
                 بازگشت به فروشگاه
             </button>
 
-            <div class="account-brand">
+            <a href="#home" class="account-brand">
                 <span class="account-brand-icon">
                     <i class="fa-solid fa-bag-shopping"></i>
                 </span>
-                <div>
-                    <h1>حساب کاربری نوا</h1>
-                    <p>مدیریت هوشمند حساب کاربری شما</p>
-                </div>
-            </div>
+
+                <span>
+                    <strong>نوا استور</strong>
+                    <small>پنل مدیریت حساب کاربری</small>
+                </span>
+            </a>
+
         </header>
 
-        <div class="account-welcome">
-            <div class="account-welcome-icon">
-                <i class="fa-solid fa-user-shield"></i>
-            </div>
-            <div>
-                <span class="account-eyebrow">NOVA STORE ACCOUNT</span>
-                <h2>به نوا استور خوش آمدید</h2>
-                <p>برای تجربه بهتر خرید، وارد حساب کاربری خود شوید.</p>
-            </div>
-        </div>
 
-        <div class="account-auth-card">
-            <div class="account-card-heading">
-                <h2>حساب کاربری شما</h2>
-                <p>ورود یا ایجاد حساب جدید</p>
-            </div>
+        <!-- =============================================
+             LOGIN / REGISTER
+        ============================================== -->
 
-            <div class="account-tabs">
-                <button type="button" class="account-tab active" data-account-tab="login">
-                    ورود به حساب
-                </button>
-                <button type="button" class="account-tab" data-account-tab="register">
-                    ایجاد حساب
-                </button>
-            </div>
+        <div id="accountAuthView" class="account-auth-view">
 
-            <form id="accountAuthForm">
-                <div class="account-field">
-                    <label for="accountEmail">آدرس ایمیل</label>
-                    <div class="account-input-wrap">
-                        <i class="fa-regular fa-envelope"></i>
-                        <input id="accountEmail" name="email" type="email"
-                            placeholder="example@email.com"
-                            autocomplete="email" required>
-                    </div>
+            <div class="account-welcome">
+
+                <div class="account-welcome-icon">
+                    <i class="fa-solid fa-user-shield"></i>
                 </div>
 
-                <div class="account-field">
-                    <label for="accountPhone">شماره موبایل</label>
-                    <div class="account-input-wrap">
-                        <i class="fa-solid fa-mobile-screen"></i>
-                        <input id="accountPhone" name="phone" type="tel"
-                            placeholder="09xxxxxxxxx" autocomplete="tel">
-                    </div>
+                <div>
+                    <span class="account-eyebrow">NOVA STORE ACCOUNT</span>
+                    <h1>به حساب کاربری نوا خوش آمدید</h1>
+                    <p>برای مدیریت حساب و دسترسی به امکانات فروشگاه وارد شوید.</p>
                 </div>
 
-                <div class="account-field">
-                    <label for="accountPassword">رمز عبور</label>
-                    <div class="account-input-wrap">
-                        <i class="fa-solid fa-lock"></i>
-                        <input id="accountPassword" name="password" type="password"
-                            placeholder="حداقل ۸ کاراکتر"
-                            autocomplete="current-password"
-                            minlength="8" required>
-                    </div>
-                </div>
-
-                <button id="accountSubmitBtn" class="account-submit-btn" type="submit">
-                    <span>ورود به حساب</span>
-                    <i class="fa-solid fa-arrow-left"></i>
-                </button>
-
-                <p id="accountAuthMessage" class="account-auth-message"
-                    role="status" aria-live="polite"></p>
-            </form>
-        </div>
-
-        <div class="account-menu">
-            <div class="account-menu-heading">
-                <h2>دسترسی سریع</h2>
-                <p>مدیریت بخش‌های مختلف حساب</p>
             </div>
 
-            <button type="button" data-account-section="profile">
-                <span class="account-menu-icon"><i class="fa-regular fa-id-card"></i></span>
-                <span class="account-menu-text">اطلاعات حساب و پروفایل</span>
-                <i class="fa-solid fa-chevron-left"></i>
-            </button>
 
-            <button type="button" data-account-section="orders">
-                <span class="account-menu-icon"><i class="fa-solid fa-box"></i></span>
-                <span class="account-menu-text">سفارش‌های من</span>
-                <i class="fa-solid fa-chevron-left"></i>
-            </button>
+            <div class="account-auth-card">
 
-            <button type="button" data-account-section="favorites">
-                <span class="account-menu-icon"><i class="fa-regular fa-heart"></i></span>
-                <span class="account-menu-text">علاقه‌مندی‌ها</span>
-                <i class="fa-solid fa-chevron-left"></i>
-            </button>
+                <div class="account-card-heading">
+                    <h2>ورود به حساب کاربری</h2>
+                    <p>اطلاعات حساب خود را وارد کنید.</p>
+                </div>
 
-            <button type="button" data-account-section="addresses">
-                <span class="account-menu-icon"><i class="fa-solid fa-location-dot"></i></span>
-                <span class="account-menu-text">آدرس‌های من</span>
-                <i class="fa-solid fa-chevron-left"></i>
-            </button>
 
-            <button type="button" data-account-section="security">
-                <span class="account-menu-icon"><i class="fa-solid fa-shield-halved"></i></span>
-                <span class="account-menu-text">امنیت و خروج از حساب</span>
-                <i class="fa-solid fa-chevron-left"></i>
-            </button>
+                <div class="account-tabs">
+
+                    <button
+                        type="button"
+                        class="account-tab active"
+                        data-account-tab="login">
+                        ورود
+                    </button>
+
+                    <button
+                        type="button"
+                        class="account-tab"
+                        data-account-tab="register">
+                        ایجاد حساب
+                    </button>
+
+                </div>
+
+
+                <form id="accountAuthForm">
+
+                    <div class="account-field">
+
+                        <label for="accountEmail">آدرس ایمیل</label>
+
+                        <div class="account-input-wrap">
+                            <i class="fa-regular fa-envelope"></i>
+
+                            <input
+                                id="accountEmail"
+                                name="email"
+                                type="email"
+                                placeholder="example@email.com"
+                                autocomplete="email"
+                                required>
+                        </div>
+
+                    </div>
+
+
+                    <div class="account-field">
+
+                        <label for="accountPhone">شماره موبایل</label>
+
+                        <div class="account-input-wrap">
+                            <i class="fa-solid fa-mobile-screen"></i>
+
+                            <input
+                                id="accountPhone"
+                                name="phone"
+                                type="tel"
+                                placeholder="09xxxxxxxxx"
+                                autocomplete="tel">
+                        </div>
+
+                    </div>
+
+
+                    <div class="account-field">
+
+                        <label for="accountPassword">رمز عبور</label>
+
+                        <div class="account-input-wrap">
+                            <i class="fa-solid fa-lock"></i>
+
+                            <input
+                                id="accountPassword"
+                                name="password"
+                                type="password"
+                                placeholder="حداقل ۸ کاراکتر"
+                                autocomplete="current-password"
+                                minlength="8"
+                                required>
+                        </div>
+
+                    </div>
+
+
+                    <button
+                        id="accountSubmitBtn"
+                        class="account-submit-btn"
+                        type="submit">
+
+                        <span>ورود به حساب</span>
+                        <i class="fa-solid fa-arrow-left"></i>
+
+                    </button>
+
+
+                    <p
+                        id="accountAuthMessage"
+                        class="account-auth-message"
+                        role="status"
+                        aria-live="polite">
+                    </p>
+
+                </form>
+
+            </div>
+
         </div>
 
-        <p class="account-footer">NOVA STORE · حساب کاربری شما</p>
+
+        <!-- =============================================
+             ACCOUNT DASHBOARD
+             بعد از ورود نمایش داده می‌شود
+        ============================================== -->
+
+        <div id="accountDashboard" class="account-dashboard" hidden>
+
+
+            <!-- Dashboard Welcome -->
+
+            <div class="account-dashboard-welcome">
+
+                <div class="account-dashboard-user">
+
+                    <div class="account-avatar">
+                        <img
+                            id="accountAvatarPreview"
+                            src=""
+                            alt="تصویر پروفایل"
+                            hidden>
+
+                        <i
+                            id="accountAvatarPlaceholder"
+                            class="fa-regular fa-user">
+                        </i>
+                    </div>
+
+                    <div>
+                        <span class="account-eyebrow">حساب کاربری شما</span>
+                        <h2 id="accountDisplayName">کاربر نوا</h2>
+                        <p id="accountDisplayEmail">ایمیل حساب کاربری</p>
+                    </div>
+
+                </div>
+
+                <div class="account-status">
+                    <i class="fa-solid fa-circle-check"></i>
+                    حساب کاربری
+                </div>
+
+            </div>
+
+
+            <!-- Dashboard Layout -->
+
+            <div class="account-dashboard-layout">
+
+
+                <!-- Sidebar Menu -->
+
+                <aside class="account-sidebar">
+
+                    <div class="account-sidebar-heading">
+                        <h3>مدیریت حساب</h3>
+                        <p>به کدام بخش نیاز دارید؟</p>
+                    </div>
+
+
+                    <nav class="account-menu">
+
+                        <button
+                            type="button"
+                            class="account-menu-item active"
+                            data-account-section="profile">
+
+                            <i class="fa-regular fa-id-card"></i>
+                            <span>اطلاعات حساب</span>
+                            <i class="fa-solid fa-chevron-left"></i>
+
+                        </button>
+
+
+                        <button
+                            type="button"
+                            class="account-menu-item"
+                            data-account-section="orders">
+
+                            <i class="fa-solid fa-box"></i>
+                            <span>سفارش‌های من</span>
+                            <i class="fa-solid fa-chevron-left"></i>
+
+                        </button>
+
+
+                        <button
+                            type="button"
+                            class="account-menu-item"
+                            data-account-section="favorites">
+
+                            <i class="fa-regular fa-heart"></i>
+                            <span>علاقه‌مندی‌ها</span>
+                            <i class="fa-solid fa-chevron-left"></i>
+
+                        </button>
+
+
+                        <button
+                            type="button"
+                            class="account-menu-item"
+                            data-account-section="addresses">
+
+                            <i class="fa-solid fa-location-dot"></i>
+                            <span>آدرس‌های من</span>
+                            <i class="fa-solid fa-chevron-left"></i>
+
+                        </button>
+
+
+                        <button
+                            type="button"
+                            class="account-menu-item"
+                            data-account-section="security">
+
+                            <i class="fa-solid fa-shield-halved"></i>
+                            <span>امنیت حساب</span>
+                            <i class="fa-solid fa-chevron-left"></i>
+
+                        </button>
+
+                    </nav>
+
+
+                    <button
+                        type="button"
+                        class="account-logout-btn"
+                        id="accountLogoutBtn">
+
+                        <i class="fa-solid fa-right-from-bracket"></i>
+                        خروج از حساب
+
+                    </button>
+
+                </aside>
+
+
+                <!-- Main Dashboard Content -->
+
+                <div class="account-main-content">
+
+
+                    <!-- PROFILE -->
+
+                    <section
+                        class="account-content-section active"
+                        data-account-view="profile">
+
+                        <div class="account-section-heading">
+                            <span>پروفایل</span>
+                            <h2>اطلاعات حساب کاربری</h2>
+                            <p>اطلاعات شخصی خود را مدیریت کنید.</p>
+                        </div>
+
+
+                        <div class="account-profile-card">
+
+                            <div class="account-profile-avatar">
+
+                                <div class="account-avatar large">
+                                    <img
+                                        id="accountProfileAvatar"
+                                        src=""
+                                        alt="تصویر پروفایل"
+                                        hidden>
+
+                                    <i class="fa-regular fa-user"></i>
+                                </div>
+
+                                <div>
+                                    <h3>تصویر پروفایل</h3>
+                                    <p>تصویر حساب کاربری شما</p>
+                                </div>
+
+                            </div>
+
+
+                            <div class="account-profile-fields">
+
+                                <div class="account-field">
+                                    <label for="accountProfileName">نام و نام خانوادگی</label>
+                                    <input
+                                        id="accountProfileName"
+                                        type="text"
+                                        placeholder="نام شما">
+                                </div>
+
+                                <div class="account-field">
+                                    <label for="accountProfilePhone">شماره موبایل</label>
+                                    <input
+                                        id="accountProfilePhone"
+                                        type="tel"
+                                        placeholder="شماره موبایل">
+                                </div>
+
+                                <div class="account-field">
+                                    <label for="accountProfileEmail">ایمیل</label>
+                                    <input
+                                        id="accountProfileEmail"
+                                        type="email"
+                                        placeholder="ایمیل حساب"
+                                        disabled>
+                                </div>
+
+                            </div>
+
+                            <button
+                                type="button"
+                                class="account-save-btn"
+                                id="accountSaveProfileBtn">
+
+                                <i class="fa-solid fa-check"></i>
+                                ذخیره تغییرات
+
+                            </button>
+
+                        </div>
+
+                    </section>
+
+
+                    <!-- ORDERS -->
+
+                    <section
+                        class="account-content-section"
+                        data-account-view="orders"
+                        hidden>
+
+                        <div class="account-section-heading">
+                            <span>خریدهای شما</span>
+                            <h2>سفارش‌های من</h2>
+                            <p>مشاهده و پیگیری سفارش‌های ثبت‌شده</p>
+                        </div>
+
+                        <div class="account-empty-state">
+
+                            <i class="fa-solid fa-box-open"></i>
+
+                            <h3>هنوز سفارشی ثبت نشده است</h3>
+
+                            <p>
+                                پس از راه‌اندازی سیستم سفارش، سفارش‌های شما
+                                در این قسمت نمایش داده خواهند شد.
+                            </p>
+
+                        </div>
+
+                    </section>
+
+
+                    <!-- FAVORITES -->
+
+                    <section
+                        class="account-content-section"
+                        data-account-view="favorites"
+                        hidden>
+
+                        <div class="account-section-heading">
+                            <span>انتخاب‌های شما</span>
+                            <h2>علاقه‌مندی‌ها</h2>
+                            <p>محصولاتی که ذخیره کرده‌اید.</p>
+                        </div>
+
+                        <div
+                            id="accountFavoritesContent"
+                            class="account-favorites-content">
+                        </div>
+
+                    </section>
+
+
+                    <!-- ADDRESSES -->
+
+                    <section
+                        class="account-content-section"
+                        data-account-view="addresses"
+                        hidden>
+
+                        <div class="account-section-heading">
+                            <span>ارسال سفارش</span>
+                            <h2>آدرس‌های من</h2>
+                            <p>مدیریت نشانی‌های محل دریافت سفارش</p>
+                        </div>
+
+                        <div class="account-empty-state">
+
+                            <i class="fa-solid fa-location-dot"></i>
+
+                            <h3>هنوز آدرسی ثبت نشده است</h3>
+
+                            <p>
+                                امکان افزودن و مدیریت آدرس‌ها در مرحله
+                                اتصال به پایگاه داده فعال خواهد شد.
+                            </p>
+
+                        </div>
+
+                        <div id="accountAddressesList"></div>
+
+                    </section>
+
+
+                    <!-- SECURITY -->
+
+                    <section
+                        class="account-content-section"
+                        data-account-view="security"
+                        hidden>
+
+                        <div class="account-section-heading">
+                            <span>حفاظت از حساب</span>
+                            <h2>امنیت حساب کاربری</h2>
+                            <p>مدیریت تنظیمات امنیتی حساب شما</p>
+                        </div>
+
+
+                        <div class="account-security-card">
+
+                            <div class="account-security-item">
+                                <i class="fa-solid fa-lock"></i>
+
+                                <div>
+                                    <h3>رمز عبور</h3>
+                                    <p>تغییر رمز عبور حساب کاربری</p>
+                                </div>
+
+                            </div>
+
+                            <button
+                                type="button"
+                                id="accountChangePasswordBtn">
+                                تغییر رمز عبور
+                            </button>
+
+                        </div>
+
+
+                        <div class="account-security-card">
+
+                            <div class="account-security-item">
+                                <i class="fa-solid fa-right-from-bracket"></i>
+
+                                <div>
+                                    <h3>خروج از حساب</h3>
+                                    <p>خروج امن از حساب کاربری</p>
+                                </div>
+
+                            </div>
+
+                            <button
+                                type="button"
+                                id="accountSecurityLogoutBtn">
+                                خروج از حساب
+                            </button>
+
+                        </div>
+
+                    </section>
+
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <footer class="account-footer">
+            NOVA STORE · تجربه خرید ساده و هوشمند
+        </footer>
+
     </div>
-</section>
-<!-- END NOVA ACCOUNT PANEL -->
 
+</section>
+
+<!-- END NOVA STORE - ACCOUNT PANEL -->
+               
 
     <!-- =====================================================
          FOOTER
