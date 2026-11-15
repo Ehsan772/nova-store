@@ -1885,6 +1885,317 @@ teRefresh.addEventListener("click", async function () {
 
 });
 
+/* =========================================================
+   NOVA FINANCE DASHBOARD
+========================================================= */
+
+let financePeriod = "month";
+let financeOrdersData = [];
+let financeExpensesData = [];
+
+const financeRefresh = document.getElementById("financeRefresh");
+const financeMessage = document.getElementById("financeMessage");
+const financeRevenue = document.getElementById("financeRevenue");
+const financeExpenses = document.getElementById("financeExpenses");
+const financeBalance = document.getElementById("financeBalance");
+const financeOrders = document.getElementById("financeOrders");
+const financeMonthlyChart = document.getElementById("financeMonthlyChart");
+const financeLatestOrders = document.getElementById("financeLatestOrders");
+
+const expenseTitle = document.getElementById("expenseTitle");
+const expenseCategory = document.getElementById("expenseCategory");
+const expenseAmount = document.getElementById("expenseAmount");
+const expenseDate = document.getElementById("expenseDate");
+const expenseDescription = document.getElementById("expenseDescription");
+const addExpenseButton = document.getElementById("addExpenseButton");
+
+function financeMoney(value) {
+    return new Intl.NumberFormat("fa-IR").format(
+        Math.round(Number(value) || 0)
+    ) + " تومان";
+}
+
+function financeEscape(value) {
+    return String(value ?? "").replace(/[&<>"']/g, function (char) {
+        return {
+            "&": "&amp;",
+            "<": "&lt;",
+            ">": "&gt;",
+            '"': "&quot;",
+            "'": "&#039;"
+        }[char];
+    });
+}
+
+function financeLocalDate(date = new Date()) {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
+
+    return `${year}-${month}-${day}`;
+}
+
+function financeIsPaid(status) {
+    const value = String(status || "").trim().toLowerCase();
+
+    return [
+        "paid",
+        "پرداخت شده",
+        "پرداخت‌شده"
+    ].includes(value);
+}
+
+function financeIsInPeriod(dateValue) {
+    if (!dateValue) return false;
+
+    const date = new Date(dateValue);
+    if (isNaN(date.getTime())) return false;
+
+    const now = new Date();
+
+    if (financePeriod === "day") {
+        return financeLocalDate(date) === financeLocalDate(now);
+    }
+
+    if (financePeriod === "month") {
+        return date.getMonth() === now.getMonth() &&
+               date.getFullYear() === now.getFullYear();
+    }
+
+    if (financePeriod === "year") {
+        return date.getFullYear() === now.getFullYear();
+    }
+
+    return true;
+}
+
+
+// دریافت اطلاعات مالی
+async function loadFinanceDashboard() {
+    financeMessage.textContent = "در حال دریافت اطلاعات...";
+
+    try {
+        const [ordersResult, expensesResult] = await Promise.all([
+            supabaseClient
+                .from("orders")
+                .select("id, order_number, customer_name, total_amount, payment_status, created_at")
+                .order("created_at", { ascending: false }),
+
+            supabaseClient
+                .from("expenses")
+                .select("*")
+                .order("expense_date", { ascending: false })
+        ]);
+
+        if (ordersResult.error) throw ordersResult.error;
+        if (expensesResult.error) throw expensesResult.error;
+
+        financeOrdersData = ordersResult.data || [];
+        financeExpensesData = expensesResult.data || [];
+
+        renderFinanceDashboard();
+
+        financeMessage.textContent = "اطلاعات با موفقیت به‌روزرسانی شد.";
+
+    } catch (error) {
+        console.error("Finance dashboard error:", error);
+
+        financeMessage.textContent =
+            "خطا در دریافت اطلاعات: " + (error.message || "خطای نامشخص");
+    }
+}
+
+
+// نمایش اطلاعات
+function renderFinanceDashboard() {
+    const filteredOrders = financeOrdersData.filter(order =>
+        financeIsInPeriod(order.created_at)
+    );
+
+    const filteredExpenses = financeExpensesData.filter(expense =>
+        financeIsInPeriod(expense.expense_date)
+    );
+
+    const paidRevenue = filteredOrders
+        .filter(order => financeIsPaid(order.payment_status))
+        .reduce((sum, order) => sum + Number(order.total_amount || 0), 0);
+
+    const totalExpenses = filteredExpenses.reduce(
+        (sum, expense) => sum + Number(expense.amount || 0),
+        0
+    );
+
+    financeRevenue.textContent = financeMoney(paidRevenue);
+    financeExpenses.textContent = financeMoney(totalExpenses);
+    financeBalance.textContent = financeMoney(paidRevenue - totalExpenses);
+    financeOrders.textContent = new Intl.NumberFormat("fa-IR").format(
+        filteredOrders.length
+    );
+
+    renderFinanceLatestOrders(filteredOrders);
+    renderFinanceChart();
+}
+
+
+// آخرین سفارش‌ها
+function renderFinanceLatestOrders(orders) {
+    if (!orders.length) {
+        financeLatestOrders.innerHTML =
+            '<tr><td colspan="5">هنوز سفارشی ثبت نشده است.</td></tr>';
+        return;
+    }
+
+    financeLatestOrders.innerHTML = orders.slice(0, 10).map(order => {
+        const date = order.created_at
+            ? new Date(order.created_at).toLocaleDateString("fa-IR")
+            : "-";
+
+        return `
+            <tr>
+                <td>${financeEscape(order.order_number || order.id)}</td>
+                <td>${financeEscape(order.customer_name || "-")}</td>
+                <td>${financeMoney(order.total_amount)}</td>
+                <td>${financeEscape(order.payment_status || "نامشخص")}</td>
+                <td>${date}</td>
+            </tr>
+        `;
+    }).join("");
+}
+
+
+// نمودار ماهانه درآمد و هزینه
+function renderFinanceChart() {
+    const year = new Date().getFullYear();
+    const months = [];
+
+    for (let month = 0; month < 12; month++) {
+        let revenue = 0;
+        let expenses = 0;
+
+        financeOrdersData.forEach(order => {
+            const date = new Date(order.created_at);
+
+            if (
+                date.getFullYear() === year &&
+                date.getMonth() === month &&
+                financeIsPaid(order.payment_status)
+            ) {
+                revenue += Number(order.total_amount || 0);
+            }
+        });
+
+        financeExpensesData.forEach(expense => {
+            const date = new Date(expense.expense_date + "T12:00:00");
+
+            if (
+                date.getFullYear() === year &&
+                date.getMonth() === month
+            ) {
+                expenses += Number(expense.amount || 0);
+            }
+        });
+
+        months.push({
+            name: new Date(year, month, 1).toLocaleDateString("fa-IR", {
+                month: "short"
+            }),
+            revenue,
+            expenses
+        });
+    }
+
+    const maxValue = Math.max(
+        1,
+        ...months.map(item => Math.max(item.revenue, item.expenses))
+    );
+
+    financeMonthlyChart.innerHTML = months.map(item => `
+        <div class="finance-chart-row">
+            <div>${financeEscape(item.name)}</div>
+
+            <div class="finance-chart-bars">
+                <div style="width:${item.revenue / maxValue * 100}%;height:9px;background:#8b5cf6;border-radius:8px;"></div>
+                <div style="width:${item.expenses / maxValue * 100}%;height:9px;background:#f59e0b;border-radius:8px;"></div>
+            </div>
+        </div>
+    `).join("");
+}
+
+
+// فیلترهای زمانی
+financeView.querySelectorAll("[data-period]").forEach(button => {
+    button.addEventListener("click", function () {
+        financePeriod = this.dataset.period;
+
+        financeView.querySelectorAll("[data-period]").forEach(item => {
+            item.classList.remove("active");
+        });
+
+        this.classList.add("active");
+        renderFinanceDashboard();
+    });
+});
+
+
+// دکمه به‌روزرسانی
+financeRefresh.addEventListener("click", loadFinanceDashboard);
+
+
+// تاریخ پیش‌فرض هزینه
+if (expenseDate) {
+    expenseDate.value = financeLocalDate();
+}
+
+
+// ثبت هزینه جدید
+addExpenseButton.addEventListener("click", async function () {
+    const title = expenseTitle.value.trim();
+    const category = expenseCategory.value;
+    const amount = Number(expenseAmount.value);
+    const date = expenseDate.value || financeLocalDate();
+    const description = expenseDescription.value.trim();
+
+    if (!title || !amount || amount <= 0) {
+        financeMessage.textContent =
+            "عنوان هزینه و مبلغ معتبر را وارد کن.";
+        return;
+    }
+
+    addExpenseButton.disabled = true;
+    financeMessage.textContent = "در حال ثبت هزینه...";
+
+    try {
+        const { error } = await supabaseClient
+            .from("expenses")
+            .insert([{
+                title: title,
+                category: category,
+                amount: amount,
+                description: description,
+                expense_date: date
+            }]);
+
+        if (error) throw error;
+
+        expenseTitle.value = "";
+        expenseAmount.value = "";
+        expenseDescription.value = "";
+        expenseDate.value = financeLocalDate();
+
+        financeMessage.textContent = "هزینه با موفقیت ثبت شد.";
+
+        await loadFinanceDashboard();
+
+    } catch (error) {
+        console.error("Add expense error:", error);
+
+        financeMessage.textContent =
+            "ثبت هزینه ناموفق بود: " + (error.message || "خطای نامشخص");
+    } finally {
+        addExpenseButton.disabled = false;
+    }
+});
+
 </script>
 
 </body>
