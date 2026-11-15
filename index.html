@@ -900,6 +900,60 @@
 
                         </div>
 
+<form id="orderForm" class="order-form" hidden>
+
+    <h3>اطلاعات تحویل سفارش</h3>
+    <p>لطفاً اطلاعات خود را با دقت وارد کنید.</p>
+
+    <div class="order-form-grid">
+
+        <label>
+            نام و نام خانوادگی *
+            <input type="text" id="orderCustomerName"
+                maxlength="120" required placeholder="نام شما">
+        </label>
+
+        <label>
+            شماره تماس *
+            <input type="tel" id="orderCustomerPhone"
+                maxlength="30" required placeholder="09xxxxxxxxx">
+        </label>
+
+        <label>
+            ایمیل (اختیاری)
+            <input type="email" id="orderCustomerEmail"
+                maxlength="254" placeholder="example@email.com">
+        </label>
+
+        <label>
+            آدرس تحویل *
+            <textarea id="orderCustomerAddress"
+                maxlength="1000" required
+                placeholder="استان، شهر، خیابان و پلاک"
+                rows="3"></textarea>
+        </label>
+
+        <label>
+            توضیحات سفارش (اختیاری)
+            <textarea id="orderCustomerNote"
+                maxlength="1000" rows="2"
+                placeholder="توضیحات بیشتر..."></textarea>
+        </label>
+
+    </div>
+
+    <button type="submit" id="submitOrderBtn">
+        ثبت نهایی سفارش
+    </button>
+
+    <small>
+        پرداخت آنلاین فعلاً فعال نیست؛ سفارش شما برای بررسی مدیر ثبت می‌شود.
+    </small>
+
+</form>
+
+
+                        
                     </div>
 
 
