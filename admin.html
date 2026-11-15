@@ -2349,9 +2349,9 @@ if (expenseDate) {
     expenseDate.value = financeLocalDate();
 }
 
-
-// ثبت هزینه جدید
+// ثبت هزینه جدید و ویرایش هزینه
 addExpenseButton.addEventListener("click", async function () {
+
     const title = expenseTitle.value.trim();
     const category = expenseCategory.value;
     const amount = Number(expenseAmount.value);
@@ -2365,39 +2365,67 @@ addExpenseButton.addEventListener("click", async function () {
     }
 
     addExpenseButton.disabled = true;
-    financeMessage.textContent = "در حال ثبت هزینه...";
+
+    financeMessage.textContent = editingExpenseId
+        ? "در حال ذخیره تغییرات..."
+        : "در حال ثبت هزینه...";
+
+    const expenseData = {
+        title: title,
+        category: category,
+        amount: amount,
+        description: description,
+        expense_date: date
+    };
 
     try {
-        const { error } = await supabaseClient
-            .from("expenses")
-            .insert([{
-                title: title,
-                category: category,
-                amount: amount,
-                description: description,
-                expense_date: date
-            }]);
 
-        if (error) throw error;
+        let result;
+
+        if (editingExpenseId !== null) {
+
+            result = await supabaseClient
+                .from("expenses")
+                .update(expenseData)
+                .eq("id", editingExpenseId);
+
+        } else {
+
+            result = await supabaseClient
+                .from("expenses")
+                .insert([expenseData]);
+
+        }
+
+        if (result.error) throw result.error;
+
+        editingExpenseId = null;
 
         expenseTitle.value = "";
         expenseAmount.value = "";
         expenseDescription.value = "";
         expenseDate.value = financeLocalDate();
 
-        financeMessage.textContent = "هزینه با موفقیت ثبت شد.";
+        addExpenseButton.textContent = "ثبت هزینه";
+
+        financeMessage.textContent =
+            "اطلاعات هزینه با موفقیت ذخیره شد.";
 
         await loadFinanceDashboard();
 
     } catch (error) {
-        console.error("Add expense error:", error);
 
         financeMessage.textContent =
-            "ثبت هزینه ناموفق بود: " + (error.message || "خطای نامشخص");
+            "خطا در ذخیره هزینه: " + error.message;
+
     } finally {
+
         addExpenseButton.disabled = false;
+
     }
+
 });
+
 
 </script>
 
