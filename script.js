@@ -1993,43 +1993,61 @@ function setupCart() {
     }
 
 
-    /*
-     * Checkout
-     */
+    
+/*
+ * Checkout
+ */
 
-    const checkout =
-        document.getElementById(
-            "checkoutBtn"
-        );
+const checkout =
+    document.getElementById(
+        "checkoutBtn"
+    );
+
+const orderForm =
+    document.getElementById(
+        "orderForm"
+    );
 
 
-    if (checkout) {
+if (checkout) {
 
-        checkout.addEventListener(
-            "click",
-            () => {
+    checkout.addEventListener(
+        "click",
+        () => {
 
-                if (!cart.length) {
-
-                    showToast(
-                        "سبد خرید شما خالی است."
-                    );
-
-                    return;
-
-                }
-
+            if (!cart.length) {
 
                 showToast(
-                    "مرحله پرداخت در حال آماده‌سازی است."
+                    "سبد خرید شما خالی است."
                 );
 
-            }
-        );
+                return;
 
-    }
+            }
+
+            if (!orderForm) {
+
+                showToast(
+                    "فرم ثبت سفارش پیدا نشد."
+                );
+
+                return;
+
+            }
+
+            orderForm.hidden = false;
+
+            orderForm.scrollIntoView({
+                behavior: "smooth",
+                block: "start"
+            });
+
+        }
+    );
 
 }
+
+    
 
 
 /* =========================================================
