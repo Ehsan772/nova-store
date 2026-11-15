@@ -3185,6 +3185,7 @@ window.NovaStore = {
 
 
 
+
 /* NOVA — Smooth Sequential Intro */
 
 (() => {
@@ -3202,7 +3203,7 @@ window.NovaStore = {
 
     const icons = [...intro.querySelectorAll(".intro-float")];
 
-    // آیکون‌ها آرام‌تر و با فاصله منظم می‌ترکند
+    // زمان‌بندی انفجار آیکون‌ها؛ بدون تغییر
     const firstPop = 1500;
     const interval = 500;
     const popDuration = 650;
@@ -3214,28 +3215,39 @@ window.NovaStore = {
         }, firstPop + index * interval);
     });
 
-    // لوگوی اصلی بعد از پایان انفجار آخرین آیکون
+    // لوگوی اصلی پس از پایان انفجار آخرین آیکون
     const logoTime =
         firstPop +
         (icons.length - 1) * interval +
         popDuration +
         150;
 
+    let introFinished = false;
+
+    const finishIntro = () => {
+        if (introFinished) return;
+        introFinished = true;
+
+        intro.classList.add("intro-hidden");
+
+        window.setTimeout(() => {
+            intro.remove();
+        }, 500);
+    };
+
+    // شروع افکت انفجار لوگو
     window.setTimeout(() => {
         intro.classList.add("logo-exploding");
+
+        window.setTimeout(finishIntro, logoDuration + 200);
     }, logoTime);
 
-    // باز شدن فروشگاه پس از انفجار لوگو
-    window.setTimeout(() => {
-        intro.classList.add("intro-hidden");
-    }, logoTime + logoDuration);
-
-    window.setTimeout(() => {
-        intro.remove();
-    }, logoTime + logoDuration + 500);
+    // مسیر پشتیبان برای باز شدن فروشگاه
+    window.setTimeout(
+        finishIntro,
+        logoTime + logoDuration + 700
+    );
 })();
-
-
 
 /* =========================================
    NOVA STORE - ACCOUNT PANEL
