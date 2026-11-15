@@ -1267,6 +1267,255 @@ function escapeHTML(value) {
 
 }
 
+  
+/* =========================================
+   NOVA STORE - TABLE EDITOR
+   READ ONLY VERSION
+========================================= */
+
+const productsTab = document.getElementById("productsTab");
+const tableEditorTab = document.getElementById("tableEditorTab");
+
+const productsView = document.getElementById("productsView");
+const tableEditorView = document.getElementById("tableEditorView");
+
+const teHead = document.getElementById("teHead");
+const teBody = document.getElementById("teBody");
+const teSearch = document.getElementById("teSearch");
+const teRefresh = document.getElementById("teRefresh");
+const teCount = document.getElementById("teCount");
+const teColumns = document.getElementById("teColumns");
+const teStatus = document.getElementById("teStatus");
+
+let teData = [];
+let teLoaded = false;
+
+
+// تغییر تب‌ها
+productsTab.addEventListener("click", function () {
+
+    productsView.classList.remove("hidden");
+    tableEditorView.classList.add("hidden");
+
+    productsTab.classList.add("active");
+    tableEditorTab.classList.remove("active");
+
+});
+
+
+tableEditorTab.addEventListener("click", async function () {
+
+    productsView.classList.add("hidden");
+    tableEditorView.classList.remove("hidden");
+
+    productsTab.classList.remove("active");
+    tableEditorTab.classList.add("active");
+
+    if (!teLoaded) {
+        await loadTableEditor();
+    }
+
+});
+
+
+// دریافت اطلاعات جدول
+async function loadTableEditor() {
+
+    teStatus.textContent = "در حال دریافت اطلاعات از Supabase...";
+
+    teBody.innerHTML = `
+        <tr>
+            <td class="te-loading">
+                در حال بارگذاری اطلاعات...
+            </td>
+        </tr>
+    `;
+
+    teRefresh.disabled = true;
+
+    const { data, error } = await supabaseClient
+        .from("products")
+        .select("*")
+        .limit(200);
+
+    teRefresh.disabled = false;
+
+    if (error) {
+
+        teLoaded = false;
+
+        teStatus.textContent =
+            "خطا در دریافت اطلاعات: " + error.message;
+
+        teBody.innerHTML = `
+            <tr>
+                <td class="te-empty">
+                    دریافت اطلاعات ناموفق بود.
+                </td>
+            </tr>
+        `;
+
+        return;
+    }
+
+    teData = data || [];
+    teLoaded = true;
+
+    renderTableEditor(teData);
+
+    teStatus.textContent =
+        "اطلاعات با موفقیت از جدول products دریافت شد. این نسخه فقط‌خواندنی است.";
+
+}
+
+
+// نمایش جدول
+function renderTableEditor(rows) {
+
+    teHead.innerHTML = "";
+    teBody.innerHTML = "";
+
+    if (!rows.length) {
+
+        teCount.textContent = "۰ رکورد";
+
+        if (!teData.length) {
+
+            teColumns.textContent = "۰ ستون";
+
+            teBody.innerHTML = `
+                <tr>
+                    <td class="te-empty">
+                        هنوز اطلاعاتی در جدول ثبت نشده است.
+                    </td>
+                </tr>
+            `;
+
+        } else {
+
+            teColumns.textContent =
+                Object.keys(teData[0]).length + " ستون";
+
+            teBody.innerHTML = `
+                <tr>
+                    <td class="te-empty">
+                        نتیجه‌ای برای جست‌وجوی شما پیدا نشد.
+                    </td>
+                </tr>
+            `;
+
+        }
+
+        return;
+    }
+
+    const columns = Object.keys(rows[0]);
+
+    teCount.textContent =
+        rows.length.toLocaleString("fa-IR") + " رکورد";
+
+    teColumns.textContent =
+        columns.length.toLocaleString("fa-IR") + " ستون";
+
+
+    // ساخت عنوان ستون‌ها
+    const headerRow = document.createElement("tr");
+
+    columns.forEach(function (column) {
+
+        const th = document.createElement("th");
+
+        th.textContent = column;
+
+        headerRow.appendChild(th);
+
+    });
+
+    teHead.appendChild(headerRow);
+
+
+    // ساخت ردیف‌ها
+    rows.forEach(function (item) {
+
+        const tr = document.createElement("tr");
+
+        columns.forEach(function (column) {
+
+            const td = document.createElement("td");
+
+            const value = item[column];
+
+            if (value === null || value === undefined) {
+
+                td.textContent = "—";
+
+            } else if (typeof value === "object") {
+
+                td.textContent = JSON.stringify(value);
+
+            } else if (typeof value === "boolean") {
+
+                td.textContent = value ? "بله" : "خیر";
+
+            } else {
+
+                td.textContent = String(value);
+
+            }
+
+            if (column === "id") {
+                td.classList.add("te-id");
+            }
+
+            tr.appendChild(td);
+
+        });
+
+        teBody.appendChild(tr);
+
+    });
+
+}
+
+
+// جست‌وجو در اطلاعات جدول
+teSearch.addEventListener("input", function () {
+
+    const query = teSearch.value.trim().toLowerCase();
+
+    if (!query) {
+
+        renderTableEditor(teData);
+
+        return;
+    }
+
+    const filtered = teData.filter(function (item) {
+
+        return Object.values(item).some(function (value) {
+
+            return String(value ?? "")
+                .toLowerCase()
+                .includes(query);
+
+        });
+
+    });
+
+    renderTableEditor(filtered);
+
+});
+
+
+// بروزرسانی جدول
+teRefresh.addEventListener("click", async function () {
+
+    teLoaded = false;
+
+    await loadTableEditor();
+
+});
+
 </script>
 
 </body>
