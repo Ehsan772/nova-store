@@ -1642,16 +1642,35 @@ let teLoaded = false;
 
 
 // تغییر تب‌ها
+const financeTab = document.getElementById("financeTab");
+const financeView = document.getElementById("financeView");
+
+function showAdminTab(tab) {
+    productsView.classList.toggle("hidden", tab !== "products");
+    tableEditorView.classList.toggle("hidden", tab !== "tableEditor");
+    financeView.classList.toggle("hidden", tab !== "finance");
+
+    productsTab.classList.toggle("active", tab === "products");
+    tableEditorTab.classList.toggle("active", tab === "tableEditor");
+    financeTab.classList.toggle("active", tab === "finance");
+}
+
 productsTab.addEventListener("click", function () {
-
-    productsView.classList.remove("hidden");
-    tableEditorView.classList.add("hidden");
-
-    productsTab.classList.add("active");
-    tableEditorTab.classList.remove("active");
-
+    showAdminTab("products");
 });
 
+tableEditorTab.addEventListener("click", async function () {
+    showAdminTab("tableEditor");
+
+    if (!teLoaded) {
+        await loadTableEditor();
+    }
+});
+
+financeTab.addEventListener("click", async function () {
+    showAdminTab("finance");
+    await loadFinanceDashboard();
+});
 
 tableEditorTab.addEventListener("click", async function () {
 
