@@ -2173,6 +2173,158 @@ function renderFinanceChart() {
 }
 
 
+/* =========================================
+   EXPENSE HISTORY
+========================================= */
+
+// نمایش تاریخچه هزینه‌ها
+function renderFinanceExpenseHistory(expenses) {
+
+    if (!expenses.length) {
+        financeExpenseHistory.innerHTML = `
+            <tr>
+                <td colspan="6">
+                    هنوز هزینه‌ای ثبت نشده است.
+                </td>
+            </tr>
+        `;
+        return;
+    }
+
+    financeExpenseHistory.innerHTML = expenses.map(expense => {
+
+        const date = expense.expense_date
+            ? new Date(expense.expense_date + "T12:00:00")
+                .toLocaleDateString("fa-IR")
+            : "-";
+
+        return `
+            <tr>
+                <td>${financeEscape(expense.title)}</td>
+
+                <td>${financeEscape(expense.category || "-")}</td>
+
+                <td>${financeMoney(expense.amount)}</td>
+
+                <td>${date}</td>
+
+                <td>${financeEscape(expense.description || "-")}</td>
+
+                <td>
+                    <button
+                        class="edit-btn"
+                        onclick="editFinanceExpense('${financeEscape(expense.id)}')">
+                        ویرایش
+                    </button>
+
+                    <button
+                        class="delete-btn"
+                        onclick="deleteFinanceExpense('${financeEscape(expense.id)}')">
+                        حذف
+                    </button>
+                </td>
+            </tr>
+        `;
+
+    }).join("");
+}
+
+
+// جست‌وجوی هزینه‌ها
+expenseSearch.addEventListener("input", function () {
+
+    const query = expenseSearch.value.trim().toLowerCase();
+
+    const filtered = financeExpensesData.filter(expense => {
+
+        return [
+            expense.title,
+            expense.category,
+            expense.description
+        ].some(value =>
+            String(value || "").toLowerCase().includes(query)
+        );
+
+    });
+
+    renderFinanceExpenseHistory(filtered);
+
+});
+
+
+// شروع ویرایش هزینه
+async function editFinanceExpense(id) {
+
+    const expense = financeExpensesData.find(
+        item => String(item.id) === String(id)
+    );
+
+    if (!expense) {
+        alert("هزینه موردنظر پیدا نشد.");
+        return;
+    }
+
+    editingExpenseId = expense.id;
+
+    expenseTitle.value = expense.title || "";
+    expenseCategory.value = expense.category || "سایر";
+    expenseAmount.value = expense.amount || "";
+    expenseDate.value = expense.expense_date || "";
+    expenseDescription.value = expense.description || "";
+
+    addExpenseButton.textContent = "ذخیره تغییرات";
+
+    financeMessage.textContent =
+        "در حال ویرایش هزینه: " + expense.title;
+
+    window.scrollTo({
+        top: financeView.offsetTop,
+        behavior: "smooth"
+    });
+}
+
+
+// حذف هزینه
+async function deleteFinanceExpense(id) {
+
+    const expense = financeExpensesData.find(
+        item => String(item.id) === String(id)
+    );
+
+    if (!expense) return;
+
+    const confirmed = confirm(
+        "آیا از حذف این هزینه مطمئنی؟\n\n" +
+        "عنوان: " + expense.title +
+        "\nمبلغ: " + expense.amount
+    );
+
+    if (!confirmed) return;
+
+    try {
+
+        const { error } = await supabaseClient
+            .from("expenses")
+            .delete()
+            .eq("id", id);
+
+        if (error) throw error;
+
+        financeMessage.textContent =
+            "هزینه با موفقیت حذف شد.";
+
+        await loadFinanceDashboard();
+
+    } catch (error) {
+
+        financeMessage.textContent =
+            "خطا در حذف هزینه: " + error.message;
+
+    }
+
+}
+
+  
 // فیلترهای زمانی
 financeView.querySelectorAll("[data-period]").forEach(button => {
     button.addEventListener("click", function () {
