@@ -679,12 +679,17 @@ button:hover {
 <button class="nova-tab" id="financeTab" type="button">
     داشبورد مالی
 </button>
-      <section id="financeView" class="box finance-view hidden">
+
+
+</div>
+<!-- NOVA FINANCE DASHBOARD -->
+
+<section id="financeView" class="box finance-view hidden">
 
     <div class="finance-header">
         <div>
-            <h2>داشبورد مالی</h2>
-            <p>گزارش فروش، هزینه‌ها و وضعیت مالی Nova Store</p>
+            <h2>داشبورد مالی Nova Store</h2>
+            <p>گزارش فروش، هزینه‌ها و وضعیت مالی فروشگاه</p>
         </div>
 
         <button type="button" id="financeRefresh" class="finance-refresh">
@@ -700,8 +705,10 @@ button:hover {
     </div>
 
     <div id="financeMessage" class="finance-message">
-        در حال آماده‌سازی داشبورد...
+        در انتظار دریافت اطلاعات...
     </div>
+
+    <!-- آمار مالی -->
 
     <div class="finance-cards">
 
@@ -714,13 +721,13 @@ button:hover {
         <div class="finance-card">
             <span>هزینه‌های ثبت‌شده</span>
             <strong id="financeExpenses">۰ تومان</strong>
-            <small>هزینه‌های واردشده در پنل</small>
+            <small>مجموع هزینه‌ها</small>
         </div>
 
         <div class="finance-card">
             <span>مانده مالی</span>
             <strong id="financeBalance">۰ تومان</strong>
-            <small>درآمد دریافت‌شده منهای هزینه‌ها</small>
+            <small>درآمد منهای هزینه‌ها</small>
         </div>
 
         <div class="finance-card">
@@ -731,17 +738,25 @@ button:hover {
 
     </div>
 
+    <!-- نمودار -->
+
     <div class="finance-panel">
         <h3>گزارش ماهانه درآمد و هزینه</h3>
+
         <div id="financeMonthlyChart" class="finance-chart">
             هنوز اطلاعاتی برای نمایش وجود ندارد.
         </div>
     </div>
 
+    <!-- آخرین سفارش‌ها -->
+
     <div class="finance-panel">
         <h3>آخرین سفارش‌ها</h3>
+
         <div class="finance-table-wrap">
+
             <table class="finance-table">
+
                 <thead>
                     <tr>
                         <th>شماره سفارش</th>
@@ -751,22 +766,33 @@ button:hover {
                         <th>تاریخ</th>
                     </tr>
                 </thead>
+
                 <tbody id="financeLatestOrders">
                     <tr>
-                        <td colspan="5">هنوز سفارشی ثبت نشده است.</td>
+                        <td colspan="5">
+                            هنوز سفارشی ثبت نشده است.
+                        </td>
                     </tr>
                 </tbody>
+
             </table>
+
         </div>
     </div>
 
+    <!-- ثبت هزینه -->
+
     <div class="finance-panel">
+
         <h3>ثبت هزینه جدید</h3>
 
         <div class="finance-expense-form">
 
-            <input id="expenseTitle" type="text"
-                placeholder="عنوان هزینه؛ مثلاً خرید کالا">
+            <input
+                id="expenseTitle"
+                type="text"
+                placeholder="عنوان هزینه"
+            >
 
             <select id="expenseCategory">
                 <option value="خرید کالا">خرید کالا</option>
@@ -775,25 +801,35 @@ button:hover {
                 <option value="سایر">سایر</option>
             </select>
 
-            <input id="expenseAmount" type="number"
-                min="1" placeholder="مبلغ به تومان">
+            <input
+                id="expenseAmount"
+                type="number"
+                min="1"
+                placeholder="مبلغ به تومان"
+            >
 
-            <input id="expenseDate" type="date">
+            <input
+                id="expenseDate"
+                type="date"
+            >
 
-            <textarea id="expenseDescription"
-                placeholder="توضیحات (اختیاری)"></textarea>
+            <textarea
+                id="expenseDescription"
+                placeholder="توضیحات هزینه (اختیاری)"
+            ></textarea>
 
-            <button type="button" id="addExpenseButton">
+            <button
+                type="button"
+                id="addExpenseButton"
+            >
                 ثبت هزینه
             </button>
 
         </div>
+
     </div>
 
-          </section>
-    </div>
-</div>
-
+  </section>
 <section id="productsView">
 
     <div class="box">
