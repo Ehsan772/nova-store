@@ -3953,3 +3953,162 @@ body:not(.dark-mode) .account-panel .account-field > input::placeholder {
         gap: 12px;
     }
 }
+
+
+
+/* =====================================
+   NOVA STORE - ORDER FORM
+===================================== */
+
+.order-form {
+    margin-top: 25px;
+    padding: 24px;
+    background: #ffffff;
+    border: 1px solid #e8e5f2;
+    border-radius: 18px;
+    direction: rtl;
+}
+
+.order-form[hidden] {
+    display: none !important;
+}
+
+.order-form h3 {
+    color: #29243a;
+    font-size: 19px;
+    margin-bottom: 8px;
+}
+
+.order-form > p {
+    color: #777386;
+    font-size: 13px;
+    margin-bottom: 22px;
+}
+
+.order-form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 18px;
+}
+
+.order-form-grid label {
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+    color: #393448;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.order-form-grid label:nth-child(4),
+.order-form-grid label:nth-child(5) {
+    grid-column: 1 / -1;
+}
+
+.order-form-grid input,
+.order-form-grid textarea {
+    width: 100%;
+    padding: 13px 14px;
+    border: 1px solid #dedbea;
+    border-radius: 11px;
+    background: #faf9fd;
+    color: #29243a;
+    font-family: inherit;
+    font-size: 14px;
+    outline: none;
+    transition: 0.2s;
+}
+
+.order-form-grid input:focus,
+.order-form-grid textarea:focus {
+    border-color: #8661d8;
+    background: #ffffff;
+    box-shadow: 0 0 0 3px rgba(134, 97, 216, 0.12);
+}
+
+.order-form-grid textarea {
+    resize: vertical;
+    min-height: 85px;
+}
+
+#submitOrderBtn {
+    width: 100%;
+    margin-top: 22px;
+    padding: 15px;
+    border: none;
+    border-radius: 12px;
+    background: linear-gradient(135deg, #8055d5, #6540b5);
+    color: #ffffff;
+    font-family: inherit;
+    font-size: 15px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+#submitOrderBtn:hover {
+    filter: brightness(1.08);
+    transform: translateY(-1px);
+}
+
+#submitOrderBtn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.order-form > small {
+    display: block;
+    margin-top: 13px;
+    color: #777386;
+    font-size: 12px;
+    line-height: 1.8;
+}
+
+/* Dark Mode */
+
+body.dark-mode .order-form {
+    background: #211e2c;
+    border-color: #393347;
+}
+
+body.dark-mode .order-form h3,
+body.dark-mode .order-form-grid label {
+    color: #f0edf8;
+}
+
+body.dark-mode .order-form > p,
+body.dark-mode .order-form > small {
+    color: #b5afc4;
+}
+
+body.dark-mode .order-form-grid input,
+body.dark-mode .order-form-grid textarea {
+    background: #302b3d;
+    border-color: #494258;
+    color: #ffffff;
+}
+
+body.dark-mode .order-form-grid input:focus,
+body.dark-mode .order-form-grid textarea:focus {
+    border-color: #a184eb;
+    background: #373146;
+}
+
+/* Mobile */
+
+@media (max-width: 600px) {
+    .order-form {
+        padding: 17px;
+    }
+
+    .order-form-grid {
+        grid-template-columns: 1fr;
+        gap: 15px;
+    }
+
+    .order-form-grid label:nth-child(4),
+    .order-form-grid label:nth-child(5) {
+        grid-column: auto;
+    }
+}
