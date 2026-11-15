@@ -1935,7 +1935,8 @@ teRefresh.addEventListener("click", async function () {
 let financePeriod = "month";
 let financeOrdersData = [];
 let financeExpensesData = [];
-
+let editingExpenseId = null;
+  
 const financeRefresh = document.getElementById("financeRefresh");
 const financeMessage = document.getElementById("financeMessage");
 const financeRevenue = document.getElementById("financeRevenue");
