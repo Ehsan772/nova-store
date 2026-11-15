@@ -1702,32 +1702,7 @@ productsTab.addEventListener("click", function () {
     showAdminTab("products");
 });
 
-tableEditorTab.addEventListener("click", async function () {
-    showAdminTab("tableEditor");
 
-    if (!teLoaded) {
-        await loadTableEditor();
-    }
-});
-
-financeTab.addEventListener("click", async function () {
-    showAdminTab("finance");
-    await loadFinanceDashboard();
-});
-
-tableEditorTab.addEventListener("click", async function () {
-
-    productsView.classList.add("hidden");
-    tableEditorView.classList.remove("hidden");
-
-    productsTab.classList.remove("active");
-    tableEditorTab.classList.add("active");
-
-    if (!teLoaded) {
-        await loadTableEditor();
-    }
-
-});
 
 
 // دریافت اطلاعات جدول
