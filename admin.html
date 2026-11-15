@@ -134,6 +134,279 @@
     .checkbox-row input {
       width: auto;
     }
+
+/* =========================================
+   NOVA STORE - DARK TABLE EDITOR
+========================================= */
+
+body {
+    background: #090b14;
+    color: #eef0fa;
+}
+
+.container {
+    width: min(100% - 24px, 1180px);
+    margin: 28px auto;
+}
+
+.box {
+    background: #111522;
+    color: #eef0fa;
+    border: 1px solid #252b40;
+    border-radius: 20px;
+    box-shadow: 0 12px 35px rgba(0,0,0,.22);
+}
+
+.box p {
+    color: #aeb5ca;
+}
+
+input,
+textarea,
+select {
+    background: #0b1020;
+    color: #eef0fa;
+    border: 1px solid #30384f;
+    outline: none;
+}
+
+input:focus,
+textarea:focus,
+select:focus {
+    border-color: #9b7cff;
+    box-shadow: 0 0 0 3px rgba(155,124,255,.13);
+}
+
+label {
+    color: #d8d5e8;
+}
+
+button {
+    transition: .2s ease;
+}
+
+button:hover {
+    filter: brightness(1.12);
+    transform: translateY(-1px);
+}
+
+.login-btn,
+.add-btn {
+    background: linear-gradient(135deg,#8b5cf6,#6d4aff);
+    color: white;
+}
+
+.product {
+    background: #0c1120;
+    border-color: #252b40;
+}
+
+.price {
+    color: #8fe0b0;
+}
+
+.status {
+    background: #0c1120;
+    color: #cbd2e8;
+    border: 1px solid #252b40;
+}
+
+.cancel-btn {
+    background: #30364a;
+    color: #eef0fa;
+}
+
+/* HEADER */
+
+.nova-admin-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+}
+
+.nova-brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.nova-mark {
+    width: 44px;
+    height: 44px;
+    border-radius: 14px;
+    display: grid;
+    place-items: center;
+    background: linear-gradient(135deg,#a78bfa,#6d4aff);
+    font-weight: 900;
+    color: white;
+    font-size: 20px;
+    box-shadow: 0 8px 24px #7652df44;
+}
+
+.nova-sub {
+    font-size: 12px;
+    color: #929bb4 !important;
+    margin-top: 4px;
+}
+
+/* NAVIGATION */
+
+.nova-tabs {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-top: 18px;
+}
+
+.nova-tab {
+    background: #1b2032;
+    color: #c9cde0;
+    border: 1px solid #30364b;
+}
+
+.nova-tab.active {
+    background: #7552dc;
+    color: white;
+    border-color: #9275f0;
+}
+
+/* TABLE EDITOR */
+
+.table-editor {
+    overflow: hidden;
+}
+
+.te-toolbar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin: 18px 0;
+}
+
+.te-search {
+    flex: 1;
+    min-width: 180px;
+}
+
+.te-meta {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.te-chip {
+    background: #1b2032;
+    border: 1px solid #30364b;
+    color: #bfc6dc;
+    padding: 8px 12px;
+    border-radius: 10px;
+    font-size: 12px;
+}
+
+.te-notice {
+    background: #201c32;
+    border: 1px solid #514174;
+    color: #d9ccff;
+    padding: 13px 15px;
+    border-radius: 13px;
+    font-size: 13px;
+    line-height: 1.9;
+    margin: 14px 0;
+}
+
+/* TABLE */
+
+.te-table-wrap {
+    overflow: auto;
+    border: 1px solid #2a3044;
+    border-radius: 14px;
+}
+
+.te-table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 680px;
+    font-size: 13px;
+}
+
+.te-table th {
+    background: #1a2032;
+    color: #c9baff;
+    text-align: right;
+    padding: 14px 12px;
+    white-space: nowrap;
+}
+
+.te-table td {
+    padding: 12px;
+    border-top: 1px solid #252b3e;
+    color: #dce1f1;
+    max-width: 260px;
+    overflow-wrap: anywhere;
+}
+
+.te-table tr:hover td {
+    background: #171d2d;
+}
+
+.te-empty {
+    text-align: center !important;
+    padding: 30px !important;
+    color: #9ba4bd !important;
+}
+
+.te-id {
+    color: #a78bfa !important;
+    font-variant-numeric: tabular-nums;
+}
+
+.te-loading {
+    padding: 24px;
+    text-align: center;
+    color: #aeb5ca;
+}
+
+.te-btn {
+    background: #252b40;
+    color: #e7e9f5;
+    border: 1px solid #3a4260;
+}
+
+.te-btn.primary {
+    background: #7552dc;
+    border-color: #9275f0;
+    color: white;
+}
+
+/* MOBILE */
+
+@media(max-width:600px) {
+    .container {
+        margin: 14px auto;
+    }
+
+    .box {
+        padding: 17px;
+        border-radius: 16px;
+    }
+
+    .nova-admin-head {
+        align-items: flex-start;
+    }
+
+    .te-toolbar {
+        align-items: stretch;
+    }
+
+    .te-search {
+        min-width: 100%;
+    }
+}
+
+  
   </style>
 </head>
 
