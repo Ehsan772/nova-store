@@ -4112,3 +4112,23 @@ body.dark-mode .order-form-grid textarea:focus {
         grid-column: auto;
     }
 }
+
+
+
+/* NOVA INTRO — EMERGENCY FALLBACK */
+
+.nova-intro .intro-logo {
+    animation: novaMainBurst 750ms cubic-bezier(.16,.8,.3,1) 4.3s forwards;
+}
+
+.nova-intro {
+    animation: novaIntroEmergencyClose 0.45s ease 5.2s forwards;
+}
+
+@keyframes novaIntroEmergencyClose {
+    to {
+        opacity: 0;
+        visibility: hidden;
+        pointer-events: none;
+    }
+}
