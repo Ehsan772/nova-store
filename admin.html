@@ -574,6 +574,108 @@ button:hover {
 
     </div>
 
+  
+</section>
+
+<!-- TABLE EDITOR -->
+
+<section
+    id="tableEditorView"
+    class="box table-editor hidden"
+>
+
+    <div class="nova-admin-head">
+
+        <div>
+            <h2 style="margin:0">
+                Table Editor
+            </h2>
+
+            <p class="nova-sub">
+                مدیریت ساختاریافته اطلاعات محصولات
+            </p>
+        </div>
+
+        <span class="te-chip">
+            TABLE / PRODUCTS
+        </span>
+
+    </div>
+
+    <div class="te-notice">
+        در این بخش اطلاعات جدول محصولات فروشگاه
+        از پایگاه داده Supabase نمایش داده می‌شود.
+        در نسخه فعلی امکان مشاهده و جست‌وجو فراهم است.
+    </div>
+
+    <div class="te-toolbar">
+
+        <input
+            id="teSearch"
+            class="te-search"
+            type="search"
+            placeholder="جست‌وجو در اطلاعات محصولات..."
+        >
+
+        <button
+            class="te-btn primary"
+            id="teRefresh"
+        >
+            ↻ بروزرسانی
+        </button>
+
+        <div class="te-meta">
+
+            <span
+                class="te-chip"
+                id="teCount"
+            >
+                ۰ رکورد
+            </span>
+
+            <span
+                class="te-chip"
+                id="teColumns"
+            >
+                ۰ ستون
+            </span>
+
+        </div>
+
+    </div>
+
+    <div class="te-table-wrap">
+
+        <table class="te-table">
+
+            <thead id="teHead">
+                <tr>
+                    <th>در انتظار دریافت اطلاعات...</th>
+                </tr>
+            </thead>
+
+            <tbody id="teBody">
+                <tr>
+                    <td class="te-loading">
+                        در حال اتصال به جدول محصولات...
+                    </td>
+                </tr>
+            </tbody>
+
+        </table>
+
+    </div>
+
+    <div
+        id="teStatus"
+        class="status"
+    >
+        اطلاعات جدول پس از ورود مدیر دریافت می‌شود.
+    </div>
+
+</section>
+
+  
   </div>
 
 </div>
