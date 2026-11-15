@@ -406,7 +406,206 @@ button:hover {
     }
 }
 
-  
+  /* ===== NOVA FINANCE DASHBOARD ===== */
+
+.finance-view {
+    direction: rtl;
+    text-align: right;
+}
+
+.finance-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 15px;
+    flex-wrap: wrap;
+    margin-bottom: 24px;
+}
+
+.finance-header h2 {
+    margin: 0 0 8px;
+    font-size: 23px;
+}
+
+.finance-header p {
+    color: #929bb5;
+    margin: 0;
+    font-size: 13px;
+}
+
+.finance-refresh,
+.finance-expense-form button {
+    background: linear-gradient(135deg, #8055ed, #6335c9);
+    color: white;
+    border: 0;
+    border-radius: 10px;
+    padding: 12px 18px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.finance-filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 9px;
+    margin-bottom: 20px;
+}
+
+.finance-filter {
+    background: #191e30;
+    border: 1px solid #303750;
+    color: #c4c9dc;
+    padding: 9px 16px;
+    border-radius: 9px;
+    cursor: pointer;
+}
+
+.finance-filter.active {
+    background: #7046d5;
+    color: white;
+    border-color: #8055ed;
+}
+
+.finance-cards {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 14px;
+    margin-bottom: 20px;
+}
+
+.finance-card,
+.finance-panel {
+    background: #151a29;
+    border: 1px solid #292f43;
+    border-radius: 15px;
+    padding: 20px;
+}
+
+.finance-card span {
+    display: block;
+    color: #aab1c7;
+    font-size: 13px;
+    margin-bottom: 15px;
+}
+
+.finance-card strong {
+    display: block;
+    color: #f0edff;
+    font-size: 21px;
+    overflow-wrap: anywhere;
+}
+
+.finance-card small {
+    display: block;
+    color: #858da7;
+    margin-top: 10px;
+    font-size: 11px;
+}
+
+.finance-panel {
+    margin-bottom: 20px;
+}
+
+.finance-panel h3 {
+    margin: 0 0 18px;
+    font-size: 17px;
+}
+
+.finance-message {
+    color: #aeb5ca;
+    font-size: 13px;
+    margin-bottom: 15px;
+}
+
+.finance-chart {
+    min-height: 100px;
+    color: #929bb5;
+    font-size: 13px;
+}
+
+.finance-table-wrap {
+    overflow-x: auto;
+}
+
+.finance-table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 600px;
+}
+
+.finance-table th,
+.finance-table td {
+    padding: 13px 10px;
+    border-bottom: 1px solid #292f43;
+    text-align: right;
+    font-size: 13px;
+}
+
+.finance-table th {
+    color: #aeb5ca;
+}
+
+.finance-table td {
+    color: #e1e4f0;
+}
+
+.finance-expense-form {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+}
+
+.finance-expense-form input,
+.finance-expense-form select,
+.finance-expense-form textarea {
+    width: 100%;
+    box-sizing: border-box;
+    background: #0e1320;
+    color: white;
+    border: 1px solid #303750;
+    border-radius: 9px;
+    padding: 12px;
+    font: inherit;
+}
+
+.finance-expense-form textarea {
+    grid-column: 1 / -1;
+    min-height: 80px;
+}
+
+.finance-expense-form button {
+    grid-column: 1 / -1;
+}
+
+@media (max-width: 750px) {
+    .finance-cards {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 480px) {
+    .finance-cards {
+        grid-template-columns: 1fr 1fr;
+        gap: 9px;
+    }
+
+    .finance-card {
+        padding: 14px 11px;
+    }
+
+    .finance-card strong {
+        font-size: 16px;
+    }
+
+    .finance-expense-form {
+        grid-template-columns: 1fr;
+    }
+
+    .finance-expense-form textarea,
+    .finance-expense-form button {
+        grid-column: auto;
+    }
+    }
   </style>
 </head>
 
@@ -480,7 +679,118 @@ button:hover {
 <button class="nova-tab" id="financeTab" type="button">
     داشبورد مالی
 </button>
-      
+      <section id="financeView" class="box finance-view hidden">
+
+    <div class="finance-header">
+        <div>
+            <h2>داشبورد مالی</h2>
+            <p>گزارش فروش، هزینه‌ها و وضعیت مالی Nova Store</p>
+        </div>
+
+        <button type="button" id="financeRefresh" class="finance-refresh">
+            ↻ بروزرسانی
+        </button>
+    </div>
+
+    <div class="finance-filters">
+        <button type="button" class="finance-filter active" data-period="month">این ماه</button>
+        <button type="button" class="finance-filter" data-period="day">امروز</button>
+        <button type="button" class="finance-filter" data-period="year">امسال</button>
+        <button type="button" class="finance-filter" data-period="all">همه</button>
+    </div>
+
+    <div id="financeMessage" class="finance-message">
+        در حال آماده‌سازی داشبورد...
+    </div>
+
+    <div class="finance-cards">
+
+        <div class="finance-card">
+            <span>درآمد دریافت‌شده</span>
+            <strong id="financeRevenue">۰ تومان</strong>
+            <small>فقط سفارش‌های پرداخت‌شده</small>
+        </div>
+
+        <div class="finance-card">
+            <span>هزینه‌های ثبت‌شده</span>
+            <strong id="financeExpenses">۰ تومان</strong>
+            <small>هزینه‌های واردشده در پنل</small>
+        </div>
+
+        <div class="finance-card">
+            <span>مانده مالی</span>
+            <strong id="financeBalance">۰ تومان</strong>
+            <small>درآمد دریافت‌شده منهای هزینه‌ها</small>
+        </div>
+
+        <div class="finance-card">
+            <span>تعداد سفارش‌ها</span>
+            <strong id="financeOrders">۰</strong>
+            <small>سفارش‌های ثبت‌شده</small>
+        </div>
+
+    </div>
+
+    <div class="finance-panel">
+        <h3>گزارش ماهانه درآمد و هزینه</h3>
+        <div id="financeMonthlyChart" class="finance-chart">
+            هنوز اطلاعاتی برای نمایش وجود ندارد.
+        </div>
+    </div>
+
+    <div class="finance-panel">
+        <h3>آخرین سفارش‌ها</h3>
+        <div class="finance-table-wrap">
+            <table class="finance-table">
+                <thead>
+                    <tr>
+                        <th>شماره سفارش</th>
+                        <th>مشتری</th>
+                        <th>مبلغ</th>
+                        <th>وضعیت پرداخت</th>
+                        <th>تاریخ</th>
+                    </tr>
+                </thead>
+                <tbody id="financeLatestOrders">
+                    <tr>
+                        <td colspan="5">هنوز سفارشی ثبت نشده است.</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="finance-panel">
+        <h3>ثبت هزینه جدید</h3>
+
+        <div class="finance-expense-form">
+
+            <input id="expenseTitle" type="text"
+                placeholder="عنوان هزینه؛ مثلاً خرید کالا">
+
+            <select id="expenseCategory">
+                <option value="خرید کالا">خرید کالا</option>
+                <option value="تبلیغات">تبلیغات</option>
+                <option value="ارسال">ارسال</option>
+                <option value="سایر">سایر</option>
+            </select>
+
+            <input id="expenseAmount" type="number"
+                min="1" placeholder="مبلغ به تومان">
+
+            <input id="expenseDate" type="date">
+
+            <textarea id="expenseDescription"
+                placeholder="توضیحات (اختیاری)"></textarea>
+
+            <button type="button" id="addExpenseButton">
+                ثبت هزینه
+            </button>
+
+        </div>
+    </div>
+
+          </section>
     </div>
 </div>
 
