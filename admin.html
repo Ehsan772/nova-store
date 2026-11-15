@@ -1702,6 +1702,19 @@ productsTab.addEventListener("click", function () {
     showAdminTab("products");
 });
 
+tableEditorTab.addEventListener("click", function () {
+    showAdminTab("tableEditor");
+
+    if (!teLoaded) {
+        loadTableEditor();
+    }
+});
+
+financeTab.addEventListener("click", function () {
+    showAdminTab("finance");
+    loadFinanceDashboard();
+});
+
 
 
 
