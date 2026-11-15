@@ -1952,7 +1952,13 @@ const expenseAmount = document.getElementById("expenseAmount");
 const expenseDate = document.getElementById("expenseDate");
 const expenseDescription = document.getElementById("expenseDescription");
 const addExpenseButton = document.getElementById("addExpenseButton");
+const financeExpenseHistory =
+    document.getElementById("financeExpenseHistory");
 
+const expenseSearch =
+    document.getElementById("expenseSearch");
+
+  
 function financeMoney(value) {
     return new Intl.NumberFormat("fa-IR").format(
         Math.round(Number(value) || 0)
