@@ -1706,7 +1706,11 @@ function resetForm() {
   document.getElementById("image").value = "";
   document.getElementById("discount").value = "";
   document.getElementById("is_new").checked = false;
+document.getElementById("stock_type").value = "unlimited";
+document.getElementById("stock_quantity").value = "";
+updateStockFields();
 
+  
   document.getElementById("formTitle").textContent =
     "➕ افزودن محصول";
 
