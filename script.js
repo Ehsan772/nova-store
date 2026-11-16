@@ -1902,6 +1902,111 @@ function setupCart() {
 
                 openCart();
 
+
+    /*
+     * Submit Order
+     */
+
+    if (orderForm) {
+
+        orderForm.addEventListener("submit", async event => {
+
+            event.preventDefault();
+
+            if (!supabaseClient) {
+                showToast("اتصال به دیتابیس برقرار نیست.");
+                return;
+            }
+
+            if (!cart.length) {
+                showToast("سبد خرید خالی است.");
+                return;
+            }
+
+            const submitButton =
+                document.getElementById("submitOrderBtn");
+
+            if (submitButton) {
+                submitButton.disabled = true;
+                submitButton.textContent = "در حال ثبت سفارش...";
+            }
+
+            try {
+
+                const items = cart.map(item => ({
+                    product_id: Number(item.id),
+                    quantity: Number(item.quantity)
+                }));
+
+                if (items.some(item =>
+                    !Number.isSafeInteger(item.product_id) ||
+                    !Number.isInteger(item.quantity) ||
+                    item.product_id <= 0 ||
+                    item.quantity < 1
+                )) {
+                    throw new Error("اطلاعات سبد خرید معتبر نیست.");
+                }
+
+                const { data, error } =
+                    await supabaseClient.rpc(
+                        "create_store_order",
+                        {
+                            p_customer_name:
+                                document.getElementById("orderCustomerName").value.trim(),
+
+                            p_customer_phone:
+                                document.getElementById("orderCustomerPhone").value.trim(),
+
+                            p_customer_email:
+                                document.getElementById("orderCustomerEmail").value.trim(),
+
+                            p_customer_address:
+                                document.getElementById("orderCustomerAddress").value.trim(),
+
+                            p_customer_note:
+                                document.getElementById("orderCustomerNote").value.trim(),
+
+                            p_items: items
+                        }
+                    );
+
+                if (error) throw error;
+
+                cart = [];
+                saveCart();
+                updateCartUI();
+
+                orderForm.reset();
+                orderForm.hidden = true;
+
+                closeCart();
+
+                showToast("سفارش با موفقیت ثبت شد: " + data);
+
+                console.log("Order created:", data);
+
+            } catch (error) {
+
+                console.error("Order submission error:", error);
+
+                showToast(
+                    error.message || "ثبت سفارش انجام نشد."
+                );
+
+            } finally {
+
+                if (submitButton) {
+                    submitButton.disabled = false;
+                    submitButton.textContent = "ثبت نهایی سفارش";
+                }
+
+            }
+
+        });
+
+    }
+
+               
             }
         );
 
