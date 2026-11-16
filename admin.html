@@ -1480,35 +1480,58 @@ if (stockType === "limited") {
       : "در حال افزودن...";
 
 
-  // ویرایش
-  if (editId) {
+// ویرایش محصول و موجودی
 
-    const { error } =
-      await supabaseClient
-        .from("products")
-        .update(product)
-        .eq("id", editId);
+if (editId) {
 
-    if (error) {
+    const { error: productError } =
+        await supabaseClient
+            .from("products")
+            .update(product)
+            .eq("id", editId);
 
-      showFormStatus(
-        "❌ خطا در ویرایش:\n" +
-        error.message
-      );
+    if (productError) {
+
+        showFormStatus(
+            "❌ خطا در ویرایش محصول:\n" +
+            productError.message
+        );
 
     } else {
 
-      showFormStatus(
-        "✅ محصول با موفقیت ویرایش شد."
-      );
+        const { error: stockError } =
+            await supabaseClient.rpc(
+                "admin_set_product_stock",
+                {
+                    p_product_id: Number(editId),
+                    p_stock_type: stockType,
+                    p_stock_quantity:
+                        stockType === "limited"
+                            ? initialStockQuantity
+                            : null
+                }
+            );
 
-      resetForm();
+        if (stockError) {
 
-      await loadProducts();
+            showFormStatus(
+                "⚠️ اطلاعات محصول ذخیره شد، اما تغییر موجودی ناموفق بود:\n" +
+                stockError.message
+            );
 
+        } else {
+
+            showFormStatus(
+                "✅ محصول و موجودی با موفقیت ویرایش شدند."
+            );
+
+            resetForm();
+            await loadProducts();
+
+        }
     }
 
-  }
+}
 
   else {
 // افزودن محصول جدید
