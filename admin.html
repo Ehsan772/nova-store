@@ -1405,6 +1405,32 @@ if (file) {
 
   imageUrl = publicUrlData.publicUrl;
 }
+
+const stockType =
+    document.getElementById("stock_type").value;
+
+const stockQuantityValue =
+    document.getElementById("stock_quantity").value;
+
+let initialStockQuantity = null;
+
+if (stockType === "limited") {
+
+    if (
+        stockQuantityValue === "" ||
+        !Number.isInteger(Number(stockQuantityValue)) ||
+        Number(stockQuantityValue) < 0
+    ) {
+        showFormStatus(
+            "❌ تعداد موجودی را به‌درستی وارد کن."
+        );
+        return;
+    }
+
+    initialStockQuantity =
+        Number(stockQuantityValue);
+              }
+  
   const product = {
 
     name:
