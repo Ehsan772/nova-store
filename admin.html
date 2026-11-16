@@ -1959,9 +1959,10 @@ function showAdminTab(tab) {
 ordersView.classList.toggle("hidden", tab !== "orders");
     productsTab.classList.toggle("active", tab === "products");
     tableEditorTab.classList.toggle("active", tab === "tableEditor");
-    financeTab.classList.toggle("active", tab === "finance");
-}
+ financeTab.classList.toggle("active", tab === "finance");
 ordersTab.classList.toggle("active", tab === "orders");
+}
+
 ordersTab.addEventListener("click", function () {
     showAdminTab("orders");
     loadOrders();
