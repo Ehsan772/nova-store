@@ -1510,6 +1510,7 @@ if (stockType === "limited") {
 
   }
 
+  else {
 // افزودن محصول جدید
 
 const { data: newProduct, error } =
@@ -1571,7 +1572,7 @@ if (error) {
     }
 }
 
-
+        }
   saveButton.disabled = false;
 
 });
