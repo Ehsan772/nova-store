@@ -2229,7 +2229,7 @@ async function loadFinanceDashboard() {
         const [ordersResult, expensesResult] = await Promise.all([
             supabaseClient
                 .from("orders")
-                .select("id, order_number, customer_name, total_amount, payment_status, created_at")
+                .select("id, order_number, customer_name, total_amount, status, payment_status, created_at")
                 .order("created_at", { ascending: false }),
 
             supabaseClient
