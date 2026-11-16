@@ -914,6 +914,26 @@ button:hover {
         placeholder="اختیاری"
       >
 
+
+<label>نوع موجودی</label>
+<select id="stock_type">
+  <option value="unlimited">موجودی نامحدود</option>
+  <option value="limited">موجودی محدود</option>
+</select>
+
+<div id="stockQuantityBox" class="hidden">
+  <label>تعداد موجودی کالا</label>
+  <input
+    id="stock_quantity"
+    type="number"
+    min="0"
+    step="1"
+    placeholder="مثلاً 25"
+  >
+  <p>تعداد فعلی کالا در انبار</p>
+</div>
+
+      
       <label>تصویر محصول</label>
 
 <input
