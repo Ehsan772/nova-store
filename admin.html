@@ -1629,6 +1629,16 @@ async function editProduct(id) {
   document.getElementById("is_new").checked =
     data.is_new === true;
 
+// نمایش اطلاعات موجودی در فرم ویرایش
+
+document.getElementById("stock_type").value =
+    data.stock_type || "unlimited";
+
+document.getElementById("stock_quantity").value =
+    data.stock_quantity ?? "";
+
+updateStockFields();
+  
 
   document.getElementById("formTitle").textContent =
     "✏️ ویرایش محصول";
