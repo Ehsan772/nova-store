@@ -1882,33 +1882,71 @@ function closeCart(
 
 function setupCart() {
 
-    /*
-     * Header Cart
-     */
+    const headerCart = document.getElementById("headerCartBtn");
+    const closeCartButton = document.getElementById("closeCartBtn");
+    const continueShopping = document.getElementById("continueShoppingBtn");
+    const emptyCartProducts = document.getElementById("emptyCartProductsBtn");
+    const checkout = document.getElementById("checkoutBtn");
+    const orderForm = document.getElementById("orderForm");
 
-    const headerCart =
-        document.getElementById(
-            "headerCartBtn"
-        );
-
-
+    // Header Cart
     if (headerCart) {
+        headerCart.addEventListener("click", event => {
+            event.preventDefault();
+            openCart();
+        });
+    }
 
-        headerCart.addEventListener(
-            "click",
-            event => {
+    // Close Cart
+    if (closeCartButton) {
+        closeCartButton.addEventListener("click", event => {
+            event.preventDefault();
+            event.stopPropagation();
+            closeCart();
+        });
+    }
 
-                event.preventDefault();
+    // Continue Shopping
+    if (continueShopping) {
+        continueShopping.addEventListener("click", () => {
+            closeCart();
+            scrollToProducts();
+        });
+    }
 
-                openCart();
+    // Empty Cart Button
+    if (emptyCartProducts) {
+        emptyCartProducts.addEventListener("click", () => {
+            closeCart();
+            scrollToProducts();
+        });
+    }
 
+    // Checkout
+    if (checkout) {
+        checkout.addEventListener("click", () => {
 
-    /*
-     * Submit Order
-     */
+            if (!cart.length) {
+                showToast("سبد خرید شما خالی است.");
+                return;
+            }
 
+            if (!orderForm) {
+                showToast("فرم ثبت سفارش پیدا نشد.");
+                return;
+            }
+
+            orderForm.hidden = false;
+
+            orderForm.scrollIntoView({
+                behavior: "smooth",
+                block: "start"
+            });
+        });
+    }
+
+    // Submit Order
     if (orderForm) {
-
         orderForm.addEventListener("submit", async event => {
 
             event.preventDefault();
@@ -1947,28 +1985,27 @@ function setupCart() {
                     throw new Error("اطلاعات سبد خرید معتبر نیست.");
                 }
 
-                const { data, error } =
-                    await supabaseClient.rpc(
-                        "create_store_order",
-                        {
-                            p_customer_name:
-                                document.getElementById("orderCustomerName").value.trim(),
+                const { data, error } = await supabaseClient.rpc(
+                    "create_store_order",
+                    {
+                        p_customer_name:
+                            document.getElementById("orderCustomerName").value.trim(),
 
-                            p_customer_phone:
-                                document.getElementById("orderCustomerPhone").value.trim(),
+                        p_customer_phone:
+                            document.getElementById("orderCustomerPhone").value.trim(),
 
-                            p_customer_email:
-                                document.getElementById("orderCustomerEmail").value.trim(),
+                        p_customer_email:
+                            document.getElementById("orderCustomerEmail").value.trim(),
 
-                            p_customer_address:
-                                document.getElementById("orderCustomerAddress").value.trim(),
+                        p_customer_address:
+                            document.getElementById("orderCustomerAddress").value.trim(),
 
-                            p_customer_note:
-                                document.getElementById("orderCustomerNote").value.trim(),
+                        p_customer_note:
+                            document.getElementById("orderCustomerNote").value.trim(),
 
-                            p_items: items
-                        }
-                    );
+                        p_items: items
+                    }
+                );
 
                 if (error) throw error;
 
@@ -2003,156 +2040,9 @@ function setupCart() {
             }
 
         });
-
     }
-
-               
-            }
-        );
-
-    }
-
-
-    /*
-     * Close Cart
-     */
-
-    const closeCartButton =
-        document.getElementById(
-            "closeCartBtn"
-        );
-
-
-    if (closeCartButton) {
-
-        closeCartButton.addEventListener(
-            "click",
-            event => {
-
-                event.preventDefault();
-
-                event.stopPropagation();
-
-                closeCart();
-
-                /*
-                 * بعد از بستن، کاربر را به
-                 * محصولات برنمی‌گردانیم.
-                 */
-
-            }
-        );
-
-    }
-
-
-    /*
-     * Continue Shopping
-     */
-
-    const continueShopping =
-        document.getElementById(
-            "continueShoppingBtn"
-        );
-
-
-    if (continueShopping) {
-
-        continueShopping.addEventListener(
-            "click",
-            () => {
-
-                closeCart();
-
-                scrollToProducts();
-
-            }
-        );
-
-    }
-
-
-    /*
-     * Empty Cart Button
-     */
-
-    const emptyCartProducts =
-        document.getElementById(
-            "emptyCartProductsBtn"
-        );
-
-
-    if (emptyCartProducts) {
-
-        emptyCartProducts.addEventListener(
-            "click",
-            () => {
-
-                closeCart();
-
-                scrollToProducts();
-
-            }
-        );
-
-    }
-
-
-    
-/*
- * Checkout
- */
-
-const checkout =
-    document.getElementById(
-        "checkoutBtn"
-    );
-
-const orderForm =
-    document.getElementById(
-        "orderForm"
-    );
-
-
-if (checkout) {
-
-    checkout.addEventListener(
-        "click",
-        () => {
-
-            if (!cart.length) {
-
-                showToast(
-                    "سبد خرید شما خالی است."
-                );
-
-                return;
-
-            }
-
-            if (!orderForm) {
-
-                showToast(
-                    "فرم ثبت سفارش پیدا نشد."
-                );
-
-                return;
-
-            }
-
-            orderForm.hidden = false;
-
-            orderForm.scrollIntoView({
-                behavior: "smooth",
-                block: "start"
-            });
-
-        }
-    );
 
 }
-
-}  
 
 
 /* =========================================================
