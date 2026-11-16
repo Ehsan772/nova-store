@@ -679,9 +679,52 @@ button:hover {
 <button class="nova-tab" id="financeTab" type="button">
     داشبورد مالی
 </button>
+<button class="nova-tab" id="ordersTab" type="button">
+    مدیریت سفارش‌ها
+</button>
+<!-- NOVA ORDERS MANAGEMENT -->
+<section id="ordersView" class="box hidden">
 
+    <div class="finance-header">
+        <div>
+            <h2>مدیریت سفارش‌ها</h2>
+            <p>مشاهده، بررسی و تأیید سفارش‌های مشتریان</p>
+        </div>
 
+        <button type="button" id="ordersRefresh" class="finance-refresh">
+            ↻ بروزرسانی
+        </button>
+    </div>
+
+    <div id="ordersMessage" class="finance-message">
+        برای مشاهده سفارش‌ها، این بخش را بروزرسانی کن.
+    </div>
+
+    <div class="finance-table-wrap">
+        <table class="finance-table">
+            <thead>
+                <tr>
+                    <th>شماره سفارش</th>
+                    <th>نام مشتری</th>
+                    <th>مبلغ</th>
+                    <th>وضعیت</th>
+                    <th>تاریخ</th>
+                    <th>عملیات</th>
+                </tr>
+            </thead>
+
+            <tbody id="ordersList">
+                <tr>
+                    <td colspan="6">هنوز اطلاعاتی دریافت نشده است.</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+          </section>
 </div>
+
+  
 <!-- NOVA FINANCE DASHBOARD -->
 
 <section id="financeView" class="box finance-view hidden">
