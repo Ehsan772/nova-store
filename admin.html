@@ -1351,15 +1351,13 @@ ${
         ? `
             <button
                 class="edit-btn"
-                onclick="adjustProductStock(${product.id}, 'increase', ${JSON.stringify(product.name || "")})"
-            >
+                onclick="adjustProductStock(${product.id}, 'increase')"
                 ➕ افزایش موجودی
             </button>
 
             <button
                 class="delete-btn"
-                onclick="adjustProductStock(${product.id}, 'decrease', ${JSON.stringify(product.name || "")})"
-            >
+                onclick="adjustProductStock(${product.id}, 'decrease')"
                 ➖ کاهش موجودی
             </button>
           `
