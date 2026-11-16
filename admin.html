@@ -1946,18 +1946,82 @@ let teLoaded = false;
 // تغییر تب‌ها
 const financeTab = document.getElementById("financeTab");
 const financeView = document.getElementById("financeView");
-
+const ordersTab = document.getElementById("ordersTab");
+const ordersView = document.getElementById("ordersView");
+const ordersList = document.getElementById("ordersList");
+const ordersMessage = document.getElementById("ordersMessage");
+const ordersRefresh = document.getElementById("ordersRefresh");
+  
 function showAdminTab(tab) {
     productsView.classList.toggle("hidden", tab !== "products");
     tableEditorView.classList.toggle("hidden", tab !== "tableEditor");
     financeView.classList.toggle("hidden", tab !== "finance");
-
+ordersView.classList.toggle("hidden", tab !== "orders");
     productsTab.classList.toggle("active", tab === "products");
     tableEditorTab.classList.toggle("active", tab === "tableEditor");
     financeTab.classList.toggle("active", tab === "finance");
 }
+ordersTab.classList.toggle("active", tab === "orders");
+ordersTab.addEventListener("click", function () {
+    showAdminTab("orders");
+    loadOrders();
+});
 
-productsTab.addEventListener("click", function () {
+ordersRefresh.addEventListener("click", loadOrders);
+
+
+// دریافت سفارش‌ها از دیتابیس
+async function loadOrders() {
+
+    ordersMessage.textContent = "در حال دریافت سفارش‌ها...";
+    ordersList.innerHTML = "";
+
+    try {
+
+        const { data, error } = await supabaseClient
+            .from("orders")
+            .select("id, order_number, customer_name, customer_phone, total_amount, status, created_at")
+            .order("created_at", { ascending: false });
+
+        if (error) throw error;
+
+        if (!data || data.length === 0) {
+            ordersMessage.textContent = "هنوز سفارشی ثبت نشده است.";
+            return;
+        }
+
+        ordersMessage.textContent =
+            `${data.length} سفارش دریافت شد.`;
+
+        ordersList.innerHTML = data.map(order => {
+
+            const statusNames = {
+                new: "در انتظار بررسی",
+                processing: "تأیید شده",
+                cancelled: "لغو شده"
+            };
+
+            return `
+                <tr>
+                    <td>${financeEscape(order.order_number || order.id)}</td>
+                    <td>${financeEscape(order.customer_name || "-")}</td>
+                    <td>${Number(order.total_amount || 0).toLocaleString("fa-IR")} تومان</td>
+                    <td>${statusNames[order.status] || financeEscape(order.status)}</td>
+                    <td>${order.created_at ? new Date(order.created_at).toLocaleDateString("fa-IR") : "-"}</td>
+                    <td>جزئیات در مرحله بعد</td>
+                </tr>
+            `;
+
+        }).join("");
+
+    } catch (error) {
+
+        ordersMessage.textContent =
+            "خطا در دریافت سفارش‌ها: " + error.message;
+
+    }
+                                              }
+  productsTab.addEventListener("click", function () {
     showAdminTab("products");
 });
 
