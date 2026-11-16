@@ -2279,9 +2279,13 @@ function renderFinanceDashboard() {
     financeRevenue.textContent = financeMoney(paidRevenue);
     financeExpenses.textContent = financeMoney(totalExpenses);
     financeBalance.textContent = financeMoney(paidRevenue - totalExpenses);
-    financeOrders.textContent = new Intl.NumberFormat("fa-IR").format(
-        filteredOrders.length
-    );
+    const confirmedOrders = filteredOrders.filter(
+    order => order.status === "processing"
+);
+
+financeOrders.textContent = new Intl.NumberFormat("fa-IR").format(
+    confirmedOrders.length
+);
 
     renderFinanceLatestOrders(filteredOrders);
   renderFinanceExpenseHistory(filteredExpenses);
