@@ -1798,9 +1798,7 @@ async function deleteProduct(id) {
 // =========================
 // تغییر سریع موجودی
 // =========================
-
-async function adjustProductStock(productId, changeType, productName) {
-
+async function adjustProductStock(productId, changeType) {
     const action =
         changeType === "increase" ? "افزایش" : "کاهش";
 
