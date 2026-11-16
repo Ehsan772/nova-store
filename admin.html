@@ -1345,6 +1345,27 @@ async function loadProducts() {
             </p>`
           : `<p>📦 موجودی: نامحدود</p>`
   }
+
+${
+    product.stock_type === "limited"
+        ? `
+            <button
+                class="edit-btn"
+                onclick="adjustProductStock(${product.id}, 'increase', ${JSON.stringify(product.name || "")})"
+            >
+                ➕ افزایش موجودی
+            </button>
+
+            <button
+                class="delete-btn"
+                onclick="adjustProductStock(${product.id}, 'decrease', ${JSON.stringify(product.name || "")})"
+            >
+                ➖ کاهش موجودی
+            </button>
+          `
+        : ""
+}
+  
       <div>
 
         <button
