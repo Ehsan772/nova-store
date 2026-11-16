@@ -1803,7 +1803,7 @@ async function adjustProductStock(productId, changeType) {
         changeType === "increase" ? "افزایش" : "کاهش";
 
     const input = prompt(
-        `تعداد برای ${action} موجودی محصول «${productName}» را وارد کن:`
+        `تعداد موردنظر برای ${action} موجودی را وارد کن:`
     );
 
     if (input === null) return;
