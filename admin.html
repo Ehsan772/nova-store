@@ -1134,6 +1134,29 @@ document.getElementById("cancelEditButton");
 const productsList =
 document.getElementById("productsList");
 
+  // مدیریت نمایش فیلد تعداد موجودی
+
+const stockTypeInput =
+document.getElementById("stock_type");
+
+const stockQuantityBox =
+document.getElementById("stockQuantityBox");
+
+function updateStockFields() {
+
+    stockQuantityBox.classList.toggle(
+        "hidden",
+        stockTypeInput.value !== "limited"
+    );
+
+}
+
+stockTypeInput.addEventListener(
+    "change",
+    updateStockFields
+);
+
+updateStockFields();
 
 // =========================
 // وضعیت
