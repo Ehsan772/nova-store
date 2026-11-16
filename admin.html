@@ -1510,34 +1510,66 @@ if (stockType === "limited") {
 
   }
 
-  // افزودن
-  else {
+// افزودن محصول جدید
 
-    const { error } =
-      await supabaseClient
+const { data: newProduct, error } =
+    await supabaseClient
         .from("products")
-        .insert([product]);
+        .insert([{
+            ...product,
+            stock_type: stockType,
+            stock_quantity:
+                stockType === "limited" ? 0 : null
+        }])
+        .select("id")
+        .single();
 
-    if (error) {
+if (error) {
 
-      showFormStatus(
-        "❌ خطا در افزودن:\n" +
-        error.message
-      );
+    showFormStatus(
+        "❌ خطا در افزودن:\n" + error.message
+    );
+
+} else {
+
+    let stockError = null;
+
+    if (
+        stockType === "limited" &&
+        initialStockQuantity > 0
+    ) {
+
+        const result =
+            await supabaseClient.rpc(
+                "admin_change_product_stock",
+                {
+                    p_product_id: newProduct.id,
+                    p_change_type: "increase",
+                    p_quantity: initialStockQuantity,
+                    p_description: "موجودی اولیه محصول"
+                }
+            );
+
+        stockError = result.error;
+    }
+
+    if (stockError) {
+
+        showFormStatus(
+            "⚠️ محصول ساخته شد، اما ثبت موجودی ناموفق بود:\n" +
+            stockError.message
+        );
 
     } else {
 
-      showFormStatus(
-        "✅ محصول جدید اضافه شد."
-      );
+        showFormStatus(
+            "✅ محصول و موجودی اولیه با موفقیت ثبت شدند."
+        );
 
-      resetForm();
-
-      await loadProducts();
-
+        resetForm();
+        await loadProducts();
     }
-
-  }
+}
 
 
   saveButton.disabled = false;
