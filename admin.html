@@ -1776,7 +1776,54 @@ async function deleteProduct(id) {
 
 }
 
+// =========================
+// تغییر سریع موجودی
+// =========================
 
+async function adjustProductStock(productId, changeType, productName) {
+
+    const action =
+        changeType === "increase" ? "افزایش" : "کاهش";
+
+    const input = prompt(
+        `تعداد برای ${action} موجودی محصول «${productName}» را وارد کن:`
+    );
+
+    if (input === null) return;
+
+    const quantity = Number(input);
+
+    if (
+        !Number.isInteger(quantity) ||
+        quantity <= 0
+    ) {
+        alert("لطفاً یک عدد صحیح و مثبت وارد کن.");
+        return;
+    }
+
+    const description = prompt(
+        "توضیح تغییر موجودی (اختیاری):"
+    ) || `تغییر موجودی از پنل مدیریت - ${action}`;
+
+    const { error } = await supabaseClient.rpc(
+        "admin_change_product_stock",
+        {
+            p_product_id: Number(productId),
+            p_change_type: changeType,
+            p_quantity: quantity,
+            p_description: description
+        }
+    );
+
+    if (error) {
+        alert("❌ خطا در تغییر موجودی:\n" + error.message);
+        return;
+    }
+
+    alert("✅ موجودی با موفقیت تغییر کرد.");
+
+    await loadProducts();
+  }
 // =========================
 // فرمت قیمت
 // =========================
