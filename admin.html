@@ -2041,23 +2041,6 @@ const actions = `
         : ""
     }
 `;
-  
-<button type="button"
-    onclick="showOrderDetails(${Number(order.id)})">
-    جزئیات
-</button>
-      
-            <button type="button"
-                onclick="approveOrder(${Number(order.id)})">
-                تأیید
-            </button>
-
-            <button type="button"
-                onclick="rejectOrder(${Number(order.id)})">
-                رد سفارش
-            </button>
-        `
-        : "بدون عملیات";
 
     return `
         <tr>
