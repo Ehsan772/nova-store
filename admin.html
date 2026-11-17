@@ -2116,7 +2116,38 @@ async function rejectOrder(orderId) {
     ordersMessage.textContent = "سفارش با موفقیت رد شد.";
     await loadOrders();
       }
-  
+
+// نمایش جزئیات سفارش
+async function showOrderDetails(orderId) {
+
+    ordersMessage.textContent = "در حال دریافت جزئیات سفارش...";
+
+    const { data, error } = await supabaseClient
+        .from("order_items")
+        .select("product_name, product_price, cost_price, quantity, subtotal")
+        .eq("order_id", orderId);
+
+    if (error) {
+        ordersMessage.textContent =
+            "خطا در دریافت جزئیات: " + error.message;
+        return;
+    }
+
+    if (!data || data.length === 0) {
+        alert("برای این سفارش محصولی ثبت نشده است.");
+        return;
+    }
+
+    const details = data.map(item =>
+        `${item.product_name}
+تعداد: ${item.quantity}
+قیمت واحد: ${Number(item.product_price).toLocaleString("fa-IR")} تومان
+جمع: ${Number(item.subtotal).toLocaleString("fa-IR")} تومان`
+    ).join("\n\n");
+
+    alert("جزئیات سفارش:\n\n" + details);
+  }
+                                         
   productsTab.addEventListener("click", function () {
     showAdminTab("products");
 });
