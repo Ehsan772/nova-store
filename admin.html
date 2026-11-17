@@ -957,7 +957,16 @@ button:hover {
         type="number"
         placeholder="اختیاری"
       >
-
+      
+<label>قیمت خرید محصول (تومان)</label>
+<input
+  id="cost_price"
+  type="number"
+  min="0"
+  step="0.01"
+  placeholder="مثلاً 1200000"
+>
+      
 
 <label>نوع موجودی</label>
 <select id="stock_type">
@@ -1522,6 +1531,11 @@ if (stockType === "limited") {
         ? Number(document.getElementById("price").value)
         : null,
 
+cost_price:
+  document.getElementById("cost_price").value
+    ? Number(document.getElementById("cost_price").value)
+    : 0,
+    
     old_price:
       document.getElementById("old_price").value
         ? Number(document.getElementById("old_price").value)
@@ -1715,6 +1729,9 @@ async function editProduct(id) {
   document.getElementById("price").value =
     data.price ?? "";
 
+document.getElementById("cost_price").value =
+  data.cost_price ?? 0;
+  
   document.getElementById("old_price").value =
     data.old_price ?? "";
 
@@ -1777,6 +1794,7 @@ function resetForm() {
   document.getElementById("category").value = "";
   document.getElementById("description").value = "";
   document.getElementById("price").value = "";
+ document.getElementById("cost_price").value = "";
   document.getElementById("old_price").value = "";
   document.getElementById("image").value = "";
   document.getElementById("discount").value = "";
