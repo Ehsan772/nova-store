@@ -2019,9 +2019,29 @@ ordersList.innerHTML = data.map(order => {
         cancelled: "لغو شده"
     };
 
-    const actions = order.status === "new"
-        ? `
+const actions = `
+    <button type="button"
+        onclick="showOrderDetails(${Number(order.id)})">
+        جزئیات
+    </button>
 
+    ${
+        order.status === "new"
+        ? `
+            <button type="button"
+                onclick="approveOrder(${Number(order.id)})">
+                تأیید
+            </button>
+
+            <button type="button"
+                onclick="rejectOrder(${Number(order.id)})">
+                رد سفارش
+            </button>
+        `
+        : ""
+    }
+`;
+  
 <button type="button"
     onclick="showOrderDetails(${Number(order.id)})">
     جزئیات
