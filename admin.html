@@ -2021,6 +2021,12 @@ ordersList.innerHTML = data.map(order => {
 
     const actions = order.status === "new"
         ? `
+
+<button type="button"
+    onclick="showOrderDetails(${Number(order.id)})">
+    جزئیات
+</button>
+      
             <button type="button"
                 onclick="approveOrder(${Number(order.id)})">
                 تأیید
