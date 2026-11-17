@@ -2011,27 +2011,40 @@ async function loadOrders() {
 
         ordersMessage.textContent =
             `${data.length} سفارش دریافت شد.`;
+ordersList.innerHTML = data.map(order => {
 
-        ordersList.innerHTML = data.map(order => {
+    const statusNames = {
+        new: "در انتظار بررسی",
+        processing: "تأیید شده",
+        cancelled: "لغو شده"
+    };
 
-            const statusNames = {
-                new: "در انتظار بررسی",
-                processing: "تأیید شده",
-                cancelled: "لغو شده"
-            };
+    const actions = order.status === "new"
+        ? `
+            <button type="button"
+                onclick="approveOrder(${Number(order.id)})">
+                تأیید
+            </button>
 
-            return `
-                <tr>
-                    <td>${financeEscape(order.order_number || order.id)}</td>
-                    <td>${financeEscape(order.customer_name || "-")}</td>
-                    <td>${Number(order.total_amount || 0).toLocaleString("fa-IR")} تومان</td>
-                    <td>${statusNames[order.status] || financeEscape(order.status)}</td>
-                    <td>${order.created_at ? new Date(order.created_at).toLocaleDateString("fa-IR") : "-"}</td>
-                    <td>جزئیات در مرحله بعد</td>
-                </tr>
-            `;
+            <button type="button"
+                onclick="rejectOrder(${Number(order.id)})">
+                رد سفارش
+            </button>
+        `
+        : "بدون عملیات";
 
-        }).join("");
+    return `
+        <tr>
+            <td>${financeEscape(order.order_number || order.id)}</td>
+            <td>${financeEscape(order.customer_name || "-")}</td>
+            <td>${Number(order.total_amount || 0).toLocaleString("fa-IR")} تومان</td>
+            <td>${statusNames[order.status] || financeEscape(order.status)}</td>
+            <td>${order.created_at ? new Date(order.created_at).toLocaleDateString("fa-IR") : "-"}</td>
+            <td>${actions}</td>
+        </tr>
+    `;
+
+}).join("");
 
     } catch (error) {
 
@@ -2040,6 +2053,64 @@ async function loadOrders() {
 
     }
                                               }
+
+// تأیید سفارش
+async function approveOrder(orderId) {
+
+    if (!confirm("از تأیید این سفارش مطمئنی؟")) return;
+
+    ordersMessage.textContent = "در حال تأیید سفارش...";
+
+    const { data, error } = await supabaseClient.rpc(
+        "approve_store_order",
+        { p_order_id: orderId }
+    );
+
+    if (error) {
+        ordersMessage.textContent =
+            "خطا در تأیید سفارش: " + error.message;
+        return;
+    }
+
+    if (data && data.success === false) {
+        ordersMessage.textContent =
+            data.message || "تأیید سفارش انجام نشد.";
+        return;
+    }
+
+    ordersMessage.textContent = "سفارش با موفقیت تأیید شد.";
+    await loadOrders();
+}
+
+
+// رد سفارش
+async function rejectOrder(orderId) {
+
+    if (!confirm("از رد این سفارش مطمئنی؟")) return;
+
+    ordersMessage.textContent = "در حال رد سفارش...";
+
+    const { data, error } = await supabaseClient.rpc(
+        "reject_store_order",
+        { p_order_id: orderId }
+    );
+
+    if (error) {
+        ordersMessage.textContent =
+            "خطا در رد سفارش: " + error.message;
+        return;
+    }
+
+    if (data && data.success === false) {
+        ordersMessage.textContent =
+            data.message || "رد سفارش انجام نشد.";
+        return;
+    }
+
+    ordersMessage.textContent = "سفارش با موفقیت رد شد.";
+    await loadOrders();
+      }
+  
   productsTab.addEventListener("click", function () {
     showAdminTab("products");
 });
